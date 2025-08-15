@@ -39,6 +39,7 @@ type TableauDynamiqueProps<T> = {
   emptyMessage?: string;
   actionsColor?: 'indigo' | 'blue' | 'red' | 'green';
   formations?: any[]; // Ajout des formations pour le formulaire
+   onRowClick?: (item: T) => void;
 };
 
 const TableauDynamique = <T extends { id: number | string }>({
