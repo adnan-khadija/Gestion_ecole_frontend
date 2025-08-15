@@ -3,8 +3,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
+  --solid-electric-grass: #9de37f; 
+  --electric-grass-light: #caf880; 
+  --vivid-green-cyan :#00d084;
+  --light-green-cyan :#7bdcb5;
+  --olive-dark:#8a8a19 ;
+  --bleu-foncé: #0d68ae;
+  --bleu-clair:#0274be;
+ 
 
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
