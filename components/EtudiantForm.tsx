@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sexe } from '@/lib/types';
+import { Sexe, situationFamiliale, StatutEtudiant } from '@/lib/types';
 import { Etudiant, Formation } from '@/lib/types';
 import { addEtudiant } from '@/lib/etudiantService';
 import toast from 'react-hot-toast';
@@ -267,7 +267,7 @@ const EtudiantForm = ({ onSave, formations,etudiantInitial }: EtudiantFormProps)
             <input
               type="text"
               name="anneeScolaire"
-              value={etudiant.anneeScolaire}
+              value={etudiant.anneeAcademique}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d68ae] focus:border-transparent transition-all"
             />
@@ -305,15 +305,41 @@ const EtudiantForm = ({ onSave, formations,etudiantInitial }: EtudiantFormProps)
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">Situation familiale</label>
-            <input
-              type="text"
-              name="situationFamiliale"
-              value={etudiant.situationFamiliale}
+  <label className="block text-sm font-medium text-gray-700">
+    Situation familiale
+  </label>
+  <select
+    name="situationFamiliale"
+    value={etudiant.situationFamiliale || ""}
+    onChange={handleChange}
+    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d68ae] focus:border-transparent transition-all"
+  >
+    <option value="">Sélectionnez une situation</option>
+    {Object.values(situationFamiliale).map((situation) => (
+      <option key={situation} value={situation}>
+        {situation}
+      </option>
+    ))}
+  </select>
+</div>
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700">Statut</label>
+            <select
+              name="statut"
+              value={etudiant.statut || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d68ae] focus:border-transparent transition-all"
-            />
+            >
+              <option value="" >Sélectionnez uen status</option>
+              {Object.values(StatutEtudiant).map((statut) => (
+                <option key={statut} value={statut}>
+                  {statut.charAt(0).toUpperCase() + statut.slice(1)}
+                </option>
+              ))}
+            </select>
+
           </div>
+
           <div className="flex items-center space-x-6">
             <label className="inline-flex items-center space-x-2 cursor-pointer">
               <div className="relative">

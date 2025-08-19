@@ -276,6 +276,39 @@ const TableauDynamique = <T extends { id: number | string }>({
     setShowAddForm(false);
   };
 
+  const downloadTemplate = () => {
+    // Définir les en-têtes de colonnes
+    const headers = [
+      "Nom",
+      "Prénom",
+      "Sexe",
+      "Téléphone",
+      "Email",
+      "Adresse",
+      "Date de Naissance (YYYY-MM-DD)",
+      "Lieu de Naissance",
+      "Matricule",
+      "Nationalité",
+      "Ville",
+      "Photo (URL)",
+      "Boursier (true/false)",
+      "Handicapé (true/false)"
+    ];
+
+    // Créer une feuille de calcul vide avec juste les en-têtes
+    const ws = XLSX.utils.aoa_to_sheet([headers]);
+    
+    // Créer un nouveau classeur
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Étudiants");
+
+    // Générer le fichier Excel
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+    // Télécharger le fichier
+    saveAs(blob, "Modele_Etudiants.xlsx");
+  };
   return (
     <div className="bg-white rounded-lg shadow relative">
       {/* Barre de filtres */}
@@ -322,6 +355,14 @@ const TableauDynamique = <T extends { id: number | string }>({
               size="md"
               onClick={handleExportExcel}>
               <FaFileExport /> Exporter
+            </Button>
+            <Button
+              className="flex items-center gap-2 w-28"
+              variant="primary"
+              size="md"
+              onClick={downloadTemplate}
+            >
+              <FaFileExcel /> Model
             </Button>
             {visibleFilterColumns.length > 0 && (
               <button
@@ -526,7 +567,7 @@ const TableauDynamique = <T extends { id: number | string }>({
               {columns.map((column) => (
                 <th
                   key={column.key.toString()}
-                  className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                  className="px-4 py-3 text-left text-[10px] font-semibold   tracking-wider"
                   style={{
                     color: '#0d68ae',
 
@@ -537,7 +578,7 @@ const TableauDynamique = <T extends { id: number | string }>({
               ))}
               {(onEdit || onDelete) && (
                 <th
-                  className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                  className="px-4 py-3 text-left text-[12px] font-semibold  tracking-wider"
                   style={{
                     color: '#0d68ae',
 
@@ -556,13 +597,13 @@ const TableauDynamique = <T extends { id: number | string }>({
                 {columns.map((column) => (
                   <td
                     key={`${item.id}-${column.key.toString()}`}
-                    className="px-6 py-4 text-sm text-gray-700"
+                    className="px-4 py-4 text-xs text-gray-700"
                   >
                     {column.render ? column.render(item) : item[column.key as keyof T] as React.ReactNode}
                   </td>
                 ))}
                 {(onEdit || onDelete) && (
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 py-4 whitespace-nowrap">
                     <div className="flex space-x-2">
                       {onEdit && (
                         <button
