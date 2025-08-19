@@ -10,12 +10,6 @@ type MenuItem = {
   nom: string;
   icone: React.ReactNode;
   lien: string;
-  sousMenu?: SousMenuItem[];
-};
-
-type SousMenuItem = {
-  nom: string;
-  lien: string;
 };
 
 const Sidebar = () => {
@@ -32,15 +26,12 @@ const Sidebar = () => {
   ];
 
   const handleDeconnexion = () => {
-    // Ajoutez ici votre logique de déconnexion
     console.log("Déconnexion");
-    // Exemple de redirection après déconnexion
     router.push("/connexion");
   };
 
   return (
     <>
-      {/* Bouton de bascule mobile */}
       <button
         onClick={() => setEstOuvert(!estOuvert)}
         className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-[#0d68ae] text-white shadow-md hover:bg-opacity-90 transition-all"
@@ -48,13 +39,11 @@ const Sidebar = () => {
         {estOuvert ? <FiX size={24} /> : <FiMenu size={24} />}
       </button>
 
-      {/* Barre latérale */}
       <div
         className={`${estOuvert ? "translate-x-0" : "-translate-x-full"} 
           md:translate-x-0 fixed md:relative w-64 h-full bg-white shadow-xl z-40
           transition-all duration-300 ease-in-out flex flex-col`}
       >
-        {/* Section Logo */}
         <div className="p-6 border-b border-gray-100 flex items-center justify-center bg-[#f8fafc]">
           <Link href="/">
             <Image 
@@ -68,7 +57,6 @@ const Sidebar = () => {
           </Link>
         </div>
 
-        {/* Éléments du menu */}
         <nav className="p-4 flex-1 overflow-y-auto">
           <ul className="space-y-2">
             {elementsMenu.map((item) => (
@@ -81,9 +69,7 @@ const Sidebar = () => {
                       ? 'bg-[#00d084] text-white shadow-md'
                       : 'text-[#8A8A19] hover:bg-[#f8fafc] hover:text-[#00d084]'}`}
                 >
-                  <span className={`mr-3 text-lg ${
-                    elementActif === item.lien ? 'text-white' : 'text-current'
-                  }`}>
+                  <span className={`mr-3 text-lg ${elementActif === item.lien ? 'text-white' : 'text-current'}`}>
                     {item.icone}
                   </span>
                   <span className="font-medium">{item.nom}</span>
@@ -93,7 +79,6 @@ const Sidebar = () => {
           </ul>
         </nav>
 
-        {/* Bouton de déconnexion */}
         <div className="p-4 border-t border-gray-100">
           <button
             onClick={handleDeconnexion}
@@ -103,8 +88,6 @@ const Sidebar = () => {
             <span className="font-medium">Déconnexion</span>
           </button>
         </div>
-
-       
       </div>
     </>
   );
