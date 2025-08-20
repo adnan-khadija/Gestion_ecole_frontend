@@ -38,11 +38,20 @@ const EtudiantForm = ({ onSave, formations,etudiantInitial }: EtudiantFormProps)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
     const checked = (e.target as HTMLInputElement).checked;
-    
-    setEtudiant(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+
+    if (name === "formationActuelle") {
+      // Trouve l'objet formation correspondant à l'id sélectionné
+      const selectedFormation = formations.find(f => String(f.id) === value);
+      setEtudiant(prev => ({
+        ...prev,
+        formationActuelle: selectedFormation || prev.formationActuelle
+      }));
+    } else {
+      setEtudiant(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -230,7 +239,7 @@ const EtudiantForm = ({ onSave, formations,etudiantInitial }: EtudiantFormProps)
             <label className="block text-sm font-medium text-gray-700">Formation actuelle*</label>
             <select
               name="formationActuelle"
-              value={etudiant.formationActuelle}
+              value={etudiant.formationActuelle?.id || ""}
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d68ae] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"

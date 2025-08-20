@@ -118,31 +118,33 @@ function TableauDynamique<T extends { id: number | string }>({
         alert("Le fichier est vide !");
         return;
       }
-      const headerMap: Record<string, string> = {};
-      columns.forEach(col => {
-        const key = col.key as string;
-        const title = col.title;
-        headerMap[title.toLowerCase().trim()] = key;
-      });
-      const fileHeaders = Object.keys(jsonData[0]).map(h => h.toLowerCase().trim());
-      const expectedHeaders = Object.keys(headerMap);
-      const missingHeaders = expectedHeaders.filter(h => !fileHeaders.includes(h));
-      const extraHeaders = fileHeaders.filter(h => !expectedHeaders.includes(h));
-      if (missingHeaders.length > 0 || extraHeaders.length > 0) {
-        alert(`Erreur : Les colonnes du fichier ne correspondent pas.\nManquantes : ${missingHeaders.join(", ")}\nSupplémentaires : ${extraHeaders.join(", ")}`);
-        return;
-      }
-      const mappedData = jsonData.map(row => {
-        const newRow: Record<string, any> = {};
-        Object.entries(row).forEach(([k, v]) => {
-          const keyNormalized = k.toLowerCase().trim();
-          const realKey = headerMap[keyNormalized];
-          if (realKey && realKey !== 'id') {
-            newRow[realKey] = v;
-          }
-        });
-        return newRow;
-      });
+      // Mapping des colonnes Excel vers les attributs de l'étudiant
+      const mappedData = jsonData.map(row => ({
+        id: row["ID"],
+        matricule: row["Matricule"],
+        nom: row["Nom"],
+        prenom: row["Prénom"],
+        dateNaissance: row["Date de Naissance"],
+        lieuNaissance: row["Lieu de Naissance"],
+        sexe: row["Sexe"],
+        nationalite: row["Nationalité"],
+        email: row["Email"],
+        telephone: row["Téléphone"],
+        adresse: row["Adresse"],
+        ville: row["Ville"],
+        situationFamiliale: row["Situation Familiale"],
+        formationActuelle: { nom: row["Formation Actuelle"] },
+        niveauScolaire: row["Niveau Scolaire"],
+        groupeScolaire: row["Groupe Scolaire"],
+        anneeAcademique: row["Année Académique"],
+        statut: row["Statut"],
+        dateInscription: row["Date Inscription"],
+        boursier: row["Boursier"] === "Oui",
+        handicap: row["Handicap"] === "Oui",
+        nomTuteur: row["Nom Tuteur"],
+        contactTuteur: row["Contact Tuteur"],
+        photo: row["Photo"],
+      }));
       setPreviewData(mappedData);
       setShowPreview(true);
     };
@@ -151,20 +153,38 @@ function TableauDynamique<T extends { id: number | string }>({
 
   // Export Excel
   const handleExportExcel = () => {
-    const exportData = data.map(item => {
-      const obj: any = {};
-      columns.forEach(col => {
-        const key = col.key.toString();
-        obj[col.title] = (item as any)[key];
-      });
-      return obj;
-    });
+    const exportData = data.map(item => ({
+      ID: item.id,
+      Matricule: item.matricule,
+      Nom: item.nom,
+      Prénom: item.prenom,
+      "Date de Naissance": item.dateNaissance,
+      "Lieu de Naissance": item.lieuNaissance,
+      Sexe: item.sexe,
+      Nationalité: item.nationalite,
+      Email: item.email,
+      Téléphone: item.telephone,
+      Adresse: item.adresse,
+      Ville: item.ville,
+      "Situation Familiale": item.situationFamiliale,
+      "Formation Actuelle": item.formationActuelle?.nom,
+      "Niveau Scolaire": item.niveauScolaire,
+      "Groupe Scolaire": item.groupeScolaire,
+      "Année Académique": item.anneeAcademique,
+      Statut: item.statut,
+      "Date Inscription": item.dateInscription,
+      Boursier: item.boursier ? "Oui" : "Non",
+      Handicap: item.handicap ? "Oui" : "Non",
+      "Nom Tuteur": item.nomTuteur,
+      "Contact Tuteur": item.contactTuteur,
+      Photo: item.photo,
+    }));
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Données');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Etudiants');
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, `export_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    saveAs(blob, `export_etudiants_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   const filteredData = useMemo(() => {
@@ -218,24 +238,34 @@ function TableauDynamique<T extends { id: number | string }>({
   // Template Excel
   const downloadTemplate = () => {
     const headers = [
+      "ID",
+      "Matricule",
       "Nom",
       "Prénom",
-      "Sexe",
-      "Téléphone",
-      "Email",
-      "Adresse",
-      "Date de Naissance (YYYY-MM-DD)",
+      "Date de Naissance",
       "Lieu de Naissance",
-      "Matricule",
+      "Sexe",
       "Nationalité",
+      "Email",
+      "Téléphone",
+      "Adresse",
       "Ville",
-      "Photo (URL)",
-      "Boursier (true/false)",
-      "Handicapé (true/false)"
+      "Situation Familiale",
+      "Formation Actuelle",
+      "Niveau Scolaire",
+      "Groupe Scolaire",
+      "Année Académique",
+      "Statut",
+      "Date Inscription",
+      "Boursier",
+      "Handicap",
+      "Nom Tuteur",
+      "Contact Tuteur",
+      "Photo"
     ];
     const ws = XLSX.utils.aoa_to_sheet([headers]);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Étudiants");
+    XLSX.utils.book_append_sheet(wb, ws, "Etudiants");
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(blob, "Modele_Etudiants.xlsx");
@@ -381,7 +411,11 @@ function TableauDynamique<T extends { id: number | string }>({
                   {previewData.map((row, i) => (
                     <tr key={i} className="hover:bg-gray-50">
                       {Object.values(row).map((val, j) => (
-                        <td key={j} className="border px-4 py-2">{val}</td>
+                        <td key={j} className="border px-4 py-2">
+                          {typeof val === 'object' && val !== null
+                            ? JSON.stringify(val)
+                            : val}
+                        </td>
                       ))}
                     </tr>
                   ))}
@@ -498,7 +532,7 @@ function TableauDynamique<T extends { id: number | string }>({
               {columns.map((column) => (
                 <th
                   key={column.key.toString()}
-                  className="px-4 py-3 text-left text-[10px] font-semibold tracking-wider"
+                  className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap"
                   style={{
                     color: '#0d68ae',
                   }}
@@ -508,7 +542,7 @@ function TableauDynamique<T extends { id: number | string }>({
               ))}
               {(onEdit || onDelete) && (
                 <th
-                  className="px-4 py-3 text-left text-[12px] font-semibold tracking-wider"
+                  className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-16 whitespace-nowrap"
                   style={{
                     color: '#0d68ae',
                   }}
@@ -524,14 +558,14 @@ function TableauDynamique<T extends { id: number | string }>({
                 {columns.map((column) => (
                   <td
                     key={`${item.id}-${column.key.toString()}`}
-                    className="px-4 py-4 text-xs text-gray-700"
+                    className="px-2 py-2 text-[10px] text-gray-700 w-24 whitespace-nowrap truncate"
                     onClick={() => { if (typeof (onRowClick as any) === 'function') (onRowClick as any)(item); }}
                   >
                     {column.render ? column.render(item) : item[column.key as keyof T] as React.ReactNode}
                   </td>
                 ))}
                 {(onEdit || onDelete) && (
-                  <td className="px-4 py-4 whitespace-nowrap">
+                  <td className="px-2 py-2 whitespace-nowrap w-16">
                     <div className="flex space-x-2">
                       {onEdit && (
                         <button

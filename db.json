@@ -110,7 +110,6 @@
       },
       "niveauScolaire": "Master"
     },
-
     {
       "id": "a309",
       "nom": "",
@@ -183,8 +182,150 @@
       "dateCreation": "2025-08-14T15:53:45.447Z",
       "dateModification": "2025-08-14T15:53:45.447Z",
       "formations": []
+    },
+    {
+      "id": "1",
+      "matricule": "123456",
+      "nom": "Ali",
+      "prenom": "Ahmed",
+      "dateNaissance": "2000-01-01",
+      "lieuNaissance": "Rabat",
+      "sexe": "Masculin",
+      "nationalite": "Marocaine",
+      "email": "ali@example.com",
+      "telephone": "0651234567",
+      "adresse": "123 Rue de l'Université",
+      "ville": "Rabat",
+      "formationActuelle": {
+        "nom": "Informatique"
+      },
+      "anneeAcademique": "2024-2025",
+      "boursier": true,
+      "handicap": false,
+      "photo": "/images/user.png"
+    },
+    {
+      "id": "2",
+      "matricule": "654321",
+      "nom": "Fatima",
+      "prenom": "Zahra",
+      "dateNaissance": "2001-02-02",
+      "lieuNaissance": "Casablanca",
+      "sexe": "Féminin",
+      "nationalite": "Marocaine",
+      "email": "df@gmail.com",
+      "telephone": "0657654321",
+      "adresse": "456 Avenue des Sciences",
+      "ville": "Casablanca",
+      "formationActuelle": {
+        "nom": "Mathematiques"
+      },
+      "anneeAcademique": "2024-2025",
+      "boursier": true,
+      "handicap": false,
+      "photo": "/images/user.png"
+    },
+    {
+      "id": "3",
+      "matricule": "789012",
+      "nom": "Khadija",
+      "prenom": "Brahim",
+      "dateNaissance": "2002-03-03",
+      "lieuNaissance": "Marrakech",
+      "sexe": "Féminin",
+      "nationalite": "Marocaine",
+      "email": "df@gmail.com",
+      "telephone": "0659876543",
+      "adresse": "789 Boulevard des Étudiants",
+      "ville": "Marrakech",
+      "formationActuelle": {
+        "nom": "Physique"
+      },
+      "niveauScolaire": "Licence",
+      "groupeScolaire": "Groupe A",
+      "anneeAcademique": "2024-2025",
+      "boursier": true,
+      "handicap": false,
+      "photo": "/images/user.png"
+    },
+    {
+      "id": "4",
+      "matricule": "321098",
+      "nom": "Fatima",
+      "prenom": "Zahra",
+      "dateNaissance": "2003-04-04",
+      "lieuNaissance": "Fès",
+      "sexe": "Féminin",
+      "nationalite": "Marocaine",
+      "email": "df@gmail.com",
+      "telephone": "0654567890",
+      "adresse": "321 Rue des Études",
+      "ville": "Fès",
+      "formationActuelle": {
+        "nom": "Informatique"
+      },
+      "niveauScolaire": "Master",
+      "anneeAcademique": "2025-2026",
+      "boursier": false,
+      "handicap": false,
+      "photo": "/images/user.png"
+    },
+    {
+      "id": "a309",
+      "matricule": "",
+      "nom": "",
+      "prenom": "",
+      "dateNaissance": "",
+      "lieuNaissance": "",
+      "sexe": "Masculin",
+      "nationalite": "",
+      "email": "",
+      "telephone": "",
+      "adresse": "",
+      "ville": "",
+      "situationFamiliale": "",
+      "formationActuelle": {
+        "nom": "Mathematiques"
+      },
+      "niveauScolaire": "",
+      "groupeScolaire": "",
+      "anneeAcademique": "2025-2026",
+      "statut": "actif",
+      "dateInscription": "2025-08-14",
+      "boursier": false,
+      "handicap": false,
+      "nomTuteur": "",
+      "contactTuteur": "",
+      "photo": "/images/user.png"
+    },
+    {
+      "id": "1755186825447",
+      "matricule": "er",
+      "nom": "df",
+      "prenom": "df",
+      "dateNaissance": "2025-08-04",
+      "lieuNaissance": "df",
+      "sexe": "Masculin",
+      "nationalite": "df",
+      "email": "adnan.khadija55@gmail.com",
+      "telephone": "0650851911",
+      "adresse": "rabat",
+      "ville": "el jadida",
+      "situationFamiliale": "",
+      "formationActuelle": {
+        "nom": "Informatique"
+      },
+      "niveauScolaire": "",
+      "groupeScolaire": "",
+      "anneeAcademique": "2023-2024",
+      "statut": "actif",
+      "dateInscription": "2025-08-14",
+      "boursier": true,
+      "handicap": false,
+      "nomTuteur": "",
+      "contactTuteur": "",
+      "photo": "/images/user.png"
     }
-
   ],
   "formations": [
     {
