@@ -14,6 +14,7 @@ import { SearchBar } from './SearchBar';
 export type Column<T> = {
   key: keyof T | string;
   title: string;
+
   render?: (item: T) => React.ReactNode;
 };
 
@@ -153,32 +154,35 @@ function TableauDynamique<T extends { id: number | string }>({
 
   // Export Excel
   const handleExportExcel = () => {
-    const exportData = data.map(item => ({
-      ID: item.id,
-      Matricule: item.matricule,
-      Nom: item.nom,
-      Prénom: item.prenom,
-      "Date de Naissance": item.dateNaissance,
-      "Lieu de Naissance": item.lieuNaissance,
-      Sexe: item.sexe,
-      Nationalité: item.nationalite,
-      Email: item.email,
-      Téléphone: item.telephone,
-      Adresse: item.adresse,
-      Ville: item.ville,
-      "Situation Familiale": item.situationFamiliale,
-      "Formation Actuelle": item.formationActuelle?.nom,
-      "Niveau Scolaire": item.niveauScolaire,
-      "Groupe Scolaire": item.groupeScolaire,
-      "Année Académique": item.anneeAcademique,
-      Statut: item.statut,
-      "Date Inscription": item.dateInscription,
-      Boursier: item.boursier ? "Oui" : "Non",
-      Handicap: item.handicap ? "Oui" : "Non",
-      "Nom Tuteur": item.nomTuteur,
-      "Contact Tuteur": item.contactTuteur,
-      Photo: item.photo,
-    }));
+    const exportData = data.map(item => {
+      const etu = item as unknown as Etudiant;
+      return {
+        ID: etu.id,
+        Matricule: etu.matricule,
+        Nom: etu.nom,
+        Prénom: etu.prenom,
+        "Date de Naissance": etu.dateNaissance,
+        "Lieu de Naissance": etu.lieuNaissance,
+        Sexe: etu.sexe,
+        Nationalité: etu.nationalite,
+        Email: etu.email,
+        Téléphone: etu.telephone,
+        Adresse: etu.adresse,
+        Ville: etu.ville,
+        "Situation Familiale": etu.situationFamiliale,
+        "Formation Actuelle": etu.formationActuelle?.nom,
+        "Niveau Scolaire": etu.niveauScolaire,
+        "Groupe Scolaire": etu.groupeScolaire,
+        "Année Académique": etu.anneeAcademique,
+        Statut: etu.statut,
+        "Date Inscription": etu.dateInscription,
+        Boursier: etu.boursier ? "Oui" : "Non",
+        Handicap: etu.handicap ? "Oui" : "Non",
+        "Nom Tuteur": etu.nomTuteur,
+        "Contact Tuteur": etu.contactTuteur,
+        Photo: etu.photo,
+      };
+    });
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Etudiants');
