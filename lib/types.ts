@@ -5,7 +5,7 @@ export enum Sexe {
   Autre = "Autre",
 }
 
-export enum situationFamiliale {
+export enum SituationFamiliale {
   Celibataire = "Célibataire",
   Marie = "Marié(e)",
   Divorcé = "Divorcé(e)",
@@ -41,12 +41,12 @@ export interface Formation {
   id: string | number;
   nom: string;
   description: string;
-  dateDebut: string | Date;
-  dateFin: string | Date;
+  dateDebut: string;
+  dateFin: string ;
   niveau: string;
   statut: string;
-  dateCreation: string | Date;
-  dateModification?: string | Date;
+  dateCreation: string ;
+  dateModification?: string;
 }
 
 // Interface Étudiant
@@ -63,7 +63,7 @@ export interface Etudiant {
   telephone: string;
   adresse: string;
   ville: string;
-  situationFamiliale?: situationFamiliale;
+  situationFamiliale?: SituationFamiliale;
   formationActuelle: Formation;   // FK vers Formation
   niveauScolaire: string;
   groupeScolaire: string;

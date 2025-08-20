@@ -14,7 +14,18 @@
       "lieuNaissance": "Rabat",
       "matricule": "123456",
       "nationalite": "Marocaine",
-      "ville": "Rabat"
+      "ville": "Rabat",
+      "anneeAcademique": "2024-2025",
+      "formationActuelle": {
+        "id": "1",
+        "nom": "Informatique",
+        "description": "",
+        "dateDebut": "",
+        "dateFin": "",
+        "niveau": "Licence",
+        "statut": "actif",
+        "dateCreation": "2025-08-14T00:00:00.000Z"
+      }
     },
     {
       "id": "2",
@@ -30,7 +41,18 @@
       "lieuNaissance": "Casablanca",
       "matricule": "654321",
       "nationalite": "Marocaine",
-      "ville": "Casablanca"
+      "ville": "Casablanca",
+      "anneeAcademique": "2024-2025",
+      "formationActuelle": {
+        "id": "2",
+        "nom": "Mathematiques",
+        "description": "",
+        "dateDebut": "",
+        "dateFin": "",
+        "niveau": "Master",
+        "statut": "actif",
+        "dateCreation": "2025-08-14T00:00:00.000Z"
+      }
     },
     {
       "id": "3",
@@ -46,7 +68,20 @@
       "lieuNaissance": "Marrakech",
       "matricule": "789012",
       "nationalite": "Marocaine",
-      "ville": "Marrakech"
+      "ville": "Marrakech",
+      "anneeAcademique": "2024-2025",
+      "formationActuelle": {
+        "id": "3",
+        "nom": "Physique",
+        "description": "",
+        "dateDebut": "",
+        "dateFin": "",
+        "niveau": "Doctorat",
+        "statut": "actif",
+        "dateCreation": "2025-08-14T00:00:00.000Z"
+      },
+      "niveauScolaire": "Licence",
+      "groupeScolaire": "Groupe A"
     },
     {
       "id": "4",
@@ -61,58 +96,21 @@
       "lieuNaissance": "Fès",
       "matricule": "321098",
       "nationalite": "Marocaine",
-      "ville": "Fès"
+      "ville": "Fès",
+      "anneeAcademique": "2025-2026",
+      "formationActuelle": {
+        "id": "1",
+        "nom": "Informatique",
+        "description": "",
+        "dateDebut": "",
+        "dateFin": "",
+        "niveau": "Licence",
+        "statut": "actif",
+        "dateCreation": "2025-08-14T00:00:00.000Z"
+      },
+      "niveauScolaire": "Master"
     },
-    {
-      "id": "5",
-      "nom": "Khadija",
-      "prenom": "Brahim",
-      "email": "df@gmail.com",
-      "sexe": "Féminin",
-      "photo": "/images/user.png"
-    },
-    {
-      "id": "6",
-      "nom": "Fatima",
-      "prenom": "Zahra",
-      "email": "df@gmail.com",
-      "sexe": "Féminin",
-      "photo": "/images/user.png"
-    },
-    {
-      "id": "7",
-      "nom": "Khadija",
-      "prenom": "Brahim",
-      "email": "df@gmail.com",
-      "sexe": "Féminin",
-      "photo": "/images/user.png"
-    },
-    {
-      "id": "add9",
-      "nom": "",
-      "prenom": "",
-      "email": "",
-      "telephone": "",
-      "adresse": "",
-      "dateNaissance": "",
-      "lieuNaissance": "",
-      "matricule": "",
-      "sexe": "Masculin",
-      "nationalite": "",
-      "ville": "",
-      "situationFamiliale": "",
-      "formationActuelle": "",
-      "niveauScolaire": "",
-      "groupeScolaire": "",
-      "anneeScolaire": "",
-      "nomTuteur": "",
-      "contactTuteur": "",
-      "boursier": false,
-      "handicap": false,
-      "dateInscription": "2025-08-14",
-      "statut": "actif",
-      "photo": "/images/user.png"
-    },
+
     {
       "id": "a309",
       "nom": "",
@@ -127,10 +125,19 @@
       "nationalite": "",
       "ville": "",
       "situationFamiliale": "",
-      "formationActuelle": "",
+      "formationActuelle": {
+        "id": "2",
+        "nom": "Mathematiques",
+        "description": "",
+        "dateDebut": "",
+        "dateFin": "",
+        "niveau": "Master",
+        "statut": "actif",
+        "dateCreation": "2025-08-14T00:00:00.000Z"
+      },
       "niveauScolaire": "",
       "groupeScolaire": "",
-      "anneeScolaire": "",
+      "anneeAcademique": "2025-2026",
       "nomTuteur": "",
       "contactTuteur": "",
       "boursier": false,
@@ -153,10 +160,19 @@
       "nationalite": "df",
       "ville": "el jadida",
       "situationFamiliale": "",
-      "formationActuelle": "1",
+      "formationActuelle": {
+        "id": "1",
+        "nom": "Informatique",
+        "description": "",
+        "dateDebut": "",
+        "dateFin": "",
+        "niveau": "Licence",
+        "statut": "actif",
+        "dateCreation": "2025-08-14T00:00:00.000Z"
+      },
       "niveauScolaire": "",
       "groupeScolaire": "",
-      "anneeScolaire": "",
+      "anneeAcademique": "2023-2024",
       "nomTuteur": "",
       "contactTuteur": "",
       "boursier": true,
@@ -167,121 +183,42 @@
       "dateCreation": "2025-08-14T15:53:45.447Z",
       "dateModification": "2025-08-14T15:53:45.447Z",
       "formations": []
-    },
-    {
-      "id": "2b4f",
-      "nom": "Ali",
-      "prenom": "Ahmed",
-      "sexe": "Masculin",
-      "email": "ali@example.com",
-      "photo": "/images/user.png",
-      "boursier": true
-    },
-    {
-      "id": "a661",
-      "nom": "Fatima",
-      "prenom": "Zahra",
-      "sexe": "Féminin",
-      "email": "df@gmail.com",
-      "photo": "/images/user.png",
-      "boursier": true
-    },
-    {
-      "id": "6d18",
-      "nom": "Khadija",
-      "prenom": "Brahim",
-      "sexe": "Féminin",
-      "email": "df@gmail.com",
-      "photo": "/images/user.png",
-      "boursier": true
-    },
-    {
-      "id": "8b30",
-      "nom": "Fatima",
-      "prenom": "Zahra",
-      "sexe": "Féminin",
-      "email": "df@gmail.com",
-      "photo": "/images/user.png"
-    },
-    {
-      "id": "91e2",
-      "nom": "Khadija",
-      "prenom": "Brahim",
-      "sexe": "Féminin",
-      "email": "df@gmail.com",
-      "photo": "/images/user.png"
-    },
-    {
-      "id": "f58f",
-      "nom": "Fatima",
-      "prenom": "Zahra",
-      "sexe": "Féminin",
-      "email": "df@gmail.com",
-      "photo": "/images/user.png"
-    },
-    {
-      "id": "d96d",
-      "nom": "Khadija",
-      "prenom": "Brahim",
-      "sexe": "Féminin",
-      "email": "df@gmail.com",
-      "photo": "/images/user.png"
-    },
-    {
-      "id": "1eee",
-      "nom": "",
-      "prenom": "",
-      "sexe": "Masculin",
-      "email": "",
-      "photo": "/images/user.png",
-      "boursier": false
-    },
-    {
-      "id": "f86c",
-      "nom": "",
-      "prenom": "",
-      "sexe": "Masculin",
-      "email": "",
-      "photo": "/images/user.png",
-      "boursier": false
-    },
-    {
-      "id": "d8c4",
-      "nom": "",
-      "prenom": "",
-      "sexe": "Masculin",
-      "email": "",
-      "photo": "/images/user.png",
-      "boursier": false
-    },
-    {
-      "id": "9534",
-      "nom": "df",
-      "prenom": "df",
-      "sexe": "Masculin",
-      "email": "adnan.khadija55@gmail.com",
-      "photo": "/images/user.png",
-      "boursier": true
     }
+
   ],
   "formations": [
     {
       "id": "1",
       "nom": "Informatique",
       "niveau": "Licence",
-      "duree": "3 ans"
+      "duree": "3 ans",
+      "description": "",
+      "dateDebut": "",
+      "dateFin": "",
+      "statut": "actif",
+      "dateCreation": "2025-08-14T00:00:00.000Z"
     },
     {
       "id": "2",
       "nom": "Mathematiques",
       "niveau": "Master",
-      "duree": "2 ans"
+      "duree": "2 ans",
+      "description": "",
+      "dateDebut": "",
+      "dateFin": "",
+      "statut": "actif",
+      "dateCreation": "2025-08-14T00:00:00.000Z"
     },
     {
       "id": "3",
       "nom": "Physique",
       "niveau": "Doctorat",
-      "duree": "3 ans"
+      "duree": "3 ans",
+      "description": "",
+      "dateDebut": "",
+      "dateFin": "",
+      "statut": "actif",
+      "dateCreation": "2025-08-14T00:00:00.000Z"
     }
   ]
 }

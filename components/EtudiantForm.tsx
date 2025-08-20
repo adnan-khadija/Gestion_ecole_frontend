@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Sexe, situationFamiliale, StatutEtudiant } from '@/lib/types';
-import { Etudiant, Formation } from '@/lib/types';
+import { Sexe, SituationFamiliale, StatutEtudiant,Etudiant,Formation} from '@/lib/types';
 import { addEtudiant } from '@/lib/etudiantService';
 import toast from 'react-hot-toast';
 interface EtudiantFormProps {
@@ -22,18 +21,18 @@ const EtudiantForm = ({ onSave, formations,etudiantInitial }: EtudiantFormProps)
     sexe: Sexe.Masculin,
     nationalite: '',
     ville: '',
-    situationFamiliale: '',
-    formationActuelle: '',
+    situationFamiliale: SituationFamiliale.Celibataire,
+    formationActuelle: formations.length > 0 ? formations[0] : { id: '', nom: '', description: '', dateDebut: '', dateFin: '', niveau: '', statut: '', dateCreation: new Date().toISOString() },
     niveauScolaire: '',
     groupeScolaire: '',
-    anneeScolaire: '',
+    anneeAcademique: '',
     nomTuteur: '',
     contactTuteur: '',
     boursier: false,
     handicap: false,
     photo: '',
     dateInscription: new Date().toISOString().split('T')[0],
-    statut: 'actif',
+    statut: StatutEtudiant.Actif,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -266,7 +265,7 @@ const EtudiantForm = ({ onSave, formations,etudiantInitial }: EtudiantFormProps)
             <label className="block text-sm font-medium text-gray-700">Année scolaire</label>
             <input
               type="text"
-              name="anneeScolaire"
+              name="anneeAcademique"
               value={etudiant.anneeAcademique}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d68ae] focus:border-transparent transition-all"
@@ -315,7 +314,7 @@ const EtudiantForm = ({ onSave, formations,etudiantInitial }: EtudiantFormProps)
     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d68ae] focus:border-transparent transition-all"
   >
     <option value="">Sélectionnez une situation</option>
-    {Object.values(situationFamiliale).map((situation) => (
+    {Object.values(SituationFamiliale).map((situation) => (
       <option key={situation} value={situation}>
         {situation}
       </option>

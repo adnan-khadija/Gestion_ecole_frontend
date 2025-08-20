@@ -27,12 +27,7 @@ export default function Student() {
       });
   }, []);
 
-  const filterConfig = {
-    visibleFilters: ["nom", "email"],
-    searchPlaceholder: "Recherche globale...",
-    showGlobalSearch: true,
-  };
-
+  
 const colonnesEtudiants: Column<Etudiant>[] = [
   {
     key: "id-matricule",
@@ -113,15 +108,18 @@ const colonnesEtudiants: Column<Etudiant>[] = [
         {item.formationActuelle?.nom || "—"} | {item.niveauScolaire}
       </span>
     ),
+  
   },
   {
-    key: "groupe-annee",
+    key: "groupe-anneeAcademique",
     title: "Groupe | Année Académique",
     render: (item) => (
       <span className="whitespace-nowrap text-gray-500">
         {item.groupeScolaire} | {item.anneeAcademique}
       </span>
     ),
+    
+  
   },
   {
     key: "statut-nouvelEtudiant",
@@ -235,9 +233,8 @@ const colonnesEtudiants: Column<Etudiant>[] = [
         onEdit={handleEdit}
         onDelete={handleDelete}
         actionsColor="blue"
-        filterConfig={filterConfig}
         emptyMessage="Aucun étudiant trouvé"
-        onRowClick={(student) => setSelectedStudent(student)} // click row to select student
+        onRowClick={(student) => setSelectedStudent(student)} 
       />
 
       {/* Student profile modal */}
