@@ -25,14 +25,14 @@ export const SearchBar = ({
       <input
         type="text"
         placeholder={placeholder}
-        className="pl-10 pr-16 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d68ae]"
+        className="pl-10 pr-16 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-[#55b7f3]"
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         onKeyPress={(e) => e.key === 'Enter' && onSearchSubmit()} 
       />
       <button
         onClick={onSearchSubmit}
-        className="absolute inset-y-0 right-0 px-4 flex items-center bg-[#0d68ae] hover:bg-[#0274be] text-white rounded-r-md transition-colors"
+        className="absolute inset-y-0 right-0 px-4 flex items-center bg-[#55b7f3] hover:bg-[#8ed1fc] text-white rounded-r-md transition-colors"
       >
         <FaSearch />
       </button>

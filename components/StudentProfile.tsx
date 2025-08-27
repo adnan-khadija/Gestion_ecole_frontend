@@ -1,10 +1,8 @@
 "use client";
 
 import { Etudiant } from "@/lib/types";
-import { FiX, FiDownload } from "react-icons/fi";
-import { useState, useEffect, useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { FiX, FiMail, FiPhone, FiMapPin, FiCalendar, FiGlobe, FiDollarSign, FiUser, FiHome, FiBook, FiAward, FiUsers, FiHeart } from "react-icons/fi";
+import { useState, useEffect } from "react";
 
 type StudentProfileProps = {
   etudiant: Etudiant;
@@ -13,7 +11,6 @@ type StudentProfileProps = {
 
 export default function StudentProfile({ etudiant, onClose }: StudentProfileProps) {
   const [show, setShow] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setShow(true);
@@ -24,70 +21,203 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
     setTimeout(() => onClose(), 300);
   };
 
-  const generatePDF = async () => {
-    if (cardRef.current) {
-      const canvas = await html2canvas(cardRef.current);
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF();
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${etudiant.nom}_${etudiant.prenom}.pdf`);
-    }
-  };
-
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-[#0d68ae]/50 transition-opacity duration-300 ${
         show ? "opacity-100" : "opacity-0"
       }`}
       onClick={handleClose}
     >
       <div
-        ref={cardRef}
-        className={`bg-white rounded-xl shadow-lg max-w-xl w-full p-6 relative transform transition-transform duration-300 ${
-          show ? "scale-100" : "scale-95"
-        }`}
+        className="bg-white rounded-lg max-w-3xl w-full mx-4 p-6 relative max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
-        >
-          <FiX size={24} />
-        </button>
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4 border-b border-[#7bdcb5] pb-2">
+          <h1 className="text-xl font-semibold text-[#0274be]">Profil Étudiant</h1>
+          <button
+            onClick={handleClose}
+            className="p-1 text-[#8a8a19] hover:text-[#0d68ae]"
+          >
+            <FiX size={20} />
+          </button>
+        </div>
 
-        {/* Generate PDF button */}
-        <button
-          onClick={generatePDF}
-          className="absolute top-4 left-4 flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
-        >
-          <FiDownload />
-          PDF
-        </button>
+        {/* Main Content */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Left Section - Information */}
+          <div className="md:col-span-2 space-y-4">
+            <div>
+              <h2 className="text-2xl font-semibold text-[#0274be]">{etudiant.prenom} {etudiant.nom}</h2>
+              <p className="text-[#00d084]">{etudiant.matricule} (ID: {etudiant.id})</p>
+            </div>
 
-        {/* Student Card */}
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-          <img
-            src={etudiant.photo || "/images/logo.png"}
-            alt={etudiant.nom}
-            className="w-32 h-32 rounded-full object-cover shadow-md"
-          />
+            <div >
+              {/* Informations Personnelles */}
+              <div>
+                <h3 className="text-base font-medium text-[#0d68ae] mb-2">Informations Personnelles</h3>
+                <div  className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-2">
+                    <FiCalendar className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Date de Naissance</p>
+                      <p className="text-sm text-[#0274be]">{etudiant.dateNaissance}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiMapPin className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Lieu de Naissance</p>
+                      <p className="text-sm text-[#0274be]">{etudiant.lieuNaissance}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiUser className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Sexe</p>
+                      <p className="text-sm text-[#0274be]">{etudiant.sexe}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiGlobe className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Nationalité</p>
+                      <p className="text-sm text-[#0274be]">{etudiant.nationalite}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiHeart className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Situation Familiale</p>
+                      <p className="text-sm text-[#0274be]">{etudiant.situationFamiliale || "Non spécifié"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiDollarSign className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Statut Boursier</p>
+                      <p className="text-sm text-[#0274be]">{etudiant.boursier ? "Oui" : "Non"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiUser className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Handicap</p>
+                      <p className="text-sm text-[#0274be]">{etudiant.handicap ? "Oui" : "Non"}</p>
+                    </div>
+                  </div>
 
-          <div className="flex-1 space-y-2 text-gray-700">
-            <h2 className="text-2xl font-bold text-gray-900">{etudiant.nom} {etudiant.prenom}</h2>
-            <p><span className="font-medium">Matricule:</span> {etudiant.matricule}</p>
-            <p><span className="font-medium">Email:</span> <a href={`mailto:${etudiant.email}`} className="text-blue-600 hover:underline">{etudiant.email}</a></p>
-            <p><span className="font-medium">Téléphone:</span> <a href={`tel:${etudiant.telephone}`} className="text-blue-600 hover:underline">{etudiant.telephone}</a></p>
-            <p><span className="font-medium">Adresse:</span> {etudiant.adresse}</p>
-            <p><span className="font-medium">Date de Naissance:</span> {etudiant.dateNaissance}</p>
-            <p><span className="font-medium">Ville:</span> {etudiant.ville}</p>
-            <p><span className="font-medium">Nationalité:</span> {etudiant.nationalite}</p>
-            <p><span className="font-medium">Boursier:</span> {etudiant.boursier ? "Oui" : "Non"}</p>
+                </div>
+              </div>
+
+            
+            </div>
+              {/* Coordonnées */}
+              <div className="pt-4 border-t border-[#7bdcb5]">
+                <h3 className="text-base font-medium text-[#0d68ae] mb-2">Coordonnées</h3>
+                <div  className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-2">
+                    <FiMail className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Email</p>
+                      <a href={`mailto:${etudiant.email}`} className="text-sm text-[#0274be] hover:text-[#9de37f]">
+                        {etudiant.email}
+                      </a>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiPhone className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Téléphone</p>
+                      <a href={`tel:${etudiant.telephone}`} className="text-sm text-[#0274be] hover:text-[#9de37f]">
+                        {etudiant.telephone}
+                      </a>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiMapPin className="text-[#00d084]" size={16} />
+                    <div>
+                      <p className="text-xs text-[#8a8a19]">Adresse</p>
+                      <p className="text-sm text-[#0274be]">{etudiant.adresse}, {etudiant.ville}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            {/* Informations Académiques */}
+            <div className="pt-4 border-t border-[#7bdcb5]">
+              <h3 className="text-base font-medium text-[#0d68ae] mb-2">Informations Académiques</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-xs text-[#8a8a19]">Formation Actuelle</p>
+                  <p className="text-sm text-[#0274be]">{etudiant.formationActuelle?.nom || "Non spécifié"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#8a8a19]">Niveau Scolaire</p>
+                  <p className="text-sm text-[#0274be]">{etudiant.niveauScolaire || "Non spécifié"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#8a8a19]">Groupe Scolaire</p>
+                  <p className="text-sm text-[#0274be]">{etudiant.groupeScolaire || "Non spécifié"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#8a8a19]">Année Académique</p>
+                  <p className="text-sm text-[#0274be]">{etudiant.anneeAcademique || "Non spécifié"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#8a8a19]">Statut</p>
+                  <p className="text-sm text-[#0274be]">{etudiant.statut || "Non spécifié"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#8a8a19]">Date d'Inscription</p>
+                  <p className="text-sm text-[#0274be]">{etudiant.dateInscription || "Non spécifié"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#8a8a19]">Diplôme</p>
+                  <p className="text-sm text-[#0274be]">{etudiant.diplome?.nom || "Non spécifié"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#8a8a19]">Formations Suivies</p>
+                  <p className="text-sm text-[#0274be]">
+                    {etudiant.formations?.length ? etudiant.formations.map(f => f.nom).join(", ") : "Aucune"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Informations Tuteur */}
+            {(etudiant.nomTuteur || etudiant.contactTuteur) && (
+              <div className="pt-4 border-t border-[#7bdcb5]">
+                <h3 className="text-base font-medium text-[#0d68ae] mb-2">Informations Tuteur</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-[#8a8a19]">Nom du Tuteur</p>
+                    <p className="text-sm text-[#0274be]">{etudiant.nomTuteur || "Non spécifié"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#8a8a19]">Contact du Tuteur</p>
+                    <p className="text-sm text-[#0274be]">{etudiant.contactTuteur || "Non spécifié"}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Section - Photo and ID */}
+          <div className="flex flex-col items-center">
+            <img
+              src={etudiant.photo || "/images/logo.png"}
+              alt={`${etudiant.prenom} ${etudiant.nom}`}
+              className="w-32 h-32 rounded-full border-2 border-[#7bdcb5] object-cover mb-4"
+            />
+            <div className="text-center">
+              <h3 className="text-sm font-medium text-[#0d68ae] mb-1">Matricule Étudiant</h3>
+              <p className="text-sm text-[#0274be] border border-[#7bdcb5] rounded px-2 py-1">{etudiant.matricule}</p>
+            </div>
           </div>
         </div>
+
+       
       </div>
     </div>
   );

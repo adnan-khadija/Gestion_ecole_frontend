@@ -83,9 +83,9 @@ function TableauDynamique<T extends { id: number | string }>({
         setEditEtudiant(null);
         setCurrentPage(1);
         toast.success("Étudiant modifié avec succès");
+        // Optionnel : rafraîchir la liste des étudiants ici
       })
       .catch(error => {
-        console.error("Erreur lors de la mise à jour de l'étudiant:", error);
         toast.error("Erreur lors de la mise à jour de l'étudiant");
       });
   };
@@ -275,6 +275,11 @@ function TableauDynamique<T extends { id: number | string }>({
     saveAs(blob, "Modele_Etudiants.xlsx");
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(etudiant);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow relative">
       {/* Barre d'actions */}
@@ -342,7 +347,7 @@ function TableauDynamique<T extends { id: number | string }>({
               onClick={() => setShowFilters(prev => !prev)}
               aria-pressed={showFilters}
               aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
-              className="ml-2 p-2 rounded-md border hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0d68ae] text-[#0d68ae]"
+              className="ml-2 p-2 rounded-md border hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#55b7f3] text-[#55b7f3]"
               title="Filtres"
             >
               <FaFilter />
@@ -471,10 +476,10 @@ function TableauDynamique<T extends { id: number | string }>({
             onClick={() => setShowAddForm(false)}
           ></div>
           <div className="absolute inset-y-0 right-0 max-w-full flex">
-            <div className="relative w-screen max-w-xl transform transition-transform duration-300 ease-in-out">
+            <div className="relative w-screen max-w-2xl transform transition-transform duration-300 ease-in-out">
               <div className="h-full flex flex-col bg-white shadow-xl">
                 <div className="flex items-center justify-between px-6 py-4 ">
-                  <h2 className="text-xl font-bold text-[#0d68ae]">Ajouter un nouvel étudiant</h2>
+                  <h2 className="text-lg font-bold text-[#0d68ae]">Ajouter un étudiant</h2>
                   <button
                     onClick={() => setShowAddForm(false)}
                     className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0d68ae]"
@@ -483,7 +488,7 @@ function TableauDynamique<T extends { id: number | string }>({
                     <FaTimes className="h-5 w-5" />
                   </button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-4">
                   <EtudiantForm
                     onSave={handleAddStudent}
                     formations={formations}
@@ -503,10 +508,10 @@ function TableauDynamique<T extends { id: number | string }>({
             onClick={() => setEditEtudiant(null)}
           ></div>
           <div className="absolute inset-y-0 right-0 max-w-full flex">
-            <div className="relative w-screen max-w-xl transform transition-transform duration-300 ease-in-out">
+            <div className="relative w-screen max-w-2xl transform transition-transform duration-300 ease-in-out">
               <div className="h-full flex flex-col bg-white shadow-xl">
                 <div className="flex items-center justify-between px-6 py-4 ">
-                  <h2 className="text-xl font-bold text-[#0d68ae]">Modifier l'étudiant</h2>
+                  <h2 className="text-lg font-bold text-[#0d68ae]">Modifier l'étudiant</h2>
                   <button
                     onClick={() => setEditEtudiant(null)}
                     className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0d68ae]"
@@ -515,7 +520,7 @@ function TableauDynamique<T extends { id: number | string }>({
                     <FaTimes className="h-5 w-5" />
                   </button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-4">
                   <EtudiantForm
                     etudiantInitial={editEtudiant}
                     formations={formations}

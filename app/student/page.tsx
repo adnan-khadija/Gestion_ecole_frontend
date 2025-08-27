@@ -9,6 +9,7 @@ import { Switch } from "@headlessui/react";
 import StudentProfile from "@/components/StudentProfile";
 import { FaEye } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/Loading";
+import { updateEtudiant } from "@/lib/etudiantService";
 
 export default function Student() {
   const [etudiants, setEtudiants] = useState<Etudiant[]>([]);
@@ -165,14 +166,14 @@ const colonnesEtudiants: Column<Etudiant>[] = [
     ),
   },
   {
-    key:"boursier ",
+    key:"boursier",
     title: "Boursier",
     render: (item) => (
       <Switch
         checked={item.boursier}
-        onChange={() => {}}
+        onChange={() => handleToggle(item.id, "boursier", !item.boursier)}
         className={`${
-          item.boursier ? "bg-green-500" : "bg-gray-300"
+          item.boursier ? "bg-[#7bdcb5]" : "bg-gray-300"
         } relative inline-flex h-6 w-11 items-center rounded-full`}
       >
         <span className="sr-only">Boursier</span>
@@ -190,9 +191,9 @@ const colonnesEtudiants: Column<Etudiant>[] = [
     render: (item) => (
       <Switch
         checked={item.handicap}
-        onChange={() => {}}
+        onChange={() => handleToggle(item.id, "handicap", !item.handicap)}
         className={`${
-          item.handicap ? "bg-red-500" : "bg-gray-300"
+          item.handicap ? "bg-[#9de37f]" : "bg-gray-300"
         } relative inline-flex h-6 w-11 items-center rounded-full`}
       >
         <span className="sr-only">Handicap</span>
@@ -215,6 +216,19 @@ const colonnesEtudiants: Column<Etudiant>[] = [
 
   const handleDelete = (id: number | string) => {
     console.log("Supprimer ID:", id);
+  };
+
+  const handleToggle = async (id: string | number, field: "boursier" | "handicap", value: boolean) => {
+    try {
+      await updateEtudiant(id, { [field]: value });
+      setEtudiants(etudiants =>
+        etudiants.map(e =>
+          e.id === id ? { ...e, [field]: value } : e
+        )
+      );
+    } catch (error) {
+      console.error("Erreur lors de la modification :", error);
+    }
   };
 
   return (

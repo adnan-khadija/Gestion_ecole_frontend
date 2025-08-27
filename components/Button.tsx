@@ -16,7 +16,7 @@ const Button: React.FC<ButtonProps> = ({
   className = '',
   ...props
 }) => {
-  const baseClasses = `rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#0d68ae] focus:ring-offset-2 ${
+  const baseClasses = `rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#55b7f3] focus:ring-offset-2 ${
     fullWidth ? 'w-full' : ''
   }`;
 
@@ -27,9 +27,9 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const variantClasses = {
-    primary: `bg-[#0d68ae] text-white hover:bg-[#0274be] shadow-sm`,
-    secondary: `bg-[#0274be] text-white hover:bg-[#0d68ae] shadow-sm`,
-    outline: `border border-[#0d68ae] text-[#0d68ae] hover:bg-[#0d68ae]/10`
+    primary: `bg-[#55b7f3] text-white hover:bg-[#8ed1fc] shadow-sm`,
+    secondary: `bg-[#8ed1fc] text-white hover:bg-[#55b7f3] shadow-sm`,
+    outline: `border border-[#55b7f3] text-[#55b7f3] hover:bg-[#55b7f3]/10`
   };
 
   return (
