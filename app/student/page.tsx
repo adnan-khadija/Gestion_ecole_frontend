@@ -35,10 +35,7 @@ const colonnesEtudiants: Column<Etudiant>[] = [
     title: "ID | Matricule",
     render: (item) => (
       <div className="flex items-center gap-2">
-        <span className="whitespace-nowrap text-gray-500">{item.id}</span>
-        {" | "}
-        <span className="whitespace-nowrap text-gray-500">{item.matricule}</span>
-        <button
+         <button
           onClick={(e) => {
             e.stopPropagation();
             setSelectedStudent(item);
@@ -48,6 +45,10 @@ const colonnesEtudiants: Column<Etudiant>[] = [
         >
           <FaEye className="h-4 w-4" />
         </button>
+        <span className="whitespace-nowrap text-gray-500">{item.id}</span>
+        {" | "}
+        <span className="whitespace-nowrap text-gray-500">{item.matricule}</span>
+       
       </div>
     ),
   },
