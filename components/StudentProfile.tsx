@@ -60,50 +60,50 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
                   <div className="flex items-center gap-2">
                     <FiCalendar className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Date de Naissance</p>
-                      <p className="text-sm text-[#0274be]">{etudiant.dateNaissance}</p>
+                      <p className="text-sm text-[#8a8a19]">Date de Naissance</p>
+                      <p className="text-xs text-[#0274be]">{etudiant.dateNaissance}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiMapPin className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Lieu de Naissance</p>
-                      <p className="text-sm text-[#0274be]">{etudiant.lieuNaissance}</p>
+                      <p className="text-sm text-[#8a8a19]">Lieu de Naissance</p>
+                      <p className="text-xs text-[#0274be]">{etudiant.lieuNaissance}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiUser className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Sexe</p>
-                      <p className="text-sm text-[#0274be]">{etudiant.sexe}</p>
+                      <p className="text-sm text-[#8a8a19]">Sexe</p>
+                      <p className="text-xs text-[#0274be]">{etudiant.sexe}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiGlobe className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Nationalité</p>
-                      <p className="text-sm text-[#0274be]">{etudiant.nationalite}</p>
+                      <p className="text-sm text-[#8a8a19]">Nationalité</p>
+                      <p className="text-xs text-[#0274be]">{etudiant.nationalite}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiHeart className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Situation Familiale</p>
-                      <p className="text-sm text-[#0274be]">{etudiant.situationFamiliale || "Non spécifié"}</p>
+                      <p className="text-sm text-[#8a8a19]">Situation Familiale</p>
+                      <p className="text-xs text-[#0274be]">{etudiant.situationFamiliale || "Non spécifié"}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiDollarSign className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Statut Boursier</p>
-                      <p className="text-sm text-[#0274be]">{etudiant.boursier ? "Oui" : "Non"}</p>
+                      <p className="text-sm text-[#8a8a19]">Statut Boursier</p>
+                      <p className="text-xs text-[#0274be]">{etudiant.boursier ? "Oui" : "Non"}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiUser className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Handicap</p>
-                      <p className="text-sm text-[#0274be]">{etudiant.handicap ? "Oui" : "Non"}</p>
+                      <p className="text-sm text-[#8a8a19]">Handicap</p>
+                      <p className="text-xs text-[#0274be]">{etudiant.handicap ? "Oui" : "Non"}</p>
                     </div>
                   </div>
 
@@ -119,8 +119,8 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
                   <div className="flex items-center gap-2">
                     <FiMail className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Email</p>
-                      <a href={`mailto:${etudiant.email}`} className="text-sm text-[#0274be] hover:text-[#9de37f]">
+                      <p className="text-sm  text-[#8a8a19]">Email</p>
+                      <a href={`mailto:${etudiant.email}`} className="text-xs text-[#0274be] hover:text-[#9de37f]">
                         {etudiant.email}
                       </a>
                     </div>
@@ -128,8 +128,8 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
                   <div className="flex items-center gap-2">
                     <FiPhone className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Téléphone</p>
-                      <a href={`tel:${etudiant.telephone}`} className="text-sm text-[#0274be] hover:text-[#9de37f]">
+                      <p className="text-sm text-[#8a8a19]">Téléphone</p>
+                      <a href={`tel:${etudiant.telephone}`} className="text-xs text-[#0274be] hover:text-[#9de37f]">
                         {etudiant.telephone}
                       </a>
                     </div>
@@ -137,8 +137,8 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
                   <div className="flex items-center gap-2">
                     <FiMapPin className="text-[#00d084]" size={16} />
                     <div>
-                      <p className="text-xs text-[#8a8a19]">Adresse</p>
-                      <p className="text-sm text-[#0274be]">{etudiant.adresse}, {etudiant.ville}</p>
+                      <p className="text-sm  text-[#8a8a19]">Adresse</p>
+                      <p className="text-xs text-[#0274be]">{etudiant.adresse}, {etudiant.ville}</p>
                     </div>
                   </div>
                 </div>
@@ -149,36 +149,36 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
               <h3 className="text-base font-medium text-[#0d68ae] mb-2">Informations Académiques</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-xs text-[#8a8a19]">Formation Actuelle</p>
-                  <p className="text-sm text-[#0274be]">{etudiant.formationActuelle?.nom || "Non spécifié"}</p>
+                  <p className="text-sm text-[#8a8a19]">Formation Actuelle</p>
+                  <p className="text-xs text-[#0274be]">{etudiant.formationActuelle?.nom || "Non spécifié"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#8a8a19]">Niveau Scolaire</p>
-                  <p className="text-sm text-[#0274be]">{etudiant.niveauScolaire || "Non spécifié"}</p>
+                  <p className="text-sm text-[#8a8a19]">Niveau Scolaire</p>
+                  <p className="text-xs text-[#0274be]">{etudiant.niveauScolaire || "Non spécifié"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#8a8a19]">Groupe Scolaire</p>
-                  <p className="text-sm text-[#0274be]">{etudiant.groupeScolaire || "Non spécifié"}</p>
+                  <p className="text-sm text-[#8a8a19]">Groupe Scolaire</p>
+                  <p className="text-xs text-[#0274be]">{etudiant.groupeScolaire || "Non spécifié"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#8a8a19]">Année Académique</p>
-                  <p className="text-sm text-[#0274be]">{etudiant.anneeAcademique || "Non spécifié"}</p>
+                  <p className="text-sm text-[#8a8a19]">Année Académique</p>
+                  <p className="text-xs text-[#0274be]">{etudiant.anneeAcademique || "Non spécifié"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#8a8a19]">Statut</p>
-                  <p className="text-sm text-[#0274be]">{etudiant.statut || "Non spécifié"}</p>
+                  <p className="text-sm text-[#8a8a19]">Statut</p>
+                  <p className="text-xs text-[#0274be]">{etudiant.statut || "Non spécifié"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#8a8a19]">Date d'Inscription</p>
-                  <p className="text-sm text-[#0274be]">{etudiant.dateInscription || "Non spécifié"}</p>
+                  <p className="text-sm text-[#8a8a19]">Date d'Inscription</p>
+                  <p className="text-xs text-[#0274be]">{etudiant.dateInscription || "Non spécifié"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#8a8a19]">Diplôme</p>
-                  <p className="text-sm text-[#0274be]">{etudiant.diplome?.nom || "Non spécifié"}</p>
+                  <p className="text-sm text-[#8a8a19]">Diplôme</p>
+                  <p className="text-xs text-[#0274be]">{etudiant.diplome?.nom || "Non spécifié"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#8a8a19]">Formations Suivies</p>
-                  <p className="text-sm text-[#0274be]">
+                  <p className="text-sm text-[#8a8a19]">Formations Suivies</p>
+                  <p className="text-xs text-[#0274be]">
                     {etudiant.formations?.length ? etudiant.formations.map(f => f.nom).join(", ") : "Aucune"}
                   </p>
                 </div>
@@ -191,12 +191,12 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
                 <h3 className="text-base font-medium text-[#0d68ae] mb-2">Informations Tuteur</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-[#8a8a19]">Nom du Tuteur</p>
-                    <p className="text-sm text-[#0274be]">{etudiant.nomTuteur || "Non spécifié"}</p>
+                    <p className="text-sm text-[#8a8a19]">Nom du Tuteur</p>
+                    <p className="text-xs text-[#0274be]">{etudiant.nomTuteur || "Non spécifié"}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[#8a8a19]">Contact du Tuteur</p>
-                    <p className="text-sm text-[#0274be]">{etudiant.contactTuteur || "Non spécifié"}</p>
+                    <p className="text-sm text-[#8a8a19]">Contact du Tuteur</p>
+                    <p className="text-xs text-[#0274be]">{etudiant.contactTuteur || "Non spécifié"}</p>
                   </div>
                 </div>
               </div>

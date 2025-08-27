@@ -45,24 +45,144 @@
       "dateCreation": "2024-08-01T00:00:00.000Z"
     },
     {
-      "handicap": true,
-      "id": "5"
-    },
-    {
+      "id": "2",
+      "matricule": "2024001",
+      "nom": "Ali ",
+      "prenom": "Ahmed",
+      "dateNaissance": "2000-01-01",
+      "lieuNaissance": "Rabat",
+      "sexe": "Masculin",
+      "nationalite": "Marocaine",
+      "email": "ali@example.com",
+      "telephone": "0651234567",
+      "adresse": "123 Rue de l'Université",
+      "ville": "Rabat",
+      "situationFamiliale": "Célibataire",
+      "formationActuelle": {
+        "id": 1,
+        "nom": "Informatique",
+        "description": "Licence en informatique",
+        "dateDebut": "2024-09-01",
+        "dateFin": "2027-06-30",
+        "niveau": "Licence",
+        "statut": "Actif",
+        "dateCreation": "2024-08-01T00:00:00.000Z"
+      },
+      "niveauScolaire": "Licence",
+      "groupeScolaire": "Groupe A",
+      "anneeAcademique": "2024-2025",
+      "statut": "Actif",
+      "dateInscription": "2024-09-01",
       "boursier": true,
-      "id": "6"
+      "handicap": true,
+      "nouvelEtudiant": true,
+      "nomTuteur": "M. Ahmed",
+      "contactTuteur": "0659876543",
+      "photo": "/images/user.png",
+      "formations": [],
+      "diplome": {
+        "id": 1,
+        "nom": "Licence Informatique",
+        "description": "Diplôme de fin de licence",
+        "type": "Licence"
+      },
+      "dateCreation": "2024-08-01T00:00:00.000Z"
     },
     {
-      "handicap": true,
-      "id": "1756237455503"
+      "boursier": false,
+      "id": "3"
     },
     {
+      "id": "4",
+      "matricule": "2024001",
+      "nom": "Ali khadijad",
+      "prenom": "Ahmed",
+      "dateNaissance": "2000-01-01",
+      "lieuNaissance": "Rabat",
+      "sexe": "Masculin",
+      "nationalite": "Marocaine",
+      "email": "ali@example.com",
+      "telephone": "0651234567",
+      "adresse": "123 Rue de l'Université",
+      "ville": "Rabat",
+      "situationFamiliale": "Célibataire",
+      "formationActuelle": {
+        "id": 1,
+        "nom": "Informatique",
+        "description": "Licence en informatique",
+        "dateDebut": "2024-09-01",
+        "dateFin": "2027-06-30",
+        "niveau": "Licence",
+        "statut": "Actif",
+        "dateCreation": "2024-08-01T00:00:00.000Z"
+      },
+      "niveauScolaire": "Licence",
+      "groupeScolaire": "Groupe A",
+      "anneeAcademique": "2024-2025",
+      "statut": "Actif",
+      "dateInscription": "2024-09-01",
+      "boursier": true,
       "handicap": true,
-      "id": "1756237620274"
+      "nouvelEtudiant": true,
+      "nomTuteur": "M. Ahmed",
+      "contactTuteur": "0659876543",
+      "photo": "/images/user.png",
+      "formations": [],
+      "diplome": {
+        "id": 1,
+        "nom": "Licence Informatique",
+        "description": "Diplôme de fin de licence",
+        "type": "Licence"
+      },
+      "dateCreation": "2024-08-01T00:00:00.000Z"
     },
     {
+      "id": "5",
+      "matricule": "2024001",
+      "nom": "Ali ",
+      "prenom": "Ahmed",
+      "dateNaissance": "2000-01-01",
+      "lieuNaissance": "Rabat",
+      "sexe": "Masculin",
+      "nationalite": "Marocaine",
+      "email": "ali@example.com",
+      "telephone": "0651234567",
+      "adresse": "123 Rue de l'Université",
+      "ville": "Rabat",
+      "situationFamiliale": "Célibataire",
+      "formationActuelle": {
+        "id": 1,
+        "nom": "Informatique",
+        "description": "Licence en informatique",
+        "dateDebut": "2024-09-01",
+        "dateFin": "2027-06-30",
+        "niveau": "Licence",
+        "statut": "Actif",
+        "dateCreation": "2024-08-01T00:00:00.000Z"
+      },
+      "niveauScolaire": "Licence",
+      "groupeScolaire": "Groupe A",
+      "anneeAcademique": "2024-2025",
+      "statut": "Actif",
+      "dateInscription": "2024-09-01",
+      "boursier": true,
       "handicap": true,
-      "id": "1756237742676"
+      "nouvelEtudiant": true,
+      "nomTuteur": "M. Ahmed",
+      "contactTuteur": "0659876543",
+      "photo": "/images/user.png",
+      "formations": [],
+      "diplome": {
+        "id": 1,
+        "nom": "Licence Informatique",
+        "description": "Diplôme de fin de licence",
+        "type": "Licence"
+      },
+      "dateCreation": "2024-08-01T00:00:00.000Z"
+    },
+    {
+      "boursier": false,
+      "id": "3"
     }
   ],
   "formations": [

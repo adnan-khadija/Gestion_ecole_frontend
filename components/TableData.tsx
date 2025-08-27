@@ -403,70 +403,91 @@ function TableauDynamique<T extends { id: number | string }>({
       </div>
 
       {/* Modale import preview */}
-      {showPreview && (
-        <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-6xl w-full  shadow-lg">
-            <h2 className="text-lg font-bold mb-4">Prévisualisation du fichier</h2>
-            <div className="overflow-x-auto max-h-64 border rounded">
-              <table className="min-w-full text-sm border-collapse">
-                <thead>
-                  <tr>
-                    {Object.keys(previewData[0] || {}).map((key, i) => (
-                      <th key={i} className="border px-4 py-2 bg-gray-100">{key}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {previewData.map((row, i) => (
-                    <tr key={i} className="hover:bg-gray-50">
-                      {Object.values(row).map((val, j) => (
-                        <td key={j} className="border px-4 py-2">
-                          {typeof val === 'object' && val !== null
-                            ? JSON.stringify(val)
-                            : val}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setShowPreview(false)}
-              >
-                Annuler
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={async () => {
-                  try {
-                    for (const item of previewData) {
-                      await fetch('http://localhost:5000/etudiants', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(item),
-                      });
-                    }
-                    alert('Données ajoutées avec succès!');
-                    setShowPreview(false);
-                  } catch (error) {
-                    console.error(error);
-                    alert('Erreur lors de l’ajout.');
-                  }
-                }}
-              >
-                Confirmer l’import
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+{showPreview && (
+  <div
+    className="fixed inset-0 flex items-center justify-center z-50"
+    style={{
+      background: "rgba(13, 104, 174, 0.25)", // var(--bleu-foncé) avec transparence
+      backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
+    }}
+  >
+    <div
+      className="bg-white rounded-lg p-6 max-w-6xl w-full shadow-lg"
+      style={{
+        boxShadow: "0 8px 32px 0 rgba(0, 208, 132, 0.15)", // var(--vivid-green-cyan) accent
+        border: "1px solid var(--light-green-cyan)",
+      }}
+    >
+      <h2 className="text-lg font-bold mb-4" style={{ color: "var(--bleu-foncé)" }}>
+        Prévisualisation du fichier
+      </h2>
+      <div className="overflow-x-auto rounded-lg border border-gray-200 mx-4 mb-4">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-white">
+            <tr>
+              {previewData.length > 0 &&
+                Object.keys(previewData[0]).map((key, i) => (
+                  <th
+                    key={i}
+                    className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap"
+                    style={{ color: "var(--bleu-foncé)" }}
+                  >
+                    {key}
+                  </th>
+                ))}
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {previewData.map((row, i) => (
+              <tr key={i} className="hover:bg-electric-grass-light">
+                {Object.values(row).map((val, j) => (
+                  <td
+                    key={j}
+                    className="px-2 py-2 text-[10px] text-gray-700 w-24 whitespace-nowrap truncate"
+                  >
+                    {typeof val === "object" && val !== null
+                      ? JSON.stringify(val)
+                      : val}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex justify-end gap-2 mt-4">
+        <Button variant="secondary" size="sm" onClick={() => setShowPreview(false)}>
+          Annuler
+        </Button>
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={async () => {
+            try {
+              for (const item of previewData) {
+                await fetch("http://localhost:5000/etudiants", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(item),
+                });
+              }
+              alert("Données ajoutées avec succès!");
+              setShowPreview(false);
+            } catch (error) {
+              console.error(error);
+              alert("Erreur lors de l'ajout.");
+            }
+          }}
+        >
+          Confirmer l'import
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Modale d'ajout */}
       {showAddForm && (
