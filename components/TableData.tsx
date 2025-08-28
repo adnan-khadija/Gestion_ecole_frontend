@@ -585,7 +585,7 @@ const handleDelete = async (id: number | string) => {
                   key={column.key.toString()}
                   className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap"
                   style={{
-                    color: '#0d68ae',
+                    color: '#95BA61',
                   }}
                 >
                   {column.title}
@@ -595,7 +595,7 @@ const handleDelete = async (id: number | string) => {
                 <th
                   className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-16 whitespace-nowrap"
                   style={{
-                    color: '#0d68ae',
+                    color: '#95BA61',
                   }}
                 >
                   Actions

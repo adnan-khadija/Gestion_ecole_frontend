@@ -32,7 +32,7 @@ export const SearchBar = ({
       />
       <button
         onClick={onSearchSubmit}
-        className="absolute inset-y-0 right-0 px-4 flex items-center bg-[#55b7f3] hover:bg-[#8ed1fc] text-white rounded-r-md transition-colors"
+        className="absolute inset-y-0 right-0 px-4 flex items-center bg-[#D6A41B] text-white hover:bg-[#b88917] shadow-sm rounded-r-md transition-colors"
       >
         <FaSearch />
       </button>
