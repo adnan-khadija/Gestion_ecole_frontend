@@ -4,12 +4,12 @@ import TableauDynamique from "@/components/TableData";
 import { useState, useEffect } from "react";
 import { Column } from "@/components/TableData";
 import { Etudiant } from "@/lib/types";
-import { getEtudiants } from "@/lib/etudiantService";
+import { getEtudiants, addEtudiant, updateEtudiant, deleteEtudiant } from "@/lib/etudiantService";
+import toast from "react-hot-toast";
 import { Switch } from "@headlessui/react";
 import StudentProfile from "@/components/StudentProfile";
 import { FaEye } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/Loading";
-import { updateEtudiant } from "@/lib/etudiantService";
 
 export default function Student() {
   const [etudiants, setEtudiants] = useState<Etudiant[]>([]);
@@ -211,13 +211,46 @@ const colonnesEtudiants: Column<Etudiant>[] = [
 
 
 
-  const handleEdit = <T extends { id: number | string }>(item: T) => {
-    console.log('Modifier:', item);
-  };
+// Ajout
+const handleAdd = async (etudiant: any) => {
+  try {
+    const res = await addEtudiant(etudiant); // attend la persistance côté serveur
+    // si ton service renvoie la res.data
+    setEtudiants(prev => [...prev, res.data || etudiant]);
+    toast.success("Étudiant ajouté");
+  } catch (err) {
+    console.error("Erreur ajout:", err);
+    toast.error("Erreur lors de l'ajout");
+    throw err; // propager si Tableau attend l'erreur
+  }
+};
 
-  const handleDelete = (id: number | string) => {
-    console.log("Supprimer ID:", id);
-  };
+// Édition
+const handleEdit = async (etudiant: Etudiant) => {
+  try {
+    const res = await updateEtudiant(etudiant.id, etudiant);
+    setEtudiants(prev => prev.map(e => (e.id === etudiant.id ? (res.data || etudiant) : e)));
+    toast.success("Étudiant mis à jour");
+  } catch (err) {
+    console.error("Erreur update:", err);
+    toast.error("Erreur lors de la mise à jour");
+    throw err;
+  }
+};
+
+// Suppression
+const handleDelete = async (id: number | string) => {
+  try {
+    await deleteEtudiant(id);
+    setEtudiants(prev => prev.filter(e => e.id !== id));
+    toast.success("Étudiant supprimé");
+  } catch (err) {
+    console.error("Erreur suppression:", err);
+    toast.error("Erreur lors de la suppression");
+    throw err;
+  }
+};
+
 
   const handleToggle = async (id: string | number, field: "boursier" | "handicap", value: boolean) => {
     try {
@@ -242,15 +275,18 @@ const colonnesEtudiants: Column<Etudiant>[] = [
       ) : (
         <>
       {/* Tableau des étudiants */}
+    
       <TableauDynamique<Etudiant>
-        data={etudiants}
-        columns={colonnesEtudiants}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        actionsColor="blue"
-        emptyMessage="Aucun étudiant trouvé"
-        onRowClick={(student) => setSelectedStudent(student)} 
-      />
+  data={etudiants}
+  columns={colonnesEtudiants}
+  onAdd={handleAdd}
+  onEdit={handleEdit}
+  onDelete={handleDelete}
+  actionsColor="blue"
+  emptyMessage="Aucun étudiant trouvé"
+  onRowClick={(student) => setSelectedStudent(student)}
+/>
+
 
       {/* Student profile modal */}
       {selectedStudent && (

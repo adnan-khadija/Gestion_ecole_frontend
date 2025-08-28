@@ -4,7 +4,7 @@ import { PaginationControls } from './ Pagination';
 import Button from './Button';
 import EtudiantForm from './EtudiantForm';
 import { Etudiant, Formation } from '@/lib/types';
-import { getFormations, updateEtudiant, deleteEtudiant } from '@/lib/etudiantService';
+import { getFormations } from '@/lib/etudiantService';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -76,32 +76,7 @@ function TableauDynamique<T extends { id: number | string }>({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showAddForm, editEtudiant]);
 
-  // Edit Etudiant (corrigé : appeler update indépendamment de editEtudiant)
-  const handleEditEtudiant = (etudiant: Etudiant) => {
-    updateEtudiant(etudiant.id, etudiant)
-      .then(() => {
-        setEditEtudiant(null);
-        setCurrentPage(1);
-        toast.success("Étudiant modifié avec succès");
-        // Optionnel : rafraîchir la liste des étudiants ici
-      })
-      .catch(error => {
-        toast.error("Erreur lors de la mise à jour de l'étudiant");
-      });
-  };
-
-  // Suppression d'un étudiant
-  const handleDelete = (id: number | string) => {
-    deleteEtudiant(id)
-      .then(() => {
-        toast.success("Étudiant supprimé avec succès");
-        setCurrentPage(1);
-      })
-      .catch(error => {
-        console.error("Erreur lors de la suppression de l'étudiant:", error);
-        toast.error("Erreur lors de la suppression de l'étudiant");
-      });
-  };
+ 
 
   // Import Excel
   const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,13 +206,51 @@ function TableauDynamique<T extends { id: number | string }>({
     return filteredData.slice(start, start + itemsPerPage);
   }, [filteredData, currentPage, itemsPerPage]);
 
-  // Ajout étudiant
-  const handleAddStudent = (etudiant: any) => {
+ // Ajout étudiant — déléguer au parent via onAdd
+const handleAddStudent = async (etudiant: any) => {
+  try {
     if (onAdd) {
-      onAdd(etudiant);
+      // onAdd peut retourner la res.data; on attend pour permettre au parent de persister
+      await onAdd(etudiant);
     }
     setShowAddForm(false);
-  };
+    setCurrentPage(1);
+    toast.success("Étudiant ajouté localement (parent mis à jour)");
+  } catch (error) {
+    console.error("Erreur lors de l'ajout via onAdd:", error);
+    toast.error("Erreur lors de l'ajout de l'étudiant");
+  }
+};
+
+// Édition — déléguer la mise à jour au parent via onEdit
+const handleEditEtudiant = async (etudiant: Etudiant) => {
+  try {
+    if (onEdit) {
+      await onEdit(etudiant);
+    }
+    setEditEtudiant(null);
+    setCurrentPage(1);
+    toast.success("Étudiant modifié (parent mis à jour)");
+  } catch (error) {
+    console.error("Erreur lors de la modification via onEdit:", error);
+    toast.error("Erreur lors de la modification de l'étudiant");
+  }
+};
+
+// Suppression — déléguer au parent via onDelete
+const handleDelete = async (id: number | string) => {
+  try {
+    if (onDelete) {
+      await onDelete(id);
+    }
+    setCurrentPage(1);
+    toast.success("Étudiant supprimé (parent mis à jour)");
+  } catch (error) {
+    console.error("Erreur lors de la suppression via onDelete:", error);
+    toast.error("Erreur lors de la suppression de l'étudiant");
+  }
+};
+
 
   // Template Excel
   const downloadTemplate = () => {
@@ -460,30 +473,38 @@ function TableauDynamique<T extends { id: number | string }>({
         <Button variant="secondary" size="sm" onClick={() => setShowPreview(false)}>
           Annuler
         </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={async () => {
-            try {
-              for (const item of previewData) {
-                await fetch("http://localhost:5000/etudiants", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(item),
-                });
-              }
-              alert("Données ajoutées avec succès!");
-              setShowPreview(false);
-            } catch (error) {
-              console.error(error);
-              alert("Erreur lors de l'ajout.");
-            }
-          }}
-        >
-          Confirmer l'import
-        </Button>
+      <Button
+  variant="primary"
+  size="sm"
+  onClick={async () => {
+    try {
+      if (onAdd) {
+        for (const item of previewData) {
+          await onAdd(item);
+        }
+      } else {
+        // fallback si parent n'a pas fourni onAdd : poste directement à l'API
+        for (const item of previewData) {
+          await fetch("http://localhost:5000/etudiants", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(item),
+          });
+        }
+      }
+      toast.success("Données ajoutées avec succès !");
+      setShowPreview(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Erreur lors de l'import des données.");
+    }
+  }}
+>
+  Confirmer l'import
+</Button>
+
       </div>
     </div>
   </div>
