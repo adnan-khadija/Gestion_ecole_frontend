@@ -1,16 +1,20 @@
 "use client";
 
 import { Etudiant } from "@/lib/types";
-import { FiX, FiMail, FiPhone, FiMapPin, FiCalendar, FiGlobe, FiDollarSign, FiUser, FiHome, FiBook, FiAward, FiUsers, FiHeart } from "react-icons/fi";
-import { useState, useEffect } from "react";
+import { FiX, FiDownload } from "react-icons/fi";
+import { useState, useEffect, useRef } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import QRCode from "react-qr-code";
 
 type StudentProfileProps = {
-  etudiant: Etudiant;
+  etudiant: Etudiant & { presenceToken?: string };
   onClose: () => void;
 };
 
 export default function StudentProfile({ etudiant, onClose }: StudentProfileProps) {
   const [show, setShow] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setShow(true);
@@ -21,203 +25,117 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
     setTimeout(() => onClose(), 300);
   };
 
+  const generatePDF = async () => {
+    if (cardRef.current) {
+      const canvas = await html2canvas(cardRef.current);
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF();
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${etudiant.nom}_${etudiant.prenom}.pdf`);
+    }
+  };
+
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-[#0d68ae]/50 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 ${
         show ? "opacity-100" : "opacity-0"
       }`}
       onClick={handleClose}
     >
       <div
-        className="bg-white rounded-lg max-w-3xl w-full mx-4 p-6 relative max-h-[90vh] overflow-y-auto"
+        ref={cardRef}
+        className={`bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-transform duration-300 ${
+          show ? "scale-100" : "scale-95"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex justify-between items-center mb-4 border-b border-[#7bdcb5] pb-2">
-          <h1 className="text-xl font-semibold text-[#0274be]">Profil Étudiant</h1>
+        <div className="bg-purple-300 rounded-t-2xl p-5 flex justify-between items-center">
           <button
             onClick={handleClose}
-            className="p-1 text-[#8a8a19] hover:text-[#0d68ae]"
+            className="text-white hover:text-gray-200"
           >
-            <FiX size={20} />
+            <FiX size={26} />
+          </button>
+          <button
+            onClick={generatePDF}
+            className="flex items-center gap-2 bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition font-medium text-sm"
+          >
+            <FiDownload />
+            PDF
           </button>
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Left Section - Information */}
-          <div className="md:col-span-2 space-y-4">
-            <div>
-              <h2 className="text-2xl font-semibold text-[#0274be]">{etudiant.prenom} {etudiant.nom}</h2>
-              <p className="text-[#00d084]">{etudiant.matricule} (ID: {etudiant.id})</p>
-            </div>
-
-            <div >
-              {/* Informations Personnelles */}
-              <div>
-                <h3 className="text-base font-medium text-[#0d68ae] mb-2">Informations Personnelles</h3>
-                <div  className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="flex items-center gap-2">
-                    <FiCalendar className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm text-[#8a8a19]">Date de Naissance</p>
-                      <p className="text-xs text-[#0274be]">{etudiant.dateNaissance}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiMapPin className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm text-[#8a8a19]">Lieu de Naissance</p>
-                      <p className="text-xs text-[#0274be]">{etudiant.lieuNaissance}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiUser className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm text-[#8a8a19]">Sexe</p>
-                      <p className="text-xs text-[#0274be]">{etudiant.sexe}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiGlobe className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm text-[#8a8a19]">Nationalité</p>
-                      <p className="text-xs text-[#0274be]">{etudiant.nationalite}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiHeart className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm text-[#8a8a19]">Situation Familiale</p>
-                      <p className="text-xs text-[#0274be]">{etudiant.situationFamiliale || "Non spécifié"}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiDollarSign className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm text-[#8a8a19]">Statut Boursier</p>
-                      <p className="text-xs text-[#0274be]">{etudiant.boursier ? "Oui" : "Non"}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiUser className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm text-[#8a8a19]">Handicap</p>
-                      <p className="text-xs text-[#0274be]">{etudiant.handicap ? "Oui" : "Non"}</p>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            
-            </div>
-              {/* Coordonnées */}
-              <div className="pt-4 border-t border-[#7bdcb5]">
-                <h3 className="text-base font-medium text-[#0d68ae] mb-2">Coordonnées</h3>
-                <div  className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="flex items-center gap-2">
-                    <FiMail className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm  text-[#8a8a19]">Email</p>
-                      <a href={`mailto:${etudiant.email}`} className="text-xs text-[#0274be] hover:text-[#9de37f]">
-                        {etudiant.email}
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiPhone className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm text-[#8a8a19]">Téléphone</p>
-                      <a href={`tel:${etudiant.telephone}`} className="text-xs text-[#0274be] hover:text-[#9de37f]">
-                        {etudiant.telephone}
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiMapPin className="text-[#00d084]" size={16} />
-                    <div>
-                      <p className="text-sm  text-[#8a8a19]">Adresse</p>
-                      <p className="text-xs text-[#0274be]">{etudiant.adresse}, {etudiant.ville}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            {/* Informations Académiques */}
-            <div className="pt-4 border-t border-[#7bdcb5]">
-              <h3 className="text-base font-medium text-[#0d68ae] mb-2">Informations Académiques</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-[#8a8a19]">Formation Actuelle</p>
-                  <p className="text-xs text-[#0274be]">{etudiant.formationActuelle?.nom || "Non spécifié"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#8a8a19]">Niveau Scolaire</p>
-                  <p className="text-xs text-[#0274be]">{etudiant.niveauScolaire || "Non spécifié"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#8a8a19]">Groupe Scolaire</p>
-                  <p className="text-xs text-[#0274be]">{etudiant.groupeScolaire || "Non spécifié"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#8a8a19]">Année Académique</p>
-                  <p className="text-xs text-[#0274be]">{etudiant.anneeAcademique || "Non spécifié"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#8a8a19]">Statut</p>
-                  <p className="text-xs text-[#0274be]">{etudiant.statut || "Non spécifié"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#8a8a19]">Date d'Inscription</p>
-                  <p className="text-xs text-[#0274be]">{etudiant.dateInscription || "Non spécifié"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#8a8a19]">Diplôme</p>
-                  <p className="text-xs text-[#0274be]">{etudiant.diplome?.nom || "Non spécifié"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#8a8a19]">Formations Suivies</p>
-                  <p className="text-xs text-[#0274be]">
-                    {etudiant.formations?.length ? etudiant.formations.map(f => f.nom).join(", ") : "Aucune"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Informations Tuteur */}
-            {(etudiant.nomTuteur || etudiant.contactTuteur) && (
-              <div className="pt-4 border-t border-[#7bdcb5]">
-                <h3 className="text-base font-medium text-[#0d68ae] mb-2">Informations Tuteur</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-[#8a8a19]">Nom du Tuteur</p>
-                    <p className="text-xs text-[#0274be]">{etudiant.nomTuteur || "Non spécifié"}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-[#8a8a19]">Contact du Tuteur</p>
-                    <p className="text-xs text-[#0274be]">{etudiant.contactTuteur || "Non spécifié"}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right Section - Photo and ID */}
-          <div className="flex flex-col items-center">
+        <div className="flex flex-col md:flex-row items-start gap-6 p-6">
+          {/* Left column: photo + QR */}
+          <div className="flex flex-col items-center md:items-start gap-4">
             <img
               src={etudiant.photo || "/images/logo.png"}
-              alt={`${etudiant.prenom} ${etudiant.nom}`}
-              className="w-32 h-32 rounded-full border-2 border-[#7bdcb5] object-cover mb-4"
+              alt={etudiant.nom}
+              className="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-purple-300"
             />
-            <div className="text-center">
-              <h3 className="text-sm font-medium text-[#0d68ae] mb-1">Matricule Étudiant</h3>
-              <p className="text-sm text-[#0274be] border border-[#7bdcb5] rounded px-2 py-1">{etudiant.matricule}</p>
+
+            {/* QR Code */}
+            <div className="p-3 bg-white rounded-lg shadow-md">
+              <QRCode
+                value={JSON.stringify({
+                  matricule: etudiant.matricule,
+                  token: etudiant.presenceToken || "no-token",
+                })}
+                size={120}
+                bgColor="#FFFFFF"
+                fgColor="#6B46C1"
+              />
+              <p className="text-center text-sm text-gray-600 mt-2 font-medium">
+                Scanner pour valider la présence
+              </p>
+            </div>
+          </div>
+
+          {/* Right column: Info Table with light purple background */}
+          <div className="flex-1 bg-purple-100 rounded-xl p-4 shadow-inner">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">
+              {etudiant.nom} {etudiant.prenom}
+            </h2>
+            <div className="grid grid-cols-2 gap-y-2 text-sm text-gray-700">
+              <span className="font-semibold">Matricule:</span>
+              <span>{etudiant.matricule}</span>
+
+              <span className="font-semibold">Email:</span>
+              <span>
+                <a href={`mailto:${etudiant.email}`} className="text-purple-600 hover:underline">
+                  {etudiant.email}
+                </a>
+              </span>
+
+              <span className="font-semibold">Téléphone:</span>
+              <span>
+                <a href={`tel:${etudiant.telephone}`} className="text-purple-600 hover:underline">
+                  {etudiant.telephone}
+                </a>
+              </span>
+
+              <span className="font-semibold">Adresse:</span>
+              <span>{etudiant.adresse}</span>
+
+              <span className="font-semibold">Date de Naissance:</span>
+              <span>{etudiant.dateNaissance}</span>
+
+              <span className="font-semibold">Ville:</span>
+              <span>{etudiant.ville}</span>
+
+              <span className="font-semibold">Nationalité:</span>
+              <span>{etudiant.nationalite}</span>
+
+              <span className="font-semibold">Boursier:</span>
+              <span>{etudiant.boursier ? "Oui" : "Non"}</span>
             </div>
           </div>
         </div>
-
-       
       </div>
     </div>
   );
