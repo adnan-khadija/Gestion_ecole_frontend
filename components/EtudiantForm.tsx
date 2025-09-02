@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Sexe, SituationFamiliale, StatutEtudiant, Etudiant, Formation } from '@/lib/types';
-import { addEtudiant } from '@/lib/etudiantService';
+import { addEtudiant } from '@/lib/services';
 import toast from 'react-hot-toast';
 
 interface EtudiantFormProps {
   onSave: (etudiant: Etudiant) => void;
   formations: Formation[];
-  etudiantInitial?: Omit<Etudiant, 'id' | 'dateCreation' | 'dateModification'>;
+  etudiantInitial?: Omit<Etudiant, 'id'>;
 }
 
 const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps) => {
   const [customFields, setCustomFields] = useState<{ name: string; value: string }[]>([]);
-  const [etudiant, setEtudiant] = useState<Omit<Etudiant, 'id' | 'dateCreation' | 'dateModification'>>({
+  const [etudiant, setEtudiant] = useState<Omit<Etudiant, 'id'>>({
     nom: '',
     prenom: '',
     email: '',

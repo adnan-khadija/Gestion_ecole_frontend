@@ -1,10 +1,10 @@
 import { FaEdit, FaTrash, FaInfoCircle, FaTimes, FaPlus, FaFileExcel, FaFileExport, FaFileImport, FaFilter } from 'react-icons/fa';
 import React, { useState, useMemo, useEffect } from 'react';
-import { PaginationControls } from './ Pagination';
+import { PaginationControls } from './Pagination';
 import Button from './Button';
 import EtudiantForm from './EtudiantForm';
 import { Etudiant, Formation } from '@/lib/types';
-import { getFormations } from '@/lib/etudiantService';
+import { getFormations } from '@/lib/services';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';

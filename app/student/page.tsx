@@ -4,7 +4,7 @@ import TableauDynamique from "@/components/TableData";
 import { useState, useEffect } from "react";
 import { Column } from "@/components/TableData";
 import { Etudiant } from "@/lib/types";
-import { getEtudiants, addEtudiant, updateEtudiant, deleteEtudiant } from "@/lib/etudiantService";
+import { getEtudiants, addEtudiant, updateEtudiant, deleteEtudiant } from "@/lib/services";
 import toast from "react-hot-toast";
 import { Switch } from "@headlessui/react";
 import StudentProfile from "@/components/StudentProfile";
