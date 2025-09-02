@@ -384,8 +384,8 @@ function TableauDynamiqueProf({
                 {(onEdit || onDelete) && (
                   <td className="px-2 py-2">
                     <div className="flex space-x-2">
-                      {onEdit && <FaEdit className="cursor-pointer text-blue-600" onClick={() => setEditProf(prof)} />}
-                      {onDelete && <FaTrash className="cursor-pointer text-red-600" onClick={() => handleDelete(prof.id)} />}
+                      {onEdit && <FaEdit className="cursor-pointer text-[#0274be]" onClick={() => setEditProf(prof)} />}
+                      {onDelete && <FaTrash className="cursor-pointer text-[#6d6d14]" onClick={() => handleDelete(prof.id)} />}
                     </div>
                   </td>
                 )}
