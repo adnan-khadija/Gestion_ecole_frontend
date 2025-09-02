@@ -368,9 +368,9 @@ function TableauDynamiqueProf({
           <thead className="bg-white">
             <tr>
               {columns.map((column) => (
-                <th key={column.key.toString()} className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap" style={{ color: '#0d68ae' }}>{column.title}</th>
+                <th key={column.key.toString()} className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap" style={{ color: '#95BA61' }}>{column.title}</th>
               ))}
-              {(onEdit || onDelete) && <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap" style={{ color: '#0d68ae' }}>Actions</th>}
+              {(onEdit || onDelete) && <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap" style={{ color: '#95BA61' }}>Actions</th>}
             </tr>
           </thead>
           <tbody>
