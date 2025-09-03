@@ -1,7 +1,14 @@
 "use client";
 import { useState } from "react";
 import { FiLogOut } from "react-icons/fi";
-import { FaBook, FaThLarge, FaUsers, FaCog, FaCalendar, FaChalkboardTeacher } from "react-icons/fa";
+import {
+  FaBook,
+  FaThLarge,
+  FaUsers,
+  FaCog,
+  FaCalendar,
+  FaChalkboardTeacher,
+} from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -22,7 +29,7 @@ const Sidebar = () => {
   const router = useRouter();
 
   const elementsMenu: MenuItem[] = [
-    { nom: "Tableau de bord", icone: <FaThLarge className="text-[#8A8A19]" />, lien: "/" },
+    { nom: "Tableau de bord", icone: <FaThLarge />, lien: "/" },
     { nom: "Étudiants", icone: <FaUsers />, lien: "/student" },
     { nom: "Professeurs", icone: <FaChalkboardTeacher />, lien: "/professeurs" },
     { nom: "Cours", icone: <FaBook />, lien: "/cours" },
@@ -45,12 +52,20 @@ const Sidebar = () => {
               <Link
                 href={item.lien}
                 onClick={() => setElementActif(item.lien)}
-                className={`flex items-center p-3 rounded-xl transition-all
-                  ${elementActif === item.lien 
-                    ? 'bg-gray-100 text-[#8A8A19]'
-                    : 'text-gray-600 hover:bg-{gray-100} hover:text-[#8A8A19]'}`}
+                className={`group flex items-center p-3 rounded-xl transition-all
+                  ${
+                    elementActif === item.lien
+                      ? "bg-gray-100 text-[#E3242B]"
+                      : "text-[#E3242B] hover:bg-gray-100 hover:text-[#B71C1C]"
+                  }`}
               >
-                <span className="mr-3 text-md text-[#8A8A19]">
+                <span
+                  className={`mr-3 text-md transition-colors ${
+                    elementActif === item.lien
+                      ? "text-[#E3242B]"
+                      : "text-[#E3242B] group-hover:text-[#B71C1C]"
+                  }`}
+                >
                   {item.icone}
                 </span>
                 <span className="font-medium text-sm">{item.nom}</span>
@@ -64,9 +79,11 @@ const Sidebar = () => {
       <div className="p-4 border-t border-gray-200">
         <button
           onClick={handleDeconnexion}
-          className="w-full flex items-center justify-center p-3 rounded-xl bg-gray-50 text-gray-600 hover:bg-[#8A8A19] hover:text-white transition-all"
+          className="group w-full flex items-center justify-center p-3 rounded-xl bg-gray-50 text-[#E3242B] hover:bg-[#B71C1C] hover:text-white transition-all"
         >
-          <FiLogOut className="mr-3 text-md" />
+          <FiLogOut
+            className="mr-3 text-md transition-colors text-[#E3242B] group-hover:text-white"
+          />
           <span className="font-medium text-sm">Déconnexion</span>
         </button>
       </div>

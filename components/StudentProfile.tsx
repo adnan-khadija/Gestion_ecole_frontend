@@ -53,7 +53,10 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-purple-300 rounded-t-2xl p-5 flex justify-between items-center">
+        <div
+          className="rounded-t-2xl p-5 flex justify-between items-center"
+          style={{ backgroundColor: "#838380ff" }} // dark gray-blue
+        >
           <button
             onClick={handleClose}
             className="text-white hover:text-gray-200"
@@ -62,7 +65,11 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
           </button>
           <button
             onClick={generatePDF}
-            className="flex items-center gap-2 bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition font-medium text-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm"
+            style={{
+              backgroundColor: "#eb7c78ff", // coral-red
+              color: "#171717",
+            }}
           >
             <FiDownload />
             PDF
@@ -75,8 +82,9 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
           <div className="flex flex-col items-center md:items-start gap-4">
             <img
               src={etudiant.photo || "/images/logo.png"}
-              alt={etudiant.nom}
-              className="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-purple-300"
+              alt={`${etudiant.nom} ${etudiant.prenom}`}
+              className="w-36 h-36 rounded-full object-cover shadow-lg border-4"
+              style={{ borderColor: "#ef130cff" }} // vivid red
             />
 
             {/* QR Code */}
@@ -88,51 +96,106 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
                 })}
                 size={120}
                 bgColor="#FFFFFF"
-                fgColor="#6B46C1"
+                fgColor="#ef130cff"
               />
-              <p className="text-center text-sm text-gray-600 mt-2 font-medium">
+              <p
+                className="text-center text-sm mt-2 font-medium"
+                style={{ color: "#171717" }}
+              >
                 Scanner pour valider la présence
               </p>
             </div>
           </div>
 
-          {/* Right column: Info Table with light purple background */}
-          <div className="flex-1 bg-purple-100 rounded-xl p-4 shadow-inner">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">
-              {etudiant.nom} {etudiant.prenom}
+          {/* Right column: Info Table */}
+          <div
+            className="flex-1 rounded-xl p-4 shadow-inner"
+            style={{ backgroundColor: "#b5b7b9ff" }} // light gray-blue
+          >
+            <h2
+              className="text-3xl font-extrabold mb-4 tracking-tight"
+              style={{ color: "#424444ff" }} // darker gray-blue
+            >
+              {etudiant.prenom} {etudiant.nom}
             </h2>
-            <div className="grid grid-cols-2 gap-y-2 text-sm text-gray-700">
-              <span className="font-semibold">Matricule:</span>
-              <span>{etudiant.matricule}</span>
+            <div className="grid grid-cols-2 gap-y-2 text-sm">
+              <span className="font-semibold" style={{ color: "#8a8a19" }}>
+                Matricule:
+              </span>
+              <span style={{ color: "#171717" }}>{etudiant.matricule}</span>
 
-              <span className="font-semibold">Email:</span>
+              <span className="font-semibold" style={{ color: "#8a8a19" }}>
+                Email:
+              </span>
               <span>
-                <a href={`mailto:${etudiant.email}`} className="text-purple-600 hover:underline">
+                <a
+                  href={`mailto:${etudiant.email}`}
+                  style={{ color: "#ef130cff" }}
+                  className="hover:underline"
+                >
                   {etudiant.email}
                 </a>
               </span>
 
-              <span className="font-semibold">Téléphone:</span>
-              <span>
-                <a href={`tel:${etudiant.telephone}`} className="text-purple-600 hover:underline">
-                  {etudiant.telephone}
-                </a>
+              {etudiant.telephone && (
+                <>
+                  <span className="font-semibold" style={{ color: "#8a8a19" }}>
+                    Téléphone:
+                  </span>
+                  <span>
+                    <a
+                      href={`tel:${etudiant.telephone}`}
+                      style={{ color: "#ef130cff" }}
+                      className="hover:underline"
+                    >
+                      {etudiant.telephone}
+                    </a>
+                  </span>
+                </>
+              )}
+
+              {etudiant.adresse && (
+                <>
+                  <span className="font-semibold" style={{ color: "#8a8a19" }}>
+                    Adresse:
+                  </span>
+                  <span style={{ color: "#171717" }}>{etudiant.adresse}</span>
+                </>
+              )}
+
+              {etudiant.dateNaissance && (
+                <>
+                  <span className="font-semibold" style={{ color: "#8a8a19" }}>
+                    Date de Naissance:
+                  </span>
+                  <span style={{ color: "#171717" }}>{etudiant.dateNaissance}</span>
+                </>
+              )}
+
+              {etudiant.ville && (
+                <>
+                  <span className="font-semibold" style={{ color: "#8a8a19" }}>
+                    Ville:
+                  </span>
+                  <span style={{ color: "#171717" }}>{etudiant.ville}</span>
+                </>
+              )}
+
+              {etudiant.nationalite && (
+                <>
+                  <span className="font-semibold" style={{ color: "#8a8a19" }}>
+                    Nationalité:
+                  </span>
+                  <span style={{ color: "#171717" }}>{etudiant.nationalite}</span>
+                </>
+              )}
+
+              <span className="font-semibold" style={{ color: "#8a8a19" }}>
+                Boursier:
               </span>
-
-              <span className="font-semibold">Adresse:</span>
-              <span>{etudiant.adresse}</span>
-
-              <span className="font-semibold">Date de Naissance:</span>
-              <span>{etudiant.dateNaissance}</span>
-
-              <span className="font-semibold">Ville:</span>
-              <span>{etudiant.ville}</span>
-
-              <span className="font-semibold">Nationalité:</span>
-              <span>{etudiant.nationalite}</span>
-
-              <span className="font-semibold">Boursier:</span>
-              <span>{etudiant.boursier ? "Oui" : "Non"}</span>
+              <span style={{ color: "#171717" }}>
+                {etudiant.boursier ? "Oui" : "Non"}
+              </span>
             </div>
           </div>
         </div>

@@ -578,14 +578,14 @@ const handleDelete = async (id: number | string) => {
       {/* Tableau */}
       <div className="overflow-x-auto rounded-lg border border-gray-200 mx-4 mb-8">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-white">
+         <thead style={{ backgroundColor: '#BC544B' }}>
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key.toString()}
                   className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap"
                   style={{
-                    color: '#95BA61',
+                    color: '#fffcfcff',
                   }}
                 >
                   {column.title}
@@ -603,45 +603,47 @@ const handleDelete = async (id: number | string) => {
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                {columns.map((column) => (
-                  <td
-                    key={`${item.id}-${column.key.toString()}`}
-                    className="px-2 py-2 text-[10px] text-gray-700 w-24 whitespace-nowrap truncate"
-                    onClick={() => { if (typeof (onRowClick as any) === 'function') (onRowClick as any)(item); }}
-                  >
-                    {column.render ? column.render(item) : item[column.key as keyof T] as React.ReactNode}
-                  </td>
-                ))}
-                {(onEdit || onDelete) && (
-                  <td className="px-2 py-2 whitespace-nowrap w-16">
-                    <div className="flex space-x-2">
-                      {onEdit && (
-                        <button
-                          onClick={() => setEditEtudiant(item as unknown as Etudiant)}
-                          className="text-[#0d68ae] hover:text-[#0274be] transition-colors"
-                          title="Modifier"
-                        >
-                          <FaEdit className="h-4 w-4" />
-                        </button>
-                      )}
-                      {onDelete && (
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="text-[#8A8A19] hover:text-[#6d6d14] transition-colors"
-                          title="Supprimer"
-                        >
-                          <FaTrash className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
+    <tbody className="bg-gray-200 text-white divide-y divide-gray-600">
+  {paginatedData.map((item) => (
+    <tr key={item.id}>
+      {columns.map((column) => (
+        <td
+          key={`${item.id}-${column.key.toString()}`}
+          className="px-2 py-2 text-[10px] w-24 whitespace-nowrap truncate"
+          onClick={() => {
+            if (typeof (onRowClick as any) === 'function') (onRowClick as any)(item);
+          }}
+        >
+          {column.render ? column.render(item) : (item[column.key as keyof T] as React.ReactNode)}
+        </td>
+      ))}
+      {(onEdit || onDelete) && (
+        <td className="px-2 py-2 whitespace-nowrap w-16">
+          <div className="flex space-x-2">
+            {onEdit && (
+              <button
+                onClick={() => setEditEtudiant(item as unknown as Etudiant)}
+                className="text-white transition-colors"
+                title="Modifier"
+              >
+                <FaEdit className="h-4 w-4" />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => handleDelete(item.id)}
+                className="text-white transition-colors"
+                title="Supprimer"
+              >
+                <FaTrash className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </td>
+      )}
+    </tr>
+  ))}
+  </tbody>
         </table>
       </div>
 

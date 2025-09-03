@@ -365,12 +365,12 @@ function TableauDynamiqueProf({
       {/* Tableau */}
       <div className="overflow-x-auto rounded-lg border border-gray-200 mx-4 mb-8">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-white">
+          <thead style={{ backgroundColor: '#BC544B' }}>
             <tr>
               {columns.map((column) => (
-                <th key={column.key.toString()} className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap" style={{ color: '#95BA61' }}>{column.title}</th>
+                <th key={column.key.toString()} className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap" style={{ color: '#f1f3eeff' }}>{column.title}</th>
               ))}
-              {(onEdit || onDelete) && <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap" style={{ color: '#95BA61' }}>Actions</th>}
+              {(onEdit || onDelete) && <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap" style={{ color: '#fcfdfbff' }}>Actions</th>}
             </tr>
           </thead>
           <tbody>

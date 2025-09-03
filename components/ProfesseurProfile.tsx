@@ -55,7 +55,7 @@ export default function ProfesseurProfile({ professeur, onClose }: ProfesseurPro
         {/* Header */}
         <div
           className="rounded-t-2xl p-5 flex justify-between items-center"
-          style={{ backgroundColor: "#0d68ae" }} // bleu-foncé
+          style={{ backgroundColor: "#838380ff" }} // bleu-foncé
         >
           <button
             onClick={handleClose}
@@ -67,7 +67,7 @@ export default function ProfesseurProfile({ professeur, onClose }: ProfesseurPro
             onClick={generatePDF}
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm"
             style={{
-              backgroundColor: "#9de37f", // solid-electric-grass
+              backgroundColor: "#eb7c78ff", // solid-electric-grass
               color: "#171717",
             }}
           >
@@ -84,7 +84,7 @@ export default function ProfesseurProfile({ professeur, onClose }: ProfesseurPro
               src={professeur.photo || "/images/logo.png"}
               alt={`${professeur.nom} ${professeur.prenom}`}
               className="w-36 h-36 rounded-full object-cover shadow-lg border-4"
-              style={{ borderColor: "#7bdcb5" }} // light-green-cyan
+              style={{ borderColor: "#ef130cff" }} // light-green-cyan
             />
 
             {/* QR Code */}
@@ -96,7 +96,7 @@ export default function ProfesseurProfile({ professeur, onClose }: ProfesseurPro
                 })}
                 size={120}
                 bgColor="#FFFFFF"
-                fgColor="#00d084" // vivid-green-cyan
+                fgColor="#ef130cff" // vivid-green-cyan
               />
               <p className="text-center text-sm mt-2 font-medium" style={{ color: "#171717" }}>
                 Scanner pour valider
@@ -107,11 +107,11 @@ export default function ProfesseurProfile({ professeur, onClose }: ProfesseurPro
           {/* Right column: Info Table */}
           <div
             className="flex-1 rounded-xl p-4 shadow-inner"
-            style={{ backgroundColor: "#8ed1fc" }} // bleu clair
+            style={{ backgroundColor: "#b5b7b9ff" }} // bleu clair
           >
             <h2
               className="text-3xl font-extrabold mb-4 tracking-tight"
-              style={{ color: "#0274be" }} // bleu-clair
+              style={{ color: "#424444ff" }} // bleu-clair
             >
               {professeur.prenom} {professeur.nom}
             </h2>
@@ -123,7 +123,7 @@ export default function ProfesseurProfile({ professeur, onClose }: ProfesseurPro
               <span>
                 <a
                   href={`mailto:${professeur.email}`}
-                  style={{ color: "#0d68ae" }}
+                  style={{ color: "#ef130cff" }}
                   className="hover:underline"
                 >
                   {professeur.email}
@@ -136,7 +136,7 @@ export default function ProfesseurProfile({ professeur, onClose }: ProfesseurPro
                   <span>
                     <a
                       href={`tel:${professeur.telephone}`}
-                      style={{ color: "#0d68ae" }}
+                      style={{ color: "#ef130cff" }}
                       className="hover:underline"
                     >
                       {professeur.telephone}
