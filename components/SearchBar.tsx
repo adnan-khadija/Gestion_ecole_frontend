@@ -25,7 +25,7 @@ export const SearchBar = ({
       <input
         type="text"
         placeholder={placeholder}
-        className="pl-10 pr-16 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-[#55b7f3]"
+        className="pl-10 pr-16 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88917]"
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         onKeyPress={(e) => e.key === 'Enter' && onSearchSubmit()} 

@@ -270,11 +270,11 @@ function TableauDynamiqueProf({
                     <div className="flex gap-2 flex-wrap ml-16">
 
           <div className="flex gap-2 flex-wrap ml-16">
-            <Button className='flex items-center gap-2 w-28'  onClick={() => setShowAddForm(true)} variant="primary" ><FaPlus /> Ajouter</Button>
+            <Button className='flex items-center gap-2 w-28'  onClick={() => setShowAddForm(true)} variant="green" ><FaPlus /> Ajouter</Button>
             <input type="file" accept=".xlsx, .xls" id="fileInput" style={{ display: "none" }} onChange={handleImportExcel}/>
-            <Button className='flex items-center gap-2 w-28'  onClick={() => document.getElementById('fileInput')?.click()} variant="primary"><FaFileImport /> Importer</Button>
-            <Button className='flex items-center gap-2 w-28'  onClick={handleExportExcel} variant="primary"><FaFileExport /> Exporter</Button>
-            <Button className='flex items-center gap-2 w-28'  onClick={downloadTemplate} variant="primary"><FaFileExcel /> Modèle</Button>
+            <Button className='flex items-center gap-2 w-28'  onClick={() => document.getElementById('fileInput')?.click()} variant="green"><FaFileImport /> Importer</Button>
+            <Button className='flex items-center gap-2 w-28'  onClick={handleExportExcel} variant="green"><FaFileExport /> Exporter</Button>
+            <Button className='flex items-center gap-2 w-28'  onClick={downloadTemplate} variant="green"><FaFileExcel /> Modèle</Button>
             <button onClick={() => setShowFilters(prev => !prev)} className="ml-2 p-2 rounded-md border text-[#55b7f3]">
               <FaFilter />
             </button>

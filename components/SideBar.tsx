@@ -48,7 +48,7 @@ const Sidebar = () => {
                 className={`flex items-center p-3 rounded-xl transition-all
                   ${elementActif === item.lien 
                     ? 'bg-gray-100 text-[#8A8A19]'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-[#8A8A19]'}`}
+                    : 'text-gray-600 hover:bg-{gray-100} hover:text-[#8A8A19]'}`}
               >
                 <span className="mr-3 text-md text-[#8A8A19]">
                   {item.icone}

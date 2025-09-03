@@ -321,7 +321,7 @@ const handleDelete = async (id: number | string) => {
           <div className="flex gap-2 flex-wrap ml-16">
             <Button
               className="flex items-center gap-2 w-28"
-              variant="primary"
+              variant="green"
               size="md"
               onClick={() => setShowAddForm(true)}
             >
@@ -335,20 +335,20 @@ const handleDelete = async (id: number | string) => {
               onChange={handleImportExcel}
             />
             <Button className="flex items-center gap-2 w-28"
-              variant="primary"
+              variant="green"
               size="md"
               onClick={() => document.getElementById('fileInput')?.click()}>
               <FaFileImport /> Importer
             </Button>
             <Button className="flex items-center gap-2 w-28"
-              variant="primary"
+              variant="green"
               size="md"
               onClick={handleExportExcel}>
               <FaFileExport /> Exporter
             </Button>
             <Button
               className="flex items-center gap-2 w-28"
-              variant="primary"
+              variant="green"
               size="md"
               onClick={downloadTemplate}
             >
@@ -360,7 +360,7 @@ const handleDelete = async (id: number | string) => {
               onClick={() => setShowFilters(prev => !prev)}
               aria-pressed={showFilters}
               aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
-              className="ml-2 p-2 rounded-md border hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#55b7f3] text-[#55b7f3]"
+              className="ml-2 p-2 rounded-md border hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0d68ae] text-[#0d68ae]"
               title="Filtres"
             >
               <FaFilter />

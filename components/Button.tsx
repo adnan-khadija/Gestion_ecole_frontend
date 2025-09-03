@@ -27,9 +27,10 @@ const Button: React.FC<ButtonProps> = ({
   };
 
 const variantClasses = {
-  primary: `bg-[#D6A41B] text-white hover:bg-[#b88917] shadow-sm`, // darker amber hover
-  secondary: `bg-[#D6A41B] text-black hover:bg-[#e6b935] shadow-sm`, // lighter golden hover
-  outline: `border border-[#D6A41B] text-[#D6A41B] hover:bg-[#D6A41B]/10`
+  primary: `bg-[#0d68ae] text-white hover:bg-[#0274be] shadow-sm`, 
+  secondary: `bg-gray-200 text-black hover:bg-gray-300 shadow-sm`, 
+  green:`bg-[#D6A41B] text-black hover:bg-[#b88917] shadow-sm`, 
+  outline: `bg-[#9de37f] text-black hover:bg-[#caf880] shadow-sm`
 };
   return (
     <button
