@@ -32,7 +32,7 @@ const Sidebar = () => {
     { nom: "Tableau de bord", icone: <FaThLarge />, lien: "/" },
     { nom: "Étudiants", icone: <FaUsers />, lien: "/student" },
     { nom: "Professeurs", icone: <FaChalkboardTeacher />, lien: "/professeurs" },
-    { nom: "Cours", icone: <FaBook />, lien: "/cours" },
+    { nom: "Formations", icone: <FaBook />, lien: "/formations" },
     { nom: "Emploi du temps", icone: <FaCalendar />, lien: "/emploi-du-temps" },
     { nom: "Paramètres", icone: <FaCog />, lien: "/parametres" },
   ];

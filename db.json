@@ -1,72 +1,52 @@
 {
   "formations": [
     {
-      "id": "1",
       "nom": "Informatique",
       "description": "Licence en informatique",
-      "dateDebut": "2024-09-01",
-      "dateFin": "2027-06-30",
-      "niveau": "Licence",
-      "statut": "Actif",
       "duree": 36,
       "cout": 2450,
+      "professeurs": [],
+      "emploiDuTempsId": 101,
       "anneeFormation": 2026,
-      "estActive": false,
+      "estActive": true,
       "modeFormation": "Présentiel",
       "niveauAcces": "Bac",
       "capaciteMax": 40,
-      "professeurs": [
-        2,
-        3
-      ],
-      "emploiDuTempsId": 101,
+      "id": "1",
       "dateCreation": "2024-08-01T00:00:00.000Z",
-      "dateModification": "2025-09-03T12:36:06.123Z"
+      "dateModification": "2025-09-04T13:11:50.068Z"
     },
     {
-      "id": "2",
       "nom": "Mathématiques",
       "description": "Master en mathématiques",
-      "dateDebut": "2024-09-01",
-      "dateFin": "2026-06-30",
-      "niveau": "Master",
-      "statut": "Actif",
       "duree": 24,
       "cout": 3000,
+      "professeurs": [],
+      "emploiDuTempsId": 102,
       "anneeFormation": 2025,
       "estActive": true,
       "modeFormation": "Hybride",
       "niveauAcces": "Licence",
       "capaciteMax": 30,
-      "professeurs": [
-        2
-      ],
-      "emploiDuTempsId": 102,
+      "id": "2",
       "dateCreation": "2024-08-01T00:00:00.000Z",
-      "dateModification": "2025-09-03T12:36:06.123Z"
+      "dateModification": "2025-09-04T12:48:56.359Z"
     },
     {
-      "id": "3",
       "nom": "Physique",
       "description": "Doctorat en physique",
-      "dateDebut": "2024-09-01",
-      "dateFin": "2027-06-30",
-      "niveau": "Doctorat",
-      "statut": "Actif",
       "duree": 36,
       "cout": 4000,
+      "professeurs": [],
+      "emploiDuTempsId": 103,
       "anneeFormation": 2026,
       "estActive": true,
       "modeFormation": "En ligne",
       "niveauAcces": "Master",
       "capaciteMax": 15,
-      "professeurs": [
-        4,
-        5
-      ],
-      "emploiDuTempsId": 103,
+      "id": "3",
       "dateCreation": "2024-08-01T00:00:00.000Z",
-      "dateModification": "2025-09-03T12:36:06.123Z"
+      "dateModification": "2025-09-04T12:59:36.708Z"
     },
     {
       "id": "4",
@@ -84,7 +64,11 @@
       "niveauAcces": "Bac",
       "capaciteMax": 35,
       "professeurs": [
-        3
+        {
+          "id": 1,
+          "nom": "EL MAKOUDI",
+          "prenom": "Oussama"
+        }
       ],
       "emploiDuTempsId": 104,
       "dateCreation": "2024-08-01T00:00:00.000Z",
@@ -106,8 +90,11 @@
       "niveauAcces": "Licence",
       "capaciteMax": 25,
       "professeurs": [
-        3,
-        6
+        {
+          "id": 3,
+          "nom": "Khalil",
+          "prenom": "Ahmed"
+        }
       ],
       "emploiDuTempsId": 105,
       "dateCreation": "2024-08-01T00:00:00.000Z",
@@ -129,11 +116,51 @@
       "niveauAcces": "Master",
       "capaciteMax": 20,
       "professeurs": [
-        4
+        {
+          "id": 4,
+          "nom": "Mourad",
+          "prenom": "Fatima"
+        },
+        {
+          "id": 6,
+          "nom": "Idrissi",
+          "prenom": "Karim"
+        }
       ],
       "emploiDuTempsId": 106,
       "dateCreation": "2024-08-01T00:00:00.000Z",
       "dateModification": "2025-09-03T12:36:06.123Z"
+    },
+    {
+      "id": "cfbf",
+      "nom": "Informatique",
+      "description": "Licence<",
+      "duree": 34,
+      "cout": 234,
+      "professeurs": [],
+      "emploiDuTempsId": null,
+      "anneeFormation": 2025,
+      "estActive": true,
+      "modeFormation": "Hybride",
+      "niveauAcces": "Bac",
+      "capaciteMax": 22,
+      "dateCreation": "2025-09-04T12:51:49.689Z",
+      "dateModification": "2025-09-04T12:58:40.552Z"
+    },
+    {
+      "id": "1020",
+      "nom": "Math",
+      "description": "",
+      "duree": 230,
+      "cout": 45,
+      "professeurs": [],
+      "emploiDuTempsId": null,
+      "anneeFormation": 2025,
+      "estActive": true,
+      "niveauAcces": "Bac",
+      "capaciteMax": 34,
+      "dateCreation": "2025-09-04T13:00:53.834Z",
+      "dateModification": "2025-09-04T13:00:53.834Z"
     }
   ],
   "diplomes": [

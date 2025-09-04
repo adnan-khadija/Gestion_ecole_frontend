@@ -264,7 +264,7 @@ function TableauDynamiqueFormation({
             <Button className='flex items-center gap-2 w-28' onClick={() => document.getElementById('fileInput')?.click()} variant="green"><FaFileImport /> Importer</Button>
             <Button className='flex items-center gap-2 w-28' onClick={handleExportExcel} variant="green"><FaFileExport /> Exporter</Button>
             <Button className='flex items-center gap-2 w-28' onClick={downloadTemplate} variant="green"><FaFileExcel /> Modèle</Button>
-            <button onClick={() => setShowFilters(prev => !prev)} className="ml-2 p-2 rounded-md border text-[#55b7f3]">
+            <button onClick={() => setShowFilters(prev => !prev)} className="ml-2 p-2 rounded-md border text-[#0d68ae]">
               <FaFilter />
             </button>
           </div>
