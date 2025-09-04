@@ -148,7 +148,7 @@ export interface Formation {
   nom: string;
   duree: number; // en mois ou heures selon convention
   cout: number;  // décimal en number (ex: 5000.00)
-  professeurs?: Professeur[]; // 0..2 professeurs recommandés
+  professeurs?: Professeur[]; // max 2
   emploiDuTempsId?: number | null;
   description?: string;
   anneeFormation?: number;
