@@ -376,6 +376,96 @@ function TableauDynamiqueFormation({
           </div>
         </div>
       )}
+      {/* Modal de prévisualisation d'importation */}
+{showPreview && (
+  <div className="fixed inset-0 z-50 bg-[#F5F5F5] bg-opacity-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[80vh] overflow-hidden">
+      <div className="flex items-center justify-between p-6 border-b">
+        <h2 className="text-xl font-bold text-[#0d68ae]">Prévisualisation de l'importation</h2>
+        <button
+          onClick={() => {
+            setShowPreview(false);
+            setPreviewData([]);
+          }}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          <FaTimes className="h-5 w-5" />
+        </button>
+      </div>
+      
+      <div className="p-4 overflow-auto">
+        <div className="overflow-x-auto rounded-lg border border-gray-200 mb-4">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-white">
+              <tr>
+                {columns.map((column) => (
+                  <th 
+                    key={column.key.toString()} 
+                    className="px-2 py-2 text-left text-[10px] bg-[#A52A2A] text-white font-semibold tracking-wider w-24 whitespace-nowrap"
+                  >
+                    {column.title}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {previewData.map((formation, index) => (
+                <tr key={index} className="hover:bg-[#F5F5F5]">
+                  {columns.map((column) => (
+                    <td 
+                      key={`${index}-${column.key.toString()}`} 
+                      className="px-2 py-2 text-[10px] text-gray-700 w-24 whitespace-nowrap truncate"
+                    >
+                      {column.render ? (
+                        column.render(formation)
+                      ) : (
+                        (column.key === 'professeurs' || column.key === 'professeursIds') 
+                          ? formatProfesseursDisplay(formation.professeurs)
+                          : String(formation[column.key as keyof Formation] ?? '')
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="flex justify-end gap-3 mt-4">
+          <Button
+            variant="gray"
+            onClick={() => {
+              setShowPreview(false);
+              setPreviewData([]);
+            }}
+          >
+            Annuler
+          </Button>
+          <Button
+            variant="green"
+            onClick={async () => {
+              try {
+                for (const formation of previewData) {
+                  if (onAdd) {
+                    await onAdd(formation);
+                  }
+                }
+                setShowPreview(false);
+                setPreviewData([]);
+                toast.success("Importation réussie !");
+              } catch (error) {
+                console.error(error);
+                toast.error("Erreur lors de l'importation");
+              }
+            }}
+          >
+            Confirmer l'importation
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Tableau */}
       <div className="overflow-x-auto rounded-lg border border-gray-200 mx-4 mb-8">
