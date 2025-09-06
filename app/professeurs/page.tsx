@@ -29,11 +29,12 @@ export default function ProfesseursPage() {
 
 // Colonnes du tableau pour Professeur
 const colonnesProfesseurs: Column<Professeur>[] = [
+
   {
-    key: "id",
-    title: "ID",
+    key: "nom",
+    title: "Nom",
     render: (item) => (
-      <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -44,15 +45,8 @@ const colonnesProfesseurs: Column<Professeur>[] = [
         >
           <FaEye className="h-4 w-4" />
         </button>
-        <span className="whitespace-nowrap text-xs text-gray-500">{item.id}</span>
+              <span className="whitespace-nowrap text-xs text-gray-500">{item.nom}</span>
       </div>
-    ),
-  },
-  {
-    key: "nom",
-    title: "Nom",
-    render: (item) => (
-      <span className="whitespace-nowrap text-xs text-gray-500">{item.nom}</span>
     ),
   },
   {

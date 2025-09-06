@@ -148,7 +148,7 @@ export interface Formation {
   nom: string;
   duree: number; // en mois ou heures selon convention
   cout: number;  // décimal en number (ex: 5000.00)
-  professeurs?: Professeur[]; // max 2
+  professeurs: Professeur[]; // max 2
   emploiDuTempsId?: number | null;
   description?: string;
   anneeFormation?: number;
@@ -197,7 +197,7 @@ export interface Professeur {
 
 /* Étudiant */
 export interface Etudiant {
-  id: number | string;
+  id: number;
   matricule?: string;
   nom: string;
   prenom: string;
@@ -232,7 +232,7 @@ export interface Etudiant {
 
 /* Scolarité */
 export interface Scolarite {
-  id: number | string;
+  id: number;
   etudiant: Etudiant;
   formation?: Formation | null;
   anneeAcademique?: string;
@@ -268,7 +268,7 @@ export interface AbsenceEtudiant {
 
 /* Depense */
 export interface Depense {
-  id: number | string;
+  id: number;
   dateDepense: string;
   categorie: CategorieDepense;
   nomConcerne?: string;
@@ -287,7 +287,7 @@ export interface Depense {
 
 /* Paiement (transaction) */
 export interface Paiement {
-  id: number | string;
+  id: number ;
   etudiant?: Etudiant | null;
   formation?: Formation | null;
   diplome?: Diplome | null;

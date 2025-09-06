@@ -40,7 +40,7 @@ export const PaginationControls = ({
         <select
           value={itemsPerPage}
           onChange={onItemsPerPageChange}
-          className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-[#0d68ae] focus:border-[#0d68ae]"
+          className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-[#D4A017] focus:border-[#D4A017]"
         >
           {pageSizeOptions.map(option => (
             <option key={option} value={option}>
@@ -57,7 +57,7 @@ export const PaginationControls = ({
           className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${
             currentPage === 1 
               ? 'text-gray-400 cursor-not-allowed' 
-              : 'text-[#0d68ae] hover:bg-[#0274be] hover:text-white transition-colors'
+              : 'text-[#D4A017] hover:bg-[#D4A017] hover:text-white transition-colors'
           }`}
           title="Première page"
         >
@@ -71,7 +71,7 @@ export const PaginationControls = ({
           className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${
             currentPage === 1 
               ? 'text-gray-400 cursor-not-allowed' 
-              : 'text-[#0d68ae] hover:bg-[#0274be] hover:text-white transition-colors'
+              : 'text-[#D4A017] hover:bg-[#D4A017] hover:text-white transition-colors'
           }`}
           title="Page précédente"
         >
@@ -85,7 +85,7 @@ export const PaginationControls = ({
             onClick={() => onPageChange(page)}
             className={`px-3 py-1 rounded-md text-sm min-w-[2rem] ${
               currentPage === page 
-                ? 'bg-[#0d68ae] text-white font-medium' 
+                ? 'bg-[#D4A017] text-white font-medium' 
                 : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
@@ -99,7 +99,7 @@ export const PaginationControls = ({
           className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${
             currentPage === totalPages || totalPages === 0 
               ? 'text-gray-400 cursor-not-allowed' 
-              : 'text-[#0d68ae] hover:bg-[#0274be] hover:text-white transition-colors'
+              : 'text-[#D4A017] hover:bg-[#D4A017] hover:text-white transition-colors'
           }`}
           title="Page suivante"
         >
@@ -113,7 +113,7 @@ export const PaginationControls = ({
           className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${
             currentPage === totalPages || totalPages === 0 
               ? 'text-gray-400 cursor-not-allowed' 
-              : 'text-[#0d68ae] hover:bg-[#0274be] hover:text-white transition-colors'
+              : 'text-[#D4A017] hover:bg-[#D4A017] hover:text-white transition-colors'
           }`}
           title="Dernière page"
         >

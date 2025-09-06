@@ -1,22 +1,23 @@
 {
   "formations": [
     {
+      "id": 1,
       "nom": "Informatique",
       "description": "Licence en informatique",
       "duree": 36,
       "cout": 2450,
-      "professeurs": [],
+      "professeurs": [2],
       "emploiDuTempsId": 101,
       "anneeFormation": 2026,
       "estActive": true,
       "modeFormation": "Présentiel",
       "niveauAcces": "Bac",
       "capaciteMax": 40,
-      "id": "1",
       "dateCreation": "2024-08-01T00:00:00.000Z",
       "dateModification": "2025-09-04T13:11:50.068Z"
     },
     {
+      "id": 2,
       "nom": "Mathématiques",
       "description": "Master en mathématiques",
       "duree": 24,
@@ -28,11 +29,11 @@
       "modeFormation": "Hybride",
       "niveauAcces": "Licence",
       "capaciteMax": 30,
-      "id": "2",
       "dateCreation": "2024-08-01T00:00:00.000Z",
       "dateModification": "2025-09-04T12:48:56.359Z"
     },
     {
+      "id": 3,
       "nom": "Physique",
       "description": "Doctorat en physique",
       "duree": 36,
@@ -44,97 +45,61 @@
       "modeFormation": "En ligne",
       "niveauAcces": "Master",
       "capaciteMax": 15,
-      "id": "3",
       "dateCreation": "2024-08-01T00:00:00.000Z",
       "dateModification": "2025-09-04T12:59:36.708Z"
     },
     {
-      "id": "4",
+      "id": 4,
       "nom": "Réseaux",
       "description": "Licence en réseaux",
-      "dateDebut": "2024-09-01",
-      "dateFin": "2027-06-30",
-      "niveau": "Licence",
-      "statut": "Actif",
       "duree": 36,
       "cout": 2200,
+      "professeurs": [1],
+      "emploiDuTempsId": 104,
       "anneeFormation": 2026,
       "estActive": true,
       "modeFormation": "Présentiel",
       "niveauAcces": "Bac",
       "capaciteMax": 35,
-      "professeurs": [
-        {
-          "id": 1,
-          "nom": "EL MAKOUDI",
-          "prenom": "Oussama"
-        }
-      ],
-      "emploiDuTempsId": 104,
       "dateCreation": "2024-08-01T00:00:00.000Z",
       "dateModification": "2025-09-03T12:36:06.123Z"
     },
     {
-      "id": "5",
+      "id": 5,
       "nom": "Sécurité Informatique",
       "description": "Master en sécurité informatique",
-      "dateDebut": "2024-09-01",
-      "dateFin": "2026-06-30",
-      "niveau": "Master",
-      "statut": "Actif",
       "duree": 24,
       "cout": 3200,
+      "professeurs": [3],
+      "emploiDuTempsId": 105,
       "anneeFormation": 2025,
       "estActive": true,
       "modeFormation": "Hybride",
       "niveauAcces": "Licence",
       "capaciteMax": 25,
-      "professeurs": [
-        {
-          "id": 3,
-          "nom": "Khalil",
-          "prenom": "Ahmed"
-        }
-      ],
-      "emploiDuTempsId": 105,
       "dateCreation": "2024-08-01T00:00:00.000Z",
       "dateModification": "2025-09-03T12:36:06.123Z"
     },
     {
-      "id": "6",
+      "id": 6,
       "nom": "Intelligence Artificielle",
       "description": "Doctorat en intelligence artificielle",
-      "dateDebut": "2024-09-01",
-      "dateFin": "2027-06-30",
-      "niveau": "Doctorat",
-      "statut": "Actif",
       "duree": 36,
       "cout": 4500,
+      "professeurs": [4, 6],
+      "emploiDuTempsId": 106,
       "anneeFormation": 2026,
       "estActive": true,
       "modeFormation": "En ligne",
       "niveauAcces": "Master",
       "capaciteMax": 20,
-      "professeurs": [
-        {
-          "id": 4,
-          "nom": "Mourad",
-          "prenom": "Fatima"
-        },
-        {
-          "id": 6,
-          "nom": "Idrissi",
-          "prenom": "Karim"
-        }
-      ],
-      "emploiDuTempsId": 106,
       "dateCreation": "2024-08-01T00:00:00.000Z",
       "dateModification": "2025-09-03T12:36:06.123Z"
     },
     {
-      "id": "cfbf",
+      "id": 7,
       "nom": "Informatique",
-      "description": "Licence<",
+      "description": "Licence",
       "duree": 34,
       "cout": 234,
       "professeurs": [],
@@ -148,15 +113,16 @@
       "dateModification": "2025-09-04T12:58:40.552Z"
     },
     {
-      "id": "1020",
+      "id": 8,
       "nom": "Math",
-      "description": "",
+      "description": "Formation en mathématiques",
       "duree": 230,
       "cout": 45,
       "professeurs": [],
       "emploiDuTempsId": null,
       "anneeFormation": 2025,
       "estActive": true,
+      "modeFormation": "Présentiel",
       "niveauAcces": "Bac",
       "capaciteMax": 34,
       "dateCreation": "2025-09-04T13:00:53.834Z",
@@ -165,7 +131,7 @@
   ],
   "diplomes": [
     {
-      "id": "1",
+      "id": 1,
       "typeDiplome": "Master",
       "nomDiplome": "Master en Informatique",
       "niveau": "Bac+5",
@@ -175,7 +141,7 @@
       "dateDelivrance": "2018-07-15"
     },
     {
-      "id": "2",
+      "id": 2,
       "typeDiplome": "Licence",
       "nomDiplome": "Licence en Génie Logiciel",
       "niveau": "Bac+3",
@@ -185,7 +151,7 @@
       "dateDelivrance": "2015-06-20"
     },
     {
-      "id": "3",
+      "id": 3,
       "typeDiplome": "Doctorat",
       "nomDiplome": "Doctorat en Mathématiques",
       "niveau": "Bac+8",
@@ -195,7 +161,7 @@
       "dateDelivrance": "2020-12-10"
     },
     {
-      "id": "4",
+      "id": 4,
       "typeDiplome": "Master",
       "nomDiplome": "Master en Sécurité Informatique",
       "niveau": "Bac+5",
@@ -205,7 +171,7 @@
       "dateDelivrance": "2017-06-25"
     },
     {
-      "id": "5",
+      "id": 5,
       "typeDiplome": "Licence",
       "nomDiplome": "Licence en Réseaux",
       "niveau": "Bac+3",
@@ -215,7 +181,7 @@
       "dateDelivrance": "2014-06-18"
     },
     {
-      "id": "6",
+      "id": 6,
       "typeDiplome": "Doctorat",
       "nomDiplome": "Doctorat en Intelligence Artificielle",
       "niveau": "Bac+8",
@@ -225,7 +191,7 @@
       "dateDelivrance": "2021-11-05"
     },
     {
-      "id": "7",
+      "id": 7,
       "typeDiplome": "Master",
       "nomDiplome": "Master en Management",
       "niveau": "Bac+5",
@@ -235,7 +201,7 @@
       "dateDelivrance": "2016-06-30"
     },
     {
-      "id": "8",
+      "id": 8,
       "typeDiplome": "Licence",
       "nomDiplome": "Licence en Administration des Entreprises",
       "niveau": "Bac+3",
@@ -245,7 +211,7 @@
       "dateDelivrance": "2013-06-22"
     },
     {
-      "id": "9",
+      "id": 9,
       "typeDiplome": "Master",
       "nomDiplome": "Master en Développement Mobile",
       "niveau": "Bac+5",
@@ -257,7 +223,7 @@
   ],
   "etudiants": [
     {
-      "id": "1",
+      "id": 1,
       "matricule": "2024001",
       "nom": "Mohammed",
       "prenom": "Ahmed",
@@ -288,7 +254,7 @@
       "dateCreation": "2024-08-01T00:00:00.000Z"
     },
     {
-      "id": "2",
+      "id": 2,
       "matricule": "2024003",
       "nom": "Khadija",
       "prenom": "Brahim",
@@ -319,7 +285,7 @@
       "dateCreation": "2024-08-01T00:00:00.000Z"
     },
     {
-      "id": "3",
+      "id": 3,
       "matricule": "2024005",
       "nom": "Sara",
       "prenom": "El Amrani",
@@ -350,7 +316,7 @@
       "dateCreation": "2025-08-01T00:00:00.000Z"
     },
     {
-      "id": "4",
+      "id": 4,
       "matricule": "2024002",
       "nom": "EL MAKOUDI",
       "prenom": "Oussama",
@@ -382,7 +348,7 @@
       "dateModification": "2025-08-28T10:04:41.626Z"
     },
     {
-      "id": "5",
+      "id": 5,
       "matricule": "2024006",
       "nom": "Mohamed",
       "prenom": "Ahmed",
@@ -416,7 +382,40 @@
   ],
   "professeurs": [
     {
-      "id": "2",
+      "id": 1,
+      "nom": "EL MAKOUDI",
+      "prenom": "Oussama",
+      "email": "elmakoudi.oussama@email.com",
+      "statut": "Permanent",
+      "specialite": "Informatique",
+      "telephone": "0623542074",
+      "dateEmbauche": "2020-01-15",
+      "photo": "/images/user.png",
+      "heuresTravail": 20,
+      "horaires": [
+        {
+          "jour": "Lundi",
+          "debut": "08:00",
+          "fin": "12:00"
+        },
+        {
+          "jour": "Mercredi",
+          "debut": "08:00",
+          "fin": "12:00"
+        },
+        {
+          "jour": "Vendredi",
+          "debut": "08:00",
+          "fin": "12:00"
+        }
+      ],
+      "formations": [1, 4],
+      "diplomes": [1],
+      "dateCreation": "2020-01-15T09:00:00.000Z",
+      "dateModification": "2024-02-10T14:30:00.000Z"
+    },
+    {
+      "id": 2,
       "nom": "Bennis",
       "prenom": "Sara",
       "email": "bennis.sara@email.com",
@@ -438,18 +437,13 @@
           "fin": "12:30"
         }
       ],
-      "formations": [
-        3,
-        4
-      ],
-      "diplomes": [
-        3
-      ],
+      "formations": [3],
+      "diplomes": [3],
       "dateCreation": "2021-03-15T09:15:00.000Z",
       "dateModification": "2024-02-20T14:45:00.000Z"
     },
     {
-      "id": "3",
+      "id": 3,
       "nom": "Khalil",
       "prenom": "Ahmed",
       "email": "khalil.ahmed@email.com",
@@ -476,18 +470,13 @@
           "fin": "16:00"
         }
       ],
-      "formations": [
-        5,
-        6
-      ],
-      "diplomes": [
-        4
-      ],
+      "formations": [5, 6],
+      "diplomes": [4],
       "dateCreation": "2019-11-10T10:00:00.000Z",
       "dateModification": "2024-03-05T11:20:00.000Z"
     },
     {
-      "id": "4",
+      "id": 4,
       "nom": "Mourad",
       "prenom": "Fatima",
       "email": "mourad.fatima@email.com",
@@ -509,18 +498,13 @@
           "fin": "18:00"
         }
       ],
-      "formations": [
-        3,
-        6
-      ],
-      "diplomes": [
-        6
-      ],
+      "formations": [3, 6],
+      "diplomes": [6],
       "dateCreation": "2022-01-20T08:30:00.000Z",
       "dateModification": "2024-01-30T16:10:00.000Z"
     },
     {
-      "id": "5",
+      "id": 5,
       "nom": "Zahir",
       "prenom": "Leila",
       "email": "zahir.leila@email.com",
@@ -547,19 +531,13 @@
           "fin": "13:00"
         }
       ],
-      "formations": [
-        1,
-        2
-      ],
-      "diplomes": [
-        7,
-        8
-      ],
+      "formations": [1, 2],
+      "diplomes": [7, 8],
       "dateCreation": "2018-05-08T09:00:00.000Z",
       "dateModification": "2024-02-15T15:30:00.000Z"
     },
     {
-      "id": "6",
+      "id": 6,
       "nom": "Idrissi",
       "prenom": "Karim",
       "email": "idrissi.karim@email.com",
@@ -586,12 +564,8 @@
           "fin": "18:00"
         }
       ],
-      "formations": [
-        5
-      ],
-      "diplomes": [
-        9
-      ],
+      "formations": [5],
+      "diplomes": [9],
       "dateCreation": "2023-02-10T10:15:00.000Z",
       "dateModification": "2024-03-10T09:45:00.000Z"
     }

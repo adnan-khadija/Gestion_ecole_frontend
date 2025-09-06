@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { PaginationControls } from './Pagination';
 import Button from './Button';
 import FormationForm from './FormationForm';
-import { Formation, ModeFormation } from '@/lib/types';
+import { Formation, ModeFormation ,Professeur} from '@/lib/types';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -19,6 +19,7 @@ export type Column<T> = {
 type TableauDynamiqueFormationProps = {
   data: Formation[];
   columns: Column<Formation>[];
+  professeurs?: Professeur[];
   onEdit?: (item: Formation) => void;
   onDelete?: (id: number | string) => void;
   onAdd?: (formation: Formation) => void;
@@ -28,6 +29,7 @@ type TableauDynamiqueFormationProps = {
 function TableauDynamiqueFormation({
   data,
   columns,
+  professeurs=[],
   onEdit,
   onDelete,
   onAdd,
@@ -49,6 +51,29 @@ function TableauDynamiqueFormation({
   const[selectedMode, setSelectedMode] = useState<string>('');
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
+  const profById=useMemo(()=>{
+    const map = new Map<number,Professeur>();
+    professeurs.forEach(p=>map.set(p.id,p));
+    return map;
+  },[professeurs]);
+  const formatProfesseursDisplay = (value: any) => {
+  if (!value || !Array.isArray(value)) return '';
+  
+  const names = value.map(v => {
+    // Si c'est un nombre (ID), on cherche dans la Map
+    if (typeof v === 'number') {
+      const prof = profById.get(v);
+      return prof ? `${prof.prenom} ${prof.nom}` : `Professeur ${v}`;
+    }
+    // Si c'est un objet (au cas où), on extrait nom et prénom
+    else if (typeof v === 'object' && v !== null) {
+      return `${v.prenom || ''} ${v.nom || ''}`.trim();
+    }
+    return String(v);
+  }).filter(Boolean);
+  
+  return names.join(', ') || 'Aucun professeur';
+};
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && showAddForm) setShowAddForm(false);
@@ -363,14 +388,22 @@ function TableauDynamiqueFormation({
               {(onEdit || onDelete) && <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap bg-[#A52A2A] text-white" >Actions</th>}
             </tr>
           </thead>
-          <tbody>
-            {paginatedData.map((formation) => (
-              <tr key={formation.id} className="hover:bg-[#F5F5F5]">
-                {columns.map((column) => (
-                  <td key={`${formation.id}-${column.key.toString()}`} className="px-2 py-2 text-[10px] text-gray-700 w-24 whitespace-nowrap truncate">
-                    {column.render ? column.render(formation) : (formation[column.key as keyof Formation] as React.ReactNode)}
-                  </td>
-                ))}
+        <tbody>
+    {paginatedData.map((formation) => (
+      <tr key={formation.id} className="hover:bg-[#F5F5F5]">
+        {columns.map((column) => (
+          <td key={`${formation.id}-${column.key.toString()}`} className="px-2 py-2 text-[10px] text-gray-700 w-24 whitespace-nowrap truncate">
+            {column.render ? (
+              column.render(formation)
+            ) : (
+              // si colonne correspondant à professeurs -> format
+              (column.key === 'professeurs' || column.key === 'professeursIds') 
+                ? formatProfesseursDisplay(formation.professeurs)
+                : String(formation[column.key as keyof Formation] ?? '')
+            )}
+          </td>
+        ))}
+
                 {(onEdit || onDelete) && (
                   <td className="px-2 py-2">
                     <div className="flex space-x-2">

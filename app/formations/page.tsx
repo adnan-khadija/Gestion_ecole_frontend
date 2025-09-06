@@ -3,33 +3,36 @@ import React from "react";
 import TableauDynamiqueFormation from "@/components/TableFormation";
 import { useState, useEffect } from "react";
 import { Column } from "@/components/TableData";
-import { Formation } from "@/lib/types";
-import { getFormations, addFormation, updateFormation, deleteFormation} from "@/lib/services";
+import { Formation,Professeur } from "@/lib/types";
+import { getFormations,getProfesseurs, addFormation, updateFormation, deleteFormation} from "@/lib/services";
 import toast from "react-hot-toast";
 import { Switch } from "@headlessui/react";
-import StudentProfile from "@/components/StudentProfile";
+import FormationCard from   "@/components/FormationCard";
 import { FaEye } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/Loading";
 import { Form } from "react-bootstrap";
 
-export default function Student() {
+
+export default function FormationPage() {
   const [formations, setFormations] = useState<Formation[]>([]);
+  const[professeurs,setProfesseurs]=useState<Professeur[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStudent, setSelectedStudent] = useState<Formation | null>(null);
+  const [selectedFormation, setSelectedFormation] = useState<Formation | null>(null);
 
   useEffect(() => {
-    getFormations()
-      .then((response) => {
-        setFormations(response.data);
+     Promise.all([getFormations(), getProfesseurs()])
+      .then(([resFormations, resProfesseurs]) => {
+        setFormations(resFormations.data);
+        setProfesseurs(resProfesseurs.data);
         setLoading(false);
       })
+
       .catch((error) => {
         console.error("Erreur lors de la récupération des étudiants:", error);
         setLoading(false);
       });
   }, []);
-
-  
+  console.log(professeurs);
 const colonnesFormations: Column<Formation>[] = [
   {
     key: "nom",
@@ -65,16 +68,10 @@ const colonnesFormations: Column<Formation>[] = [
     ),
   },
   {
-    key: "professeurs",
-    title: "Professeurs",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.professeurs && item.professeurs.length > 0
-          ? item.professeurs.map((p) => p.nom).join(", ")
-          : "—"}
-      </span>
-    ),
-  },
+      key: "professeurs",
+      title: "Professeurs",
+      
+    },
   {
     key: "modeFormation",
     title: "Mode",
@@ -130,11 +127,11 @@ const colonnesFormations: Column<Formation>[] = [
 
 
 // Ajout
-const handleAdd = async (etudiant: any) => {
+const handleAdd = async (formation: any) => {
   try {
-    const res = await addFormation(etudiant); // attend la persistance côté serveur
+    const res = await addFormation(formation); // attend la persistance côté serveur
     // si ton service renvoie la res.data
-    setFormations(prev => [...prev, res.data || etudiant]);
+    setFormations(prev => [...prev, res.data || formation]);
     toast.success("Étudiant ajouté");
   } catch (err) {
     console.error("Erreur ajout:", err);
@@ -144,10 +141,10 @@ const handleAdd = async (etudiant: any) => {
 };
 
 // Édition
-const handleEdit = async (etudiant: Formation) => {
+const handleEdit = async (formation: Formation) => {
   try {
-    const res = await updateFormation(etudiant.id, etudiant);
-    setFormations(prev => prev.map(e => (e.id === etudiant.id ? (res.data || etudiant) : e)));
+    const res = await updateFormation(formation.id, formation);
+    setFormations(prev => prev.map(e => (e.id === formation.id ? (res.data || formation) : e)));
     toast.success("Étudiant mis à jour");
   } catch (err) {
     console.error("Erreur update:", err);
@@ -194,23 +191,24 @@ const handleDelete = async (id: number | string) => {
         <>
       {/* Tableau des étudiants */}
     
-      <TableauDynamiqueFormation<Formation>
+    <TableauDynamiqueFormation<Formation>
   data={formations}
   columns={colonnesFormations}
+  professeurs={professeurs}  // passe ton state ici
   onAdd={handleAdd}
   onEdit={handleEdit}
   onDelete={handleDelete}
   actionsColor="blue"
-  emptyMessage="Aucun étudiant trouvé"
-  onRowClick={(student) => setSelectedStudent(student)}
+  emptyMessage="Aucun formation trouvé"
 />
 
 
-      {/* Student profile modal */}
-      {selectedStudent && (
-        <StudentProfile
-          etudiant={selectedStudent}
-          onClose={() => setSelectedStudent(null)}
+
+      {/* Formation profile modal */}
+      {selectedFormation && (
+        <FormationCard
+          formation={selectedFormation}
+          onClose={() => setSelectedFormation(null)}
         />
       )}
       </>

@@ -31,8 +31,8 @@ export default function Student() {
   
 const colonnesEtudiants: Column<Etudiant>[] = [
   {
-    key: "id-matricule",
-    title: "ID | Matricule",
+    key: "matricule",
+    title: "Matricule",
     render: (item) => (
       <div className="flex items-center gap-2">
          <button
@@ -45,8 +45,6 @@ const colonnesEtudiants: Column<Etudiant>[] = [
         >
           <FaEye className="h-4 w-4" />
         </button>
-        <span className="whitespace-nowrap text-gray-500">{item.id}</span>
-        {" | "}
         <span className="whitespace-nowrap text-gray-500">{item.matricule}</span>
        
       </div>
