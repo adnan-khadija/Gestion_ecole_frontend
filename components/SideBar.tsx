@@ -1,94 +1,106 @@
 "use client";
-import { useState } from "react";
+
 import { FiLogOut } from "react-icons/fi";
-import {
-  FaBook,
-  FaThLarge,
-  FaUsers,
-  FaCog,
-  FaCalendar,
-  FaChalkboardTeacher,
-} from "react-icons/fa";
+import { 
+  FaThLarge, FaUsers, FaChalkboardTeacher, FaBook, 
+  FaCalendar, FaCog, FaFileAlt, FaRegCalendarCheck, FaMoneyBillWave, 
+  FaCreditCard
+} from 'react-icons/fa';
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 
 type MenuItem = {
   nom: string;
   icone: React.ReactNode;
   lien: string;
-  sousMenu?: SousMenuItem[];
 };
 
-type SousMenuItem = {
-  nom: string;
-  lien: string;
-};
+const PRIMARY_BROWN = "#A52A2A";
+const ACCENT_GOLD = "#D4A017";
+const TEXT_DARK = "#2C2C2C";
 
-const Sidebar = () => {
-  const [elementActif, setElementActif] = useState("/");
+const elementsMenu: MenuItem[] = [
+  { nom: "Tableau de bord", icone: <FaThLarge />, lien: "/" },
+  { nom: "Étudiants", icone: <FaUsers />, lien: "/student" },
+  { nom: "Professeurs", icone: <FaChalkboardTeacher />, lien: "/professeurs" },
+  { nom: "Formations", icone: <FaBook />, lien: "/formations" },
+  { nom: "Diplômes", icone: <FaFileAlt />, lien: "/deplomes" },
+  { nom: "Absence", icone: <FaRegCalendarCheck />, lien: "/absence" },
+  { nom: "Dépense", icone: <FaMoneyBillWave />, lien: "/depense" },
+  { nom: "Paiement", icone: <FaCreditCard />, lien: "/paiement" }, 
+  { nom: "Emploi du temps", icone: <FaCalendar />, lien: "/emploi-du-temps" },
+  { nom: "Paramètres", icone: <FaCog />, lien: "/parametres" },
+];
+
+export default function Sidebar() {
+  const pathname = usePathname() || "/";
   const router = useRouter();
 
-  const elementsMenu: MenuItem[] = [
-    { nom: "Tableau de bord", icone: <FaThLarge />, lien: "/" },
-    { nom: "Étudiants", icone: <FaUsers />, lien: "/student" },
-    { nom: "Professeurs", icone: <FaChalkboardTeacher />, lien: "/professeurs" },
-    { nom: "Formations", icone: <FaBook />, lien: "/formations" },
-    { nom: "Emploi du temps", icone: <FaCalendar />, lien: "/emploi-du-temps" },
-    { nom: "Paramètres", icone: <FaCog />, lien: "/parametres" },
-  ];
-
   const handleDeconnexion = () => {
-    console.log("Déconnexion");
     router.push("/connexion");
   };
 
   return (
-    <div className="w-56 h-full bg-white shadow-xl flex flex-col">
-      {/* Éléments du menu */}
-      <nav className="p-8 flex-1 overflow-y-auto">
+    <aside className="w-56 flex-shrink-0 h-screen bg-white shadow-xl flex flex-col">
+      {/* Logo */}
+      <div className="px-6 py-4 flex items-center justify-center border-b border-gray-200">
+        <Image
+          src="/images/logo.png"
+          alt="Logo"
+          width={120}
+          height={40}
+          className="h-10 object-contain"
+        />
+      </div>
+
+      {/* Menu */}
+      <nav className="p-6 flex-1 overflow-y-auto">
         <ul className="space-y-2">
-          {elementsMenu.map((item) => (
-            <li key={item.lien}>
-              <Link
-                href={item.lien}
-                onClick={() => setElementActif(item.lien)}
-                className={`group flex items-center p-3 rounded-xl transition-all
-                  ${
-                    elementActif === item.lien
-                      ? "bg-gray-100 text-[#E3242B]"
-                      : "text-[#E3242B] hover:bg-gray-100 hover:text-[#B71C1C]"
-                  }`}
-              >
-                <span
-                  className={`mr-3 text-md transition-colors ${
-                    elementActif === item.lien
-                      ? "text-[#E3242B]"
-                      : "text-[#E3242B] group-hover:text-[#B71C1C]"
+          {elementsMenu.map((item) => {
+            const actif = pathname === item.lien;
+            return (
+              <li key={item.lien} className="w-full">
+                <Link
+                  href={item.lien}
+                  className={`flex items-center w-full p-3 rounded-xl transition-all select-none ${
+                    actif ? "bg-[#F5E9DA] shadow-sm" : "hover:bg-[#F5E9DA]"
                   }`}
                 >
-                  {item.icone}
-                </span>
-                <span className="font-medium text-sm">{item.nom}</span>
-              </Link>
-            </li>
-          ))}
+                  <span className="mr-3 text-lg flex-shrink-0" style={{ color: PRIMARY_BROWN }}>
+                    {item.icone}
+                  </span>
+                  <span
+                    className="font-medium text-sm truncate"
+                    style={{ color: actif ? PRIMARY_BROWN : TEXT_DARK }}
+                  >
+                    {item.nom}
+                  </span>
+                  {actif && (
+                    <span
+                      className="ml-auto w-2 h-2 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: ACCENT_GOLD }}
+                    />
+                  )}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
 
-      {/* Bouton de déconnexion */}
+      {/* Déconnexion */}
       <div className="p-4 border-t border-gray-200">
         <button
           onClick={handleDeconnexion}
-          className="group w-full flex items-center justify-center p-3 rounded-xl bg-gray-50 text-[#E3242B] hover:bg-[#B71C1C] hover:text-white transition-all"
+          className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-[#FFF7EE] border border-gray-200 hover:bg-[#F5E9DA] transition-all"
         >
-          <FiLogOut
-            className="mr-3 text-md transition-colors text-[#E3242B] group-hover:text-white"
-          />
-          <span className="font-medium text-sm">Déconnexion</span>
+          <FiLogOut className="text-md" style={{ color: PRIMARY_BROWN }} />
+          <span className="font-medium text-sm" style={{ color: PRIMARY_BROWN }}>
+            Déconnexion
+          </span>
         </button>
       </div>
-    </div>
+    </aside>
   );
-};
-
-export default Sidebar;
+}

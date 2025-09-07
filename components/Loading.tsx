@@ -1,10 +1,13 @@
+"use client";
+
 export const LoadingSpinner = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="flex flex-col items-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mb-4"></div>
-        <p className="text-lg text-gray-700">Loading...</p>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen ">
+      {/* Cercle animé */}
+      <div className="w-16 h-16 border-4 border-t-[#A52A2A] border-r-[#D4A017] border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+      
+      {/* Texte */}
+      <p className="mt-4 text-lg font-medium text-[#2C2C2C]">Chargement...</p>
     </div>
   );
-}
+};

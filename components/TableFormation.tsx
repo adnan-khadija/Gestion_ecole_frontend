@@ -284,42 +284,77 @@ function TableauDynamiqueFormation({
 
           {/* Boutons */}
           <div className="flex gap-2 flex-wrap ml-16">
-            <Button className='flex items-center gap-2 w-28' onClick={() => setShowAddForm(true)} variant="green"><FaPlus /> Ajouter</Button>
+            <Button className='flex items-center gap-2 w-28' onClick={() => setShowAddForm(true)} variant="outline"><FaPlus /> Ajouter</Button>
             <input type="file" accept=".xlsx, .xls" id="fileInput" style={{ display: "none" }} onChange={handleImportExcel}/>
-            <Button className='flex items-center gap-2 w-28' onClick={() => document.getElementById('fileInput')?.click()} variant="green"><FaFileImport /> Importer</Button>
-            <Button className='flex items-center gap-2 w-28' onClick={handleExportExcel} variant="green"><FaFileExport /> Exporter</Button>
-            <Button className='flex items-center gap-2 w-28' onClick={downloadTemplate} variant="green"><FaFileExcel /> Modèle</Button>
-            <button onClick={() => setShowFilters(prev => !prev)} className="ml-2 p-2 rounded-md border text-[#0d68ae]">
-              <FaFilter />
-            </button>
+            <Button className='flex items-center gap-2 w-28' onClick={() => document.getElementById('fileInput')?.click()} variant="outline"><FaFileImport /> Importer</Button>
+            <Button className='flex items-center gap-2 w-28' onClick={handleExportExcel} variant="outline"><FaFileExport /> Exporter</Button>
+            <Button className='flex items-center gap-2 w-28' onClick={downloadTemplate} variant="outline"><FaFileExcel /> Modèle</Button>
+           <button
+  type="button"
+  onClick={() => setShowFilters(prev => !prev)}
+  aria-pressed={showFilters}
+  aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
+  className={`ml-2 p-2 rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#0d68ae] ${
+    showFilters 
+      ? 'bg-[#A52A2A] text-white border-[#A52A2A]' 
+      : 'bg-white text-[#A52A2A] border-[#A52A2A] hover:bg-[#A52A2A] hover:text-white'
+  }`}
+  title="Filtres"
+>
+  <FaFilter className="h-4 w-4" />
+</button>
           </div>
         </div>
 
        {/* Filtres */}
 {showFilters && (
-  <div className="flex items-center gap-2 ml-2">
-    {/* Filtre Statut */}
-    <select
-      value={selectedStatut}
-      onChange={(e) => setSelectedStatut(e.target.value)}
-      className="border rounded px-2 py-1 text-sm"
-    >
-      <option value="">Tous les statuts</option>
-      <option value="Active">Active</option>
-      <option value="Désactivée">Désactivée</option>
-    </select>
+  <div className="flex items-center gap-3 mt-3 w-full p-3 bg-gray-50 rounded-lg border border-gray-200">
+    <span className="text-sm font-medium text-[#A52A2A] whitespace-nowrap">Filtrer par:</span>
+    
+    <div className="flex flex-col sm:flex-row gap-3 w-full">
+      <div className="flex flex-col">
+        <label className="text-xs text-gray-600 mb-1">Statut</label>
+        <select
+          value={selectedStatut}
+          onChange={(e) => setSelectedStatut(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent"
+        >
+          <option value="">Tous les statuts</option>
+          <option value="Active">Active</option>
+          <option value="Désactivée">Désactivée</option>
+        </select>
+      </div>
 
-    {/* Filtre Mode de formation */}
-    <select
-      value={selectedMode}
-      onChange={(e) => setSelectedMode(e.target.value)}
-      className="border rounded px-2 py-1 text-sm"
-    >
-      <option value="">Tous les modes</option>
-      <option value="Présentiel">Présentiel</option>
-      <option value="En ligne">En ligne</option>
-      <option value="Hybride">Hybride</option>
-    </select>
+      <div className="flex flex-col">
+        <label className="text-xs text-gray-600 mb-1">Mode de formation</label>
+        <select
+          value={selectedMode}
+          onChange={(e) => setSelectedMode(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent"
+        >
+          <option value="">Tous les modes</option>
+          <option value="Présentiel">Présentiel</option>
+          <option value="En ligne">En ligne</option>
+          <option value="Hybride">Hybride</option>
+        </select>
+      </div>
+      
+      {/* Bouton pour effacer les filtres */}
+      {(selectedStatut || selectedMode) && (
+        <div className="flex items-end">
+          <button
+            onClick={() => {
+              setSelectedStatut('');
+              setSelectedMode('');
+              setCurrentPage(1);
+            }}
+            className="px-3 py-2 text-sm text-[#A52A2A] hover:text-white hover:bg-[#A52A2A] border border-[#A52A2A] rounded transition-colors duration-200"
+          >
+            Effacer les filtres
+          </button>
+        </div>
+      )}
+    </div>
   </div>
 )}
 
@@ -442,7 +477,7 @@ function TableauDynamiqueFormation({
             Annuler
           </Button>
           <Button
-            variant="green"
+            variant="outline"
             onClick={async () => {
               try {
                 for (const formation of previewData) {

@@ -270,28 +270,65 @@ function TableauDynamiqueProf({
                     <div className="flex gap-2 flex-wrap ml-16">
 
           <div className="flex gap-2 flex-wrap ml-16">
-            <Button className='flex items-center gap-2 w-28'  onClick={() => setShowAddForm(true)} variant="green" ><FaPlus /> Ajouter</Button>
+            <Button className='flex items-center gap-2 w-28'  onClick={() => setShowAddForm(true)} variant="outline" ><FaPlus /> Ajouter</Button>
             <input type="file" accept=".xlsx, .xls" id="fileInput" style={{ display: "none" }} onChange={handleImportExcel}/>
-            <Button className='flex items-center gap-2 w-28'  onClick={() => document.getElementById('fileInput')?.click()} variant="green"><FaFileImport /> Importer</Button>
-            <Button className='flex items-center gap-2 w-28'  onClick={handleExportExcel} variant="green"><FaFileExport /> Exporter</Button>
-            <Button className='flex items-center gap-2 w-28'  onClick={downloadTemplate} variant="green"><FaFileExcel /> Modèle</Button>
-            <button onClick={() => setShowFilters(prev => !prev)} className="ml-2 p-2 rounded-md border text-[#55b7f3]">
-              <FaFilter />
-            </button>
+            <Button className='flex items-center gap-2 w-28'  onClick={() => document.getElementById('fileInput')?.click()} variant="outline"><FaFileImport /> Importer</Button>
+            <Button className='flex items-center gap-2 w-28'  onClick={handleExportExcel} variant="outline"><FaFileExport /> Exporter</Button>
+            <Button className='flex items-center gap-2 w-28'  onClick={downloadTemplate} variant="outline"><FaFileExcel /> Modèle</Button>
+           <button
+  type="button"
+  onClick={() => setShowFilters(prev => !prev)}
+  aria-pressed={showFilters}
+  aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
+  className={`ml-2 p-2 rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#0d68ae] ${
+    showFilters 
+      ? 'bg-[#A52A2A] text-white border-[#A52A2A]' 
+      : 'bg-white text-[#A52A2A] border-[#A52A2A] hover:bg-[#A52A2A] hover:text-white'
+  }`}
+  title="Filtres"
+>
+  <FaFilter className="h-4 w-4" />
+</button>
           </div>
           </div>
 
           {/* Filtres */}
-          {showFilters && (
-            <div className="flex items-center gap-2 ml-2">
-              <select value={selectedStatut} onChange={(e) => setSelectedStatut(e.target.value)} className="border rounded px-2 py-1 text-sm">
-                <option value="">Tous les statuts</option>
-                {Object.values(StatutProfesseur).map((s, i) => (
-                  <option key={i} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-          )}
+       {showFilters && (
+  <div className="flex items-center gap-3 mt-3 w-full p-3 bg-gray-50 rounded-lg border border-gray-200">
+    <span className="text-sm font-medium text-[#A52A2A] whitespace-nowrap">Filtrer par:</span>
+    
+    <div className="flex flex-col sm:flex-row gap-3 w-full">
+      <div className="flex flex-col">
+        <label className="text-xs text-gray-600 mb-1">Statut</label>
+        <select
+          value={selectedStatut}
+          onChange={(e) => setSelectedStatut(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent"
+        >
+          <option value="">Tous les statuts</option>
+          {Object.values(StatutProfesseur).map((s, i) => (
+            <option key={i} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+      
+      {/* Bouton pour effacer les filtres */}
+      {selectedStatut && (
+        <div className="flex items-end">
+          <button
+            onClick={() => {
+              setSelectedStatut('');
+              setCurrentPage(1);
+            }}
+            className="px-3 py-2 text-sm text-[#A52A2A] hover:text-white hover:bg-[#A52A2A] border border-[#A52A2A] rounded transition-colors duration-200"
+          >
+            Effacer les filtres
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
         </div>
       </div>
 
@@ -365,7 +402,7 @@ function TableauDynamiqueProf({
       {/* Tableau */}
       <div className="overflow-x-auto rounded-lg border border-gray-200 mx-4 mb-8">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead style={{ backgroundColor: '#BC544B' }}>
+          <thead style={{ backgroundColor: '#A52A2A' }}>
             <tr>
               {columns.map((column) => (
                 <th key={column.key.toString()} className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap" style={{ color: '#f1f3eeff' }}>{column.title}</th>
@@ -375,7 +412,7 @@ function TableauDynamiqueProf({
           </thead>
           <tbody>
             {paginatedData.map((prof) => (
-              <tr key={prof.id} className="hover:bg-gray-50">
+              <tr key={prof.id} className="hover:bg-[#F5F5F5]">
                 {columns.map((column) => (
                   <td key={`${prof.id}-${column.key.toString()}`}  className="px-2 py-2 text-[8px] text-gray-700 w-24 whitespace-nowrap truncate">
                     {column.render ? column.render(prof) : (prof[column.key as keyof Professeur] as React.ReactNode)}
@@ -384,8 +421,8 @@ function TableauDynamiqueProf({
                 {(onEdit || onDelete) && (
                   <td className="px-2 py-2">
                     <div className="flex space-x-2">
-                      {onEdit && <FaEdit className="cursor-pointer text-[#0274be]" onClick={() => setEditProf(prof)} />}
-                      {onDelete && <FaTrash className="cursor-pointer text-[#6d6d14]" onClick={() => handleDelete(prof.id)} />}
+                      {onEdit && <FaEdit className="cursor-pointer text-[#D4A017]" onClick={() => setEditProf(prof)} />}
+                      {onDelete && <FaTrash className="cursor-pointer text-[#A52A2A]" onClick={() => handleDelete(prof.id)} />}
                     </div>
                   </td>
                 )}

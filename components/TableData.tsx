@@ -321,7 +321,7 @@ const handleDelete = async (id: number | string) => {
           <div className="flex gap-2 flex-wrap ml-16">
             <Button
               className="flex items-center gap-2 w-28"
-              variant="green"
+              variant="outline"
               size="md"
               onClick={() => setShowAddForm(true)}
             >
@@ -335,83 +335,114 @@ const handleDelete = async (id: number | string) => {
               onChange={handleImportExcel}
             />
             <Button className="flex items-center gap-2 w-28"
-              variant="green"
+              variant="outline"
               size="md"
               onClick={() => document.getElementById('fileInput')?.click()}>
               <FaFileImport /> Importer
             </Button>
             <Button className="flex items-center gap-2 w-28"
-              variant="green"
+              variant="outline"
               size="md"
               onClick={handleExportExcel}>
               <FaFileExport /> Exporter
             </Button>
             <Button
               className="flex items-center gap-2 w-28"
-              variant="green"
+              variant="outline"
               size="md"
               onClick={downloadTemplate}
             >
               <FaFileExcel /> Modèle
             </Button>
-               {/* Bouton filtre (toggle) */}
+            {/* Bouton filtre (toggle) - STYLE AMÉLIORÉ */}
             <button
               type="button"
               onClick={() => setShowFilters(prev => !prev)}
               aria-pressed={showFilters}
               aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
-              className="ml-2 p-2 rounded-md border hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0d68ae] text-[#0d68ae]"
+              className={`ml-2 p-2 rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#0d68ae] ${
+                showFilters 
+                  ? 'bg-[#A52A2A] text-white border-[#A52A2A]' 
+                  : 'bg-white text-[#A52A2A] border-[#A52A2A] hover:bg-[#A52A2A] hover:text-white'
+              }`}
               title="Filtres"
             >
-              <FaFilter />
+              <FaFilter className="h-4 w-4" />
             </button>
           </div>
-            {/* Filtres conditionnels (apparaissent à droite du SearchBar) */}
-            {showFilters && (
-              <div className="flex items-center gap-2 ml-2">
-                <select
-                  value={selectedAnnee}
-                  onChange={(e) => {
-                    setSelectedAnnee(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="border rounded px-2 py-1 text-sm text-gray-700"
-                >
-                  <option value="">Toutes les années</option>
-                  {Array.from(new Set(data.map((e: any) => e.anneeAcademique).filter(Boolean))).map(
-                    (annee, i) => (
-                      <option key={i} value={annee}>
-                        {annee}
-                      </option>
-                    )
-                  )}
-                </select>
+          
+          {/* Filtres conditionnels - STYLE AMÉLIORÉ */}
+          {showFilters && (
+            <div className="flex items-center gap-3 mt-3 w-full p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <span className="text-sm font-medium text-[#A52A2A] whitespace-nowrap">Filtrer par:</span>
+              
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-600 mb-1">Année académique</label>
+                  <select
+                    value={selectedAnnee}
+                    onChange={(e) => {
+                      setSelectedAnnee(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent"
+                  >
+                    <option value="">Toutes les années</option>
+                    {Array.from(new Set(data.map((e: any) => e.anneeAcademique).filter(Boolean))).map(
+                      (annee, i) => (
+                        <option key={i} value={annee}>
+                          {annee}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </div>
 
-                <select
-                  value={selectedFormation}
-                  onChange={(e) => {
-                    setSelectedFormation(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="border rounded px-2 py-1 text-sm text-gray-700"
-                >
-                  <option value="">Toutes les formations</option>
-                  { (formations && formations.length)
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-600 mb-1">Formation</label>
+                  <select
+                    value={selectedFormation}
+                    onChange={(e) => {
+                      setSelectedFormation(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent"
+                  >
+                    <option value="">Toutes les formations</option>
+                    {(formations && formations.length)
                       ? formations.map((f) => (
-                          <option key={String(f.id)} value={String(f.id)}>
-                            {f.nom}
+                        <option key={String(f.id)} value={String(f.id)}>
+                          {f.nom}
+                        </option>
+                      ))
+                      : Array.from(new Set(data.map((e: any) => e.formationActuelle?.nom).filter(Boolean)))
+                        .map((formation: string, i: number) => (
+                          <option key={i} value={formation}>
+                            {formation}
                           </option>
                         ))
-                      : Array.from(new Set(data.map((e: any) => e.formationActuelle?.nom).filter(Boolean)))
-                          .map((formation: string, i: number) => (
-                            <option key={i} value={formation}>
-                              {formation}
-                            </option>
-                          ))
-                  }
-                </select>
+                    }
+                  </select>
+                </div>
+                
+                {/* Bouton pour effacer les filtres */}
+                {(selectedAnnee || selectedFormation) && (
+                  <div className="flex items-end">
+                    <button
+                      onClick={() => {
+                        setSelectedAnnee('');
+                        setSelectedFormation('');
+                        setCurrentPage(1);
+                      }}
+                      className="px-3 py-2 text-sm text-[#A52A2A] hover:text-white hover:bg-[#A52A2A] border border-[#A52A2A] rounded transition-colors duration-200"
+                    >
+                      Effacer les filtres
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -420,7 +451,7 @@ const handleDelete = async (id: number | string) => {
   <div
     className="fixed inset-0 flex items-center justify-center z-50"
     style={{
-      background: "rgba(13, 104, 174, 0.25)", // var(--bleu-foncé) avec transparence
+      background: "rgba(13, 104, 174, 0.25)", 
       backdropFilter: "blur(6px)",
       WebkitBackdropFilter: "blur(6px)",
     }}
@@ -428,7 +459,7 @@ const handleDelete = async (id: number | string) => {
     <div
       className="bg-white rounded-lg p-6 max-w-6xl w-full shadow-lg"
       style={{
-        boxShadow: "0 8px 32px 0 rgba(0, 208, 132, 0.15)", // var(--vivid-green-cyan) accent
+        boxShadow: "0 8px 32px 0 rgba(0, 208, 132, 0.15)", 
         border: "1px solid var(--light-green-cyan)",
       }}
     >
@@ -443,7 +474,7 @@ const handleDelete = async (id: number | string) => {
                 Object.keys(previewData[0]).map((key, i) => (
                   <th
                     key={i}
-                    className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap"
+                    className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-20 whitespace-nowrap"
                     style={{ color: "var(--bleu-foncé)" }}
                   >
                     {key}
@@ -578,34 +609,17 @@ const handleDelete = async (id: number | string) => {
       {/* Tableau */}
       <div className="overflow-x-auto rounded-lg border border-gray-200 mx-4 mb-8">
         <table className="min-w-full divide-y divide-gray-200">
-         <thead style={{ backgroundColor: '#BC544B' }}>
+          <thead className="bg-white">
             <tr>
               {columns.map((column) => (
-                <th
-                  key={column.key.toString()}
-                  className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap"
-                  style={{
-                    color: '#fffcfcff',
-                  }}
-                >
-                  {column.title}
-                </th>
+                <th key={column.key.toString()} className="px-2 py-2 text-left text-[10px] bg-[#A52A2A] text-white font-semibold tracking-wider w-24 whitespace-nowrap" >{column.title}</th>
               ))}
-              {(onEdit || onDelete) && (
-                <th
-                  className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-16 whitespace-nowrap"
-                  style={{
-                    color: '#95BA61',
-                  }}
-                >
-                  Actions
-                </th>
-              )}
+              {(onEdit || onDelete) && <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap bg-[#A52A2A] text-white" >Actions</th>}
             </tr>
           </thead>
-    <tbody className="bg-gray-200 text-white divide-y divide-gray-600">
+        <tbody>
   {paginatedData.map((item) => (
-    <tr key={item.id}>
+    <tr key={item.id} className='hover:bg-[#F5F5F5]'>
       {columns.map((column) => (
         <td
           key={`${item.id}-${column.key.toString()}`}
@@ -626,7 +640,7 @@ const handleDelete = async (id: number | string) => {
                 className="text-white transition-colors"
                 title="Modifier"
               >
-                <FaEdit className="h-4 w-4" />
+                <FaEdit className="h-4 w-4 text-[#D4A017]" />
               </button>
             )}
             {onDelete && (
@@ -635,7 +649,7 @@ const handleDelete = async (id: number | string) => {
                 className="text-white transition-colors"
                 title="Supprimer"
               >
-                <FaTrash className="h-4 w-4" />
+                <FaTrash className="h-4 w-4 text-[#A52A2A]" />
               </button>
             )}
           </div>

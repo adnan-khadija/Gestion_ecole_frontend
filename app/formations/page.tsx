@@ -6,11 +6,9 @@ import { Column } from "@/components/TableData";
 import { Formation,Professeur } from "@/lib/types";
 import { getFormations,getProfesseurs, addFormation, updateFormation, deleteFormation} from "@/lib/services";
 import toast from "react-hot-toast";
-import { Switch } from "@headlessui/react";
 import FormationCard from   "@/components/FormationCard";
 import { FaEye } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/Loading";
-import { Form } from "react-bootstrap";
 
 
 export default function FormationPage() {

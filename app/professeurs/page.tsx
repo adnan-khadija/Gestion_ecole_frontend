@@ -40,7 +40,7 @@ const colonnesProfesseurs: Column<Professeur>[] = [
             e.stopPropagation();
             setSelectedProf(item);
           }}
-          className="text-[#8a8a19] hover:text-gray-700 transition-colors"
+          className="text-[#D4A017] hover:text-gray-700 transition-colors"
           title="Voir les détails"
         >
           <FaEye className="h-4 w-4" />
@@ -116,19 +116,7 @@ const colonnesProfesseurs: Column<Professeur>[] = [
       </span>
     ),
   },
-  {
-    key: "photo",
-    title: "Photo",
-    render: (item: Professeur) => (
-      <div className="flex items-center gap-4">
-        <img
-          src={item.photo || "/images/logo.png"}
-          alt="Photo"
-          className="w-10 h-10 rounded-full"
-        />
-      </div>
-    ),
-  },
+  
 ];
 
 

@@ -40,7 +40,7 @@ const colonnesEtudiants: Column<Etudiant>[] = [
             e.stopPropagation();
             setSelectedStudent(item);
           }}
-          className="text-[#8a8a19] hover:text-gray-700 transition-colors"
+          className="text-[#D4A017] hover:text-gray-700 transition-colors"
           title="Voir les détails"
         >
           <FaEye className="h-4 w-4" />
@@ -148,22 +148,7 @@ const colonnesEtudiants: Column<Etudiant>[] = [
       </span>
     ),
   },
-  {
-    key: "photo",
-    title: "Photo ",
-    render: (item: Etudiant) => (
-      <div className="flex items-center gap-4">
-        {/* Photo */}
-        <img
-          src={item.photo || "/images/logo.png"}
-          alt="Photo"
-          className="w-10 h-10 rounded-full"
-        />
 
-        
-      </div>
-    ),
-  },
   {
     key:"boursier",
     title: "Boursier",
@@ -172,7 +157,7 @@ const colonnesEtudiants: Column<Etudiant>[] = [
         checked={item.boursier}
         onChange={() => handleToggle(item.id, "boursier", !item.boursier)}
         className={`${
-          item.boursier ? "bg-[#7bdcb5]" : "bg-gray-300"
+          item.boursier ? "bg-[#F5DEB3]" : "bg-gray-300"
         } relative inline-flex h-6 w-11 items-center rounded-full`}
       >
         <span className="sr-only">Boursier</span>
@@ -192,7 +177,7 @@ const colonnesEtudiants: Column<Etudiant>[] = [
         checked={item.handicap}
         onChange={() => handleToggle(item.id, "handicap", !item.handicap)}
         className={`${
-          item.handicap ? "bg-[#9de37f]" : "bg-gray-300"
+          item.handicap ? "bg-[#F5DEB3]" : "bg-gray-300"
         } relative inline-flex h-6 w-11 items-center rounded-full`}
       >
         <span className="sr-only">Handicap</span>
