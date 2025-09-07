@@ -368,7 +368,7 @@ function TableauDynamiqueFormation({
             <div className="relative w-screen max-w-2xl transform transition-transform duration-300 ease-in-out">
               <div className="h-full flex flex-col bg-white shadow-xl">
                 <div className="flex items-center justify-between px-6 py-4">
-                  <h2 className="text-lg font-bold text-[#0d68ae]">Ajouter une formation</h2>
+                  <h2 className="text-lg font-bold text-[#A52A2A]">Ajouter une formation</h2>
                   <button
                     onClick={() => setShowAddForm(false)}
                     className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0d68ae]"
@@ -394,7 +394,7 @@ function TableauDynamiqueFormation({
             <div className="relative w-screen max-w-2xl transform transition-transform duration-300 ease-in-out">
               <div className="h-full flex flex-col bg-white shadow-xl">
                 <div className="flex items-center justify-between px-6 py-4">
-                  <h2 className="text-lg font-bold text-[#0d68ae]">Modifier la formation</h2>
+                  <h2 className="text-lg font-bold text-[#A52A2A]">Modifier la formation</h2>
                   <button
                     onClick={() => setEditFormation(null)}
                     className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0d68ae]"

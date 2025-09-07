@@ -21,7 +21,7 @@ const ACCENT_GOLD = "#D4A017";
 const TEXT_DARK = "#2C2C2C";
 
 const elementsMenu: MenuItem[] = [
-  { nom: "Tableau de bord", icone: <FaThLarge />, lien: "/" },
+  { nom: "Tableau de bord", icone: <FaThLarge />, lien: "/dashboard" },
   { nom: "Étudiants", icone: <FaUsers />, lien: "/student" },
   { nom: "Professeurs", icone: <FaChalkboardTeacher />, lien: "/professeurs" },
   { nom: "Formations", icone: <FaBook />, lien: "/formations" },

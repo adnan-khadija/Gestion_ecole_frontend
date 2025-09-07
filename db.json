@@ -1,124 +1,100 @@
 {
   "formations": [
     {
-      "id": "1",
-      "nom": "Informatique",
-      "description": "Licence en informatique",
-      "duree": 36,
-      "cout": 2450,
-      "professeurs": [
-        2
-      ],
-      "emploiDuTempsId": 101,
-      "anneeFormation": 2026,
-      "estActive": true,
-      "modeFormation": "Présentiel",
-      "niveauAcces": "Bac",
-      "capaciteMax": 40,
-      "dateCreation": "2024-08-01T00:00:00.000Z",
-      "dateModification": "2025-09-04T13:11:50.068Z"
-    },
-    {
-      "id": "2",
-      "nom": "Mathématiques",
-      "description": "Master en mathématiques",
-      "duree": 24,
-      "cout": 3000,
-      "professeurs": [],
-      "emploiDuTempsId": 102,
-      "anneeFormation": 2025,
-      "estActive": true,
-      "modeFormation": "Hybride",
-      "niveauAcces": "Licence",
-      "capaciteMax": 30,
-      "dateCreation": "2024-08-01T00:00:00.000Z",
-      "dateModification": "2025-09-04T12:48:56.359Z"
-    },
-    {
-      "id": "3",
-      "nom": "Physique",
-      "description": "Doctorat en physique",
-      "duree": 36,
-      "cout": 4000,
-      "professeurs": [],
-      "emploiDuTempsId": 103,
-      "anneeFormation": 2026,
-      "estActive": true,
-      "modeFormation": "En ligne",
-      "niveauAcces": "Master",
-      "capaciteMax": 15,
-      "dateCreation": "2024-08-01T00:00:00.000Z",
-      "dateModification": "2025-09-04T12:59:36.708Z"
-    },
-    {
-      "id": "4",
-      "nom": "Réseaux",
-      "description": "Licence en réseaux",
-      "duree": 36,
-      "cout": 2200,
-      "professeurs": [
-        1
-      ],
-      "emploiDuTempsId": 104,
-      "anneeFormation": 2026,
-      "estActive": true,
-      "modeFormation": "Présentiel",
-      "niveauAcces": "Bac",
-      "capaciteMax": 35,
-      "dateCreation": "2024-08-01T00:00:00.000Z",
-      "dateModification": "2025-09-03T12:36:06.123Z"
-    },
-    {
-      "id": "5",
-      "nom": "Sécurité Informatique",
-      "description": "Master en sécurité informatique",
-      "duree": 24,
-      "cout": 3200,
-      "professeurs": [
-        3
-      ],
-      "emploiDuTempsId": 105,
-      "anneeFormation": 2025,
-      "estActive": true,
-      "modeFormation": "Hybride",
-      "niveauAcces": "Licence",
-      "capaciteMax": 25,
-      "dateCreation": "2024-08-01T00:00:00.000Z",
-      "dateModification": "2025-09-03T12:36:06.123Z"
-    },
-    {
-      "id": "6",
-      "nom": "Intelligence Artificielle",
-      "description": "Doctorat en intelligence artificielle",
-      "duree": 36,
-      "cout": 4500,
-      "professeurs": [
-        4,
-        6
-      ],
-      "emploiDuTempsId": 106,
-      "anneeFormation": 2026,
-      "estActive": true,
-      "modeFormation": "En ligne",
-      "niveauAcces": "Master",
-      "capaciteMax": 20,
-      "dateCreation": "2024-08-01T00:00:00.000Z",
-      "dateModification": "2025-09-03T12:36:06.123Z"
-    },
-    {
       "id": "ca41",
       "nom": "Informatique",
-      "description": "",
+      "description": "Formation en informatique fondamentale",
       "duree": 23,
       "cout": 90,
-      "professeurs": [],
+      "professeurs": ["1", "2"],
       "emploiDuTempsId": null,
       "anneeFormation": 2025,
       "estActive": true,
       "niveauAcces": "Bac",
       "capaciteMax": 9,
+      "modeFormation": "Présentiel",
       "dateCreation": "2025-09-07T10:13:22.828Z",
-      "dateModification": "2025-09-07T10:13:22.828Z"
+      "dateModification": "2025-09-07T14:05:26.760Z"
+    },
+    {
+      "id": "a897",
+      "nom": "Mathématiques Avancées",
+      "description": "Formation approfondie en mathématiques appliquées",
+      "duree": 24,
+      "cout": 55,
+      "professeurs": ["1"],
+      "emploiDuTempsId": null,
+      "anneeFormation": 2025,
+      "estActive": true,
+      "niveauAcces": "Licence",
+      "capaciteMax": 25,
+      "modeFormation": "Hybride",
+      "dateCreation": "2025-09-07T14:04:10.513Z",
+      "dateModification": "2025-09-07T14:05:50.291Z"
+    },
+    {
+      "id": "mth01",
+      "nom": "Mathématiques Fondamentales",
+      "description": "Master en mathématiques pures",
+      "duree": 24,
+      "cout": 3000,
+      "professeurs": ["3", "4"],
+      "emploiDuTempsId": null,
+      "anneeFormation": 2025,
+      "estActive": true,
+      "modeFormation": "Hybride",
+      "niveauAcces": "Master",
+      "capaciteMax": 6,
+      "dateCreation": "2024-06-01T00:00:00.000Z",
+      "dateModification": "2025-09-07T14:07:29.839Z"
+    },
+    {
+      "id": "sec01",
+      "nom": "Sécurité Informatique",
+      "description": "Master en sécurité informatique et cybersécurité",
+      "duree": 24,
+      "cout": 3200,
+      "professeurs": ["5", "6"],
+      "emploiDuTempsId": null,
+      "anneeFormation": 2025,
+      "estActive": true,
+      "modeFormation": "Hybride",
+      "niveauAcces": "Master",
+      "capaciteMax": 21,
+      "dateCreation": "2024-06-15T00:00:00.000Z",
+      "dateModification": "2025-09-07T14:08:11.205Z"
+    },
+    {
+      "id": "inf02",
+      "nom": "Informatique Licence",
+      "description": "Licence en informatique générale",
+      "duree": 34,
+      "cout": 234,
+      "professeurs": ["3", "4"],
+      "emploiDuTempsId": null,
+      "anneeFormation": 2025,
+      "estActive": true,
+      "modeFormation": "Hybride",
+      "niveauAcces": "Bac",
+      "capaciteMax": 90,
+      "dateCreation": "2024-07-01T00:00:00.000Z",
+      "dateModification": "2025-09-07T14:06:40.483Z"
+    },
+    {
+      "id": "mth02",
+      "nom": "Mathématiques Appliquées",
+      "description": "Formation en mathématiques pour l'ingénierie",
+      "duree": 12,
+      "cout": 45,
+      "professeurs": ["3", "4"],
+      "emploiDuTempsId": null,
+      "anneeFormation": 2025,
+      "estActive": true,
+      "modeFormation": "Présentiel",
+      "niveauAcces": "Bac+2",
+      "capaciteMax": 30,
+      "dateCreation": "2024-08-01T00:00:00.000Z",
+      "dateModification": "2025-09-07T14:07:40.703Z"
     }
   ],
   "diplomes": [
@@ -127,10 +103,18 @@
       "typeDiplome": "Master",
       "nomDiplome": "Master en Informatique",
       "niveau": "Bac+5",
+      "nombreProf": 1,
       "anneeObtention": 2018,
       "estValide": true,
+      "etudiant": null,
       "mention": "Très bien",
-      "dateDelivrance": "2018-07-15"
+      "dateDelivrance": "2018-07-15",
+      "signatureAdmin": "Dr. Oussama EL MAKOUDI",
+      "qrCode": "/qr-codes/diplome-1.png",
+      "fichierDiplome": "/diplomes/master-info-2018.pdf",
+      "commentaire": "Excellente performance académique",
+      "modeRemise": "Présentiel",
+      "professeurs": ["4"]
     },
     {
       "id": "2",
@@ -140,7 +124,9 @@
       "anneeObtention": 2015,
       "estValide": true,
       "mention": "Bien",
-      "dateDelivrance": "2015-06-20"
+      "dateDelivrance": "2015-06-20",
+      "signatureAdmin": "Pr. Sara Bennis",
+      "fichierDiplome": "/diplomes/licence-gl-2015.pdf"
     },
     {
       "id": "3",
@@ -150,7 +136,9 @@
       "anneeObtention": 2020,
       "estValide": true,
       "mention": "Excellent",
-      "dateDelivrance": "2020-12-10"
+      "dateDelivrance": "2020-12-10",
+      "signatureAdmin": "Pr. Ahmed Khalil",
+      "fichierDiplome": "/diplomes/doctorat-maths-2020.pdf"
     },
     {
       "id": "4",
@@ -160,7 +148,9 @@
       "anneeObtention": 2017,
       "estValide": true,
       "mention": "Très bien",
-      "dateDelivrance": "2017-06-25"
+      "dateDelivrance": "2017-06-25",
+      "signatureAdmin": "Dr. Fatima Mourad",
+      "fichierDiplome": "/diplomes/master-secu-2017.pdf"
     },
     {
       "id": "5",
@@ -170,7 +160,9 @@
       "anneeObtention": 2014,
       "estValide": true,
       "mention": "Assez bien",
-      "dateDelivrance": "2014-06-18"
+      "dateDelivrance": "2014-06-18",
+      "signatureAdmin": "Dr. Leila Zahir",
+      "fichierDiplome": "/diplomes/licence-reseaux-2014.pdf"
     },
     {
       "id": "6",
@@ -180,7 +172,9 @@
       "anneeObtention": 2021,
       "estValide": true,
       "mention": "Excellent",
-      "dateDelivrance": "2021-11-05"
+      "dateDelivrance": "2021-11-05",
+      "signatureAdmin": "Dr. Karim Idrissi",
+      "fichierDiplome": "/diplomes/doctorat-ia-2021.pdf"
     },
     {
       "id": "7",
@@ -190,7 +184,9 @@
       "anneeObtention": 2016,
       "estValide": true,
       "mention": "Bien",
-      "dateDelivrance": "2016-06-30"
+      "dateDelivrance": "2016-06-30",
+      "signatureAdmin": "Dr. Leila Zahir",
+      "fichierDiplome": "/diplomes/master-management-2016.pdf"
     },
     {
       "id": "8",
@@ -200,7 +196,9 @@
       "anneeObtention": 2013,
       "estValide": true,
       "mention": "Passable",
-      "dateDelivrance": "2013-06-22"
+      "dateDelivrance": "2013-06-22",
+      "signatureAdmin": "Dr. Leila Zahir",
+      "fichierDiplome": "/diplomes/licence-ae-2013.pdf"
     },
     {
       "id": "9",
@@ -210,7 +208,9 @@
       "anneeObtention": 2019,
       "estValide": true,
       "mention": "Très bien",
-      "dateDelivrance": "2019-07-12"
+      "dateDelivrance": "2019-07-12",
+      "signatureAdmin": "Dr. Karim Idrissi",
+      "fichierDiplome": "/diplomes/master-mobile-2019.pdf"
     }
   ],
   "etudiants": [
@@ -218,23 +218,61 @@
       "id": "1",
       "nom": "Mohammed",
       "prenom": "Ahmed",
-      "boursier": true
-    },
-    {
-      "handicap": true,
-      "id": "2"
-    },
-    {
-      "handicap": true,
-      "id": "3"
-    },
-    {
+      "email": "mohammed.ahmed@email.com",
+      "telephone": "0612345678",
+      "dateNaissance": "2000-05-15",
       "boursier": true,
-      "id": "4"
+      "handicap": false,
+      "formation": "ca41",
+      "dateInscription": "2024-09-01"
     },
     {
+      "id": "2",
+      "nom": "Lamrani",
+      "prenom": "Fatima",
+      "email": "fatima.lamrani@email.com",
+      "telephone": "0623456789",
+      "dateNaissance": "2001-08-22",
+      "boursier": false,
       "handicap": true,
-      "id": "5"
+      "formation": "a897",
+      "dateInscription": "2024-09-01"
+    },
+    {
+      "id": "3",
+      "nom": "Alaoui",
+      "prenom": "Mehdi",
+      "email": "mehdi.alaoui@email.com",
+      "telephone": "0634567890",
+      "dateNaissance": "1999-12-10",
+      "boursier": true,
+      "handicap": true,
+      "formation": "mth01",
+      "dateInscription": "2024-09-01"
+    },
+    {
+      "id": "4",
+      "nom": "Benjelloun",
+      "prenom": "Samira",
+      "email": "samira.benjelloun@email.com",
+      "telephone": "0645678901",
+      "dateNaissance": "2000-03-30",
+      "boursier": true,
+      "handicap": false,
+      "formation": "sec01",
+      "dateInscription": "2024-09-01"
+    },
+    {
+      "id": "5",
+      "nom": "Cherkaoui",
+      "prenom": "Youssef",
+      "email": "youssef.cherkaoui@email.com",
+      "telephone": "0656789012",
+      "dateNaissance": "2002-07-17",
+      "boursier": false,
+      "handicap": true,
+      "formation": "inf02",
+      "dateInscription": "2024-09-01"
     }
   ],
   "professeurs": [
@@ -247,7 +285,7 @@
       "specialite": "Informatique",
       "telephone": "0623542074",
       "dateEmbauche": "2020-01-15",
-      "photo": "/images/user.png",
+      "photo": "/images/professeurs/prof1.jpg",
       "heuresTravail": 20,
       "horaires": [
         {
@@ -266,13 +304,6 @@
           "fin": "12:00"
         }
       ],
-      "formations": [
-        1,
-        4
-      ],
-      "diplomes": [
-        1
-      ],
       "dateCreation": "2020-01-15T09:00:00.000Z",
       "dateModification": "2024-02-10T14:30:00.000Z"
     },
@@ -285,7 +316,7 @@
       "specialite": "Mathématiques Appliquées",
       "telephone": "0669876543",
       "dateEmbauche": "2021-03-15",
-      "photo": "/images/user.png",
+      "photo": "/images/professeurs/prof2.jpg",
       "heuresTravail": 15,
       "horaires": [
         {
@@ -298,12 +329,6 @@
           "debut": "08:30",
           "fin": "12:30"
         }
-      ],
-      "formations": [
-        3
-      ],
-      "diplomes": [
-        3
       ],
       "dateCreation": "2021-03-15T09:15:00.000Z",
       "dateModification": "2024-02-20T14:45:00.000Z"
@@ -336,13 +361,6 @@
           "fin": "16:00"
         }
       ],
-      "formations": [
-        5,
-        6
-      ],
-      "diplomes": [
-        4
-      ],
       "dateCreation": "2019-11-10T10:00:00.000Z",
       "dateModification": "2024-03-05T11:20:00.000Z"
     },
@@ -368,13 +386,6 @@
           "debut": "14:00",
           "fin": "18:00"
         }
-      ],
-      "formations": [
-        3,
-        6
-      ],
-      "diplomes": [
-        6
       ],
       "dateCreation": "2022-01-20T08:30:00.000Z",
       "dateModification": "2024-01-30T16:10:00.000Z"
@@ -407,14 +418,6 @@
           "fin": "13:00"
         }
       ],
-      "formations": [
-        1,
-        2
-      ],
-      "diplomes": [
-        7,
-        8
-      ],
       "dateCreation": "2018-05-08T09:00:00.000Z",
       "dateModification": "2024-02-15T15:30:00.000Z"
     },
@@ -445,12 +448,6 @@
           "debut": "14:00",
           "fin": "18:00"
         }
-      ],
-      "formations": [
-        5
-      ],
-      "diplomes": [
-        9
       ],
       "dateCreation": "2023-02-10T10:15:00.000Z",
       "dateModification": "2024-03-10T09:45:00.000Z"

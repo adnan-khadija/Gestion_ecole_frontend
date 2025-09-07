@@ -34,3 +34,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* globals.css */
+
+/* Option sélectionnée : arrière-plan doré et texte blanc */
+select[multiple] option:checked {
+  background-color: #D4A017; /* couleur dorée */
+  color: #ffffff;
+}
+
+/* Assurer que les options non sélectionnées conservent le style par défaut */
+select[multiple] option {
+  background-color: transparent;
+  color: inherit;
+}
+
+/* Focus du select (tu as déjà focus:ring en Tailwind ; ceci est un renfort) */
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212,160,23,0.15); /* halo doré léger */
+  border-color: transparent;
+}
