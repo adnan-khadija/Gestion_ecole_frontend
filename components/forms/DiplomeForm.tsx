@@ -110,17 +110,15 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
     const checked = (e.target as HTMLInputElement).checked;
 
     if (name === "etudiant") {
-      const selectedId = parseInt(value);
-      const selectedEtudiant = etudiants.find(e => e.id === selectedId) || null;
-      setDiplome(prev => ({ ...prev, etudiant: selectedEtudiant }));
-    } else {
-      setDiplome(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked :
-                 type === 'number' ? parseFloat(value) || 0 :
-                 value
-      }));
-    }
+  if (value === "") {
+    // Si aucune sélection (valeur vide)
+    setDiplome(prev => ({ ...prev, etudiant: null }));
+  } else {
+    const selectedId = parseInt(value);
+    const selectedEtudiant = etudiants.find(e => e.id === selectedId) || null;
+    setDiplome(prev => ({ ...prev, etudiant: selectedEtudiant }));
+  }
+}
   };
 
   // Soumission du formulaire
@@ -133,6 +131,13 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
       setSubmitting(false);
       return;
     }
+  if (!diplome.etudiant) {
+    setError("Veuillez sélectionner un étudiant");
+    setSubmitting(false);
+    return;
+  }
+
+ 
 
     try {
       const selectedProfesseurs = professeurs.filter(p => diplome.professeurs.includes(p.id));
@@ -180,9 +185,9 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
               required
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             >
-              {Object.values(TypeDiplome).map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
+             {Object.values(TypeDiplome).map(type => (
+  <option key={`type-${type}`} value={type}>{type}</option>
+))}
             </select>
           </div>
           <div className="space-y-1">
@@ -236,9 +241,9 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             >
-              {Object.values(MentionDiplome).map(mention => (
-                <option key={mention} value={mention}>{mention}</option>
-              ))}
+             {Object.values(MentionDiplome).map(mention => (
+  <option key={`mention-${mention}`} value={mention}>{mention}</option>
+))}
             </select>
           </div>
           <div className="space-y-1">
@@ -259,9 +264,9 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             >
-              {Object.values(ModeRemiseDiplome).map(mode => (
-                <option key={mode} value={mode}>{mode}</option>
-              ))}
+            {Object.values(ModeRemiseDiplome).map(mode => (
+  <option key={`mode-${mode}`} value={mode}>{mode}</option>
+))}
             </select>
           </div>
           <div className="space-y-1">
@@ -278,42 +283,51 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
         </div>
       </div>
 
-      {/* Section Étudiant */}
-      <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
-          Étudiant diplômé
-        </h3>
-        <div className="space-y-2">
-          {loading ? (
-            <div className="text-center py-4 text-gray-500">
-              Chargement des étudiants...
-            </div>
-          ) : etudiants.length === 0 ? (
-            <div className="text-center py-4 text-red-500">
-              Aucun étudiant disponible
-            </div>
-          ) : (
-            <>
-              <label className="block text-xs font-bold text-black">
-                Sélectionnez l'étudiant
-              </label>
-              <select
-                name="etudiant"
-                value={diplome.etudiant?.id || ''}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
-              >
-                <option value="">Sélectionner un étudiant</option>
-                {etudiants.map((etudiant) => (
-                  <option key={etudiant.id} value={etudiant.id}>
-                    {etudiant.nom} {etudiant.prenom} - {etudiant.matricule}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-        </div>
+     {/* Section Étudiant */}
+<div className="bg-white rounded-xl p-4 border border-gray-200">
+  <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
+    Étudiant diplômé
+  </h3>
+  <div className="space-y-2">
+    {loading ? (
+      <div className="text-center py-4 text-gray-500">
+        Chargement des étudiants...
       </div>
+    ) : etudiants.length === 0 ? (
+      <div className="text-center py-4 text-red-500">
+        Aucun étudiant disponible
+      </div>
+    ) : (
+      <>
+        <label className="block text-xs font-bold text-black">
+          Sélectionnez l'étudiant
+        </label>
+        <select
+          name="etudiant"
+          value={diplome.etudiant?.id || ''}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
+        >
+          <option value="">Sélectionner un étudiant</option>
+          {etudiants.map((etudiant) => (
+            <option key={etudiant.id} value={etudiant.id}>
+              {etudiant.nom} {etudiant.prenom}
+            </option>
+          ))}
+        </select>
+        
+        {/* Affichage de l'étudiant sélectionné */}
+        {diplome.etudiant && (
+          <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+            <p className="text-xs text-green-700">
+              <span className="font-semibold">Étudiant sélectionné:</span> {diplome.etudiant.nom} {diplome.etudiant.prenom}
+            </p>
+          </div>
+        )}
+      </>
+    )}
+  </div>
+</div>
 
       {/* Section Professeurs */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">

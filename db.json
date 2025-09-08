@@ -154,16 +154,22 @@
       "id": "2"
     },
     {
-      "id": "3",
       "typeDiplome": "Doctorat",
       "nomDiplome": "Doctorat en Mathématiques",
       "niveau": "Bac+8",
+      "nombreProf": 0,
       "anneeObtention": 2020,
       "estValide": true,
+      "etudiant": null,
       "mention": "Excellent",
       "dateDelivrance": "2020-12-10",
       "signatureAdmin": "Pr. Ahmed Khalil",
-      "fichierDiplome": "/diplomes/doctorat-maths-2020.pdf"
+      "qrCode": "",
+      "fichierDiplome": "/diplomes/doctorat-maths-2020.pdf",
+      "commentaire": "",
+      "modeRemise": "Présentiel",
+      "professeurs": [],
+      "id": "3"
     },
     {
       "id": "4",
@@ -356,6 +362,7 @@
           "niveau": "Bac+8",
           "anneeObtention": 2020,
           "estValide": true,
+          "etudiant": "3",
           "mention": "Excellent",
           "dateDelivrance": "2020-12-10",
           "signatureAdmin": "Pr. Ahmed Khalil",
