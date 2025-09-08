@@ -2,7 +2,7 @@ import { FaEdit, FaTrash, FaInfoCircle, FaTimes, FaPlus, FaFileExcel, FaFileExpo
 import React, { useState, useMemo, useEffect } from 'react';
 import { PaginationControls } from './Pagination';
 import Button from './Button';
-import ProfesseurForm from './ProfesseurForm';
+import ProfesseurForm from './forms/ProfesseurForm';
 import { Professeur, StatutProfesseur } from '@/lib/types';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';

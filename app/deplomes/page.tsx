@@ -8,8 +8,8 @@ import { getDiplomes, addDiplome, updateDiplome, deleteDiplome } from "@/lib/ser
 import toast from "react-hot-toast";
 import { FaEye } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/Loading";
-import DiplomeForm from "@/components/DiplomeForm"; // Vous devrez créer ce composant
-import DiplomeCard from "@/components/DiplomeCard";
+import DiplomeForm from "@/components/forms/DiplomeForm"; 
+import DiplomeCard from "@/components/cards/DiplomeCard";
 
 export default function DiplomesPage() {
     const [diplomes, setDiplomes] = useState<Diplome[]>([]);

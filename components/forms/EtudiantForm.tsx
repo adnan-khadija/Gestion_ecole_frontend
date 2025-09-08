@@ -7,9 +7,10 @@ interface EtudiantFormProps {
   onSave: (etudiant: Etudiant) => void;
   formations: Formation[];
   etudiantInitial?: Omit<Etudiant, 'id'>;
+  onCancel?: () => void;
 }
 
-const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps) => {
+const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: EtudiantFormProps) => {
   const [customFields, setCustomFields] = useState<{ name: string; value: string }[]>([]);
   const [etudiant, setEtudiant] = useState<Omit<Etudiant, 'id'>>({
     nom: '',
@@ -36,6 +37,7 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
     dateInscription: new Date().toISOString().split('T')[0],
     statut: StatutEtudiant.Actif,
   });
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     if (etudiantInitial) {
@@ -68,11 +70,13 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
 
     // Si on est en édition, on passe juste l'étudiant modifié
     if (etudiantInitial) {
       onSave({ ...etudiant, id: (etudiantInitial as any).id });
       toast.success("Étudiant modifié avec succès !");
+      setSubmitting(false);
       return;
     }
 
@@ -96,47 +100,49 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
     } catch (error) {
       toast.error("Erreur lors de l'ajout de l'étudiant");
       console.error("Erreur lors de l'ajout de l'étudiant:", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Section Informations personnelles */}
-     <div className="bg-white rounded-xl p-4 border border-gray-200">
-       <h3 className="text-sm font-semibold text-[#D4A017] mb-4 pb-2 border-b border-gray-100">
+      <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Informations personnelles
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Nom*</label>
+            <label className="block text-xs font-bold text-black">Nom*</label>
             <input
               type="text"
               name="nom"
               value={etudiant.nom}
               onChange={handleChange}
               required
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Prénom*</label>
+            <label className="block text-xs font-bold text-black">Prénom*</label>
             <input
               type="text"
               name="prenom"
               value={etudiant.prenom}
               onChange={handleChange}
               required
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Sexe*</label>
+            <label className="block text-xs font-bold text-black">Sexe*</label>
             <select
               name="sexe"
               value={etudiant.sexe}
               onChange={handleChange}
               required
-              className="w-full px-4 py-1 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
             >
               {Object.values(Sexe).map(sexe => (
                 <option key={sexe} value={sexe}>{sexe}</option>
@@ -144,115 +150,115 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
             </select>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Date de naissance*</label>
+            <label className="block text-xs font-bold text-black">Date de naissance*</label>
             <input
               type="date"
               name="dateNaissance"
               value={etudiant.dateNaissance}
               onChange={handleChange}
               required
-              className="w-full px-4 py-1 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Lieu de naissance</label>
+            <label className="block text-xs font-bold text-black">Lieu de naissance</label>
             <input
               type="text"
               name="lieuNaissance"
               value={etudiant.lieuNaissance}
               onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Nationalité</label>
+            <label className="block text-xs font-bold text-black">Nationalité</label>
             <input
               type="text"
               name="nationalite"
               value={etudiant.nationalite}
               onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
         </div>
       </div>
 
       {/* Section Coordonnées */}
-      <div className="bg-white rounded-xl p-2">
-        <h3 className="text-sm font-semibold text-[#D4A017] mb-2 pb-2 border-b border-gray-100 flex items-center">
+      <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Coordonnées
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Email*</label>
+            <label className="block text-xs font-bold text-black">Email*</label>
             <input
               type="email"
               name="email"
               value={etudiant.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Téléphone*</label>
+            <label className="block text-xs font-bold text-black">Téléphone*</label>
             <input
               type="tel"
               name="telephone"
               value={etudiant.telephone}
               onChange={handleChange}
               required
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Adresse</label>
+            <label className="block text-xs font-bold text-black">Adresse</label>
             <input
               type="text"
               name="adresse"
               value={etudiant.adresse}
               onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Ville</label>
+            <label className="block text-xs font-bold text-black">Ville</label>
             <input
               type="text"
               name="ville"
               value={etudiant.ville}
               onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
         </div>
       </div>
 
       {/* Section Scolarité */}
-      <div className="bg-white rounded-xl p-2">
-        <h3 className="text-sm font-semibold text-[#D4A017] mb-4 pb-2 border-b border-gray-100 flex items-center">
+      <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Scolarité
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Matricule*</label>
+            <label className="block text-xs font-bold text-black">Matricule*</label>
             <input
               type="text"
               name="matricule"
               value={etudiant.matricule}
               onChange={handleChange}
               required
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Formation actuelle*</label>
+            <label className="block text-xs font-bold text-black">Formation actuelle*</label>
             <select
               name="formationActuelle"
               value={etudiant.formationActuelle?.id || ""}
               onChange={handleChange}
               required
-              className="w-full px-4 text-sm py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
             >
               <option value="">Sélectionnez une formation</option>
               {formations.map(formation => (
@@ -261,71 +267,71 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
             </select>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Niveau scolaire</label>
+            <label className="block text-xs font-bold text-black">Niveau scolaire</label>
             <input
               type="text"
               name="niveauScolaire"
               value={etudiant.niveauScolaire}
               onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Groupe scolaire</label>
+            <label className="block text-xs font-bold text-black">Groupe scolaire</label>
             <input
               type="text"
               name="groupeScolaire"
               value={etudiant.groupeScolaire}
               onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Année scolaire</label>
+            <label className="block text-xs font-bold text-black">Année scolaire</label>
             <input
               type="text"
               name="anneeAcademique"
               value={etudiant.anneeAcademique}
               onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
         </div>
       </div>
 
       {/* Section Tuteur et Situation */}
-      <div className="bg-white rounded-xl p-2">
-        <h3 className="text-sm font-semibold text-[#D4A017] mb-2 pb-2 border-b border-gray-100 flex items-center">
+      <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Tuteur et situation
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Nom du tuteur</label>
+            <label className="block text-xs font-bold text-black">Nom du tuteur</label>
             <input
               type="text"
               name="nomTuteur"
               value={etudiant.nomTuteur}
               onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Contact du tuteur</label>
+            <label className="block text-xs font-bold text-black">Contact du tuteur</label>
             <input
               type="tel"
               name="contactTuteur"
               value={etudiant.contactTuteur}
               onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Situation familiale</label>
+            <label className="block text-xs font-bold text-black">Situation familiale</label>
             <select
               name="situationFamiliale"
               value={etudiant.situationFamiliale || ""}
               onChange={handleChange}
-              className="w-full px-4 py-1 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0BveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI4IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InRvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
             >
               <option value="">Sélectionnez une situation</option>
               {Object.values(SituationFamiliale).map((situation) => (
@@ -336,12 +342,12 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
             </select>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Statut</label>
+            <label className="block text-xs font-bold text-black">Statut</label>
             <select
               name="statut"
               value={etudiant.statut || ""}
               onChange={handleChange}
-              className="w-full px-4 py-1 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0BveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1C2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
             >
               <option value="">Sélectionnez un statut</option>
               {Object.values(StatutEtudiant).map((statut) => (
@@ -361,9 +367,9 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
                   onChange={handleChange}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00d084]"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D4A017]"></div>
               </div>
-              <span className="text-xs font-bold text-[#A52A2A]">Boursier</span>
+              <span className="text-sm font-medium text-black">Boursier</span>
             </label>
             <label className="inline-flex items-center space-x-2 cursor-pointer">
               <div className="relative">
@@ -374,17 +380,17 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
                   onChange={handleChange}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00d084]"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D4A017]"></div>
               </div>
-              <span className="text-xs font-bold text-[#A52A2A]">Handicap</span>
+              <span className="text-sm font-medium text-black">Handicap</span>
             </label>
           </div>
         </div>
       </div>
 
       {/* Section Photo */}
-      <div className="bg-white rounded-xl p-2">
-        <h3 className="text-sm font-semibold text-[#D4A017] mb-2 pb-2 border-b border-gray-100 flex items-center">
+      <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Photo
         </h3>
         <div className="flex items-center">
@@ -428,8 +434,8 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
       </div>
 
       {/* Champs personnalisés */}
-      <div className="bg-white rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-[#D4A017] mb-2 pb-2 border-b border-gray-100 flex items-center">
+      <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Champs personnalisés
         </h3>
         {customFields.map((field, idx) => (
@@ -443,7 +449,7 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
                 updated[idx].name = e.target.value;
                 setCustomFields(updated);
               }}
-              className="w-full px-4 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
             <input
               type="text"
@@ -454,7 +460,7 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
                 updated[idx].value = e.target.value;
                 setCustomFields(updated);
               }}
-              className="w-full px-4 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent transition-all"
+              className="w-full px-4 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
             <button
               type="button"
@@ -469,7 +475,7 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
         <button
           type="button"
           onClick={() => setCustomFields(fields => [...fields, { name: '', value: '' }])}
-          className="mt-2 px-4 py-1 bg-[#D4A017] text-white rounded hover:bg-[#0274be] text-sm"
+          className="mt-2 px-4 py-2 bg-[#D4A017] text-white rounded hover:bg-[#b38714] text-sm"
         >
           + Ajouter un champ
         </button>
@@ -477,11 +483,22 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial }: EtudiantFormProps
 
       {/* Boutons de soumission */}
       <div className="flex justify-end space-x-4 mt-8">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={submitting}
+            className="px-6 py-3 text-sm bg-[#C0C0C0] text-white font-medium rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Annuler
+          </button>
+        )}
         <button
           type="submit"
-          className="px-6 py-3  text-sm bg-[#D4A017] text-white font-medium rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:ring-opacity-50 transition-all transform hover:scale-105"
+          disabled={submitting}
+          className="px-6 py-3 text-sm bg-[#D4A017] text-white font-medium rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:ring-opacity-50 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Enregistrer 
+          {submitting ? 'En cours...' : etudiantInitial ? 'Modifier' : 'Créer'} l'étudiant
         </button>
       </div>
     </form>

@@ -79,13 +79,33 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
     }
   }, [diplomeInitial]);
 
-  // Gestion des changements
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | number[]) => {
-    if (Array.isArray(e)) {
-      setDiplome(prev => ({ ...prev, professeurs: e }));
-      return;
-    }
+  // Gestion spécifique pour les professeurs
+  const handleProfesseurChange = (professeurId: number) => {
+    setDiplome(prev => {
+      const isSelected = prev.professeurs.includes(professeurId);
+      let newProfesseurs;
+      
+      if (isSelected) {
+        newProfesseurs = prev.professeurs.filter(id => id !== professeurId);
+        setError(''); // Réinitialiser l'erreur lors de la désélection
+      } else {
+        if (prev.professeurs.length >= 2) {
+          setError("Maximum 2 professeurs autorisés");
+          return prev;
+        }
+        newProfesseurs = [...prev.professeurs, professeurId];
+        setError('');
+      }
+      
+      return {
+        ...prev,
+        professeurs: newProfesseurs
+      };
+    });
+  };
 
+  // Gestion des changements pour les autres champs
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
     const checked = (e.target as HTMLInputElement).checked;
 
@@ -93,9 +113,6 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
       const selectedId = parseInt(value);
       const selectedEtudiant = etudiants.find(e => e.id === selectedId) || null;
       setDiplome(prev => ({ ...prev, etudiant: selectedEtudiant }));
-    } else if (name === "professeurs") {
-      const selectedIds = Array.from((e.target as HTMLSelectElement).selectedOptions).map(opt => parseInt(opt.value));
-      setDiplome(prev => ({ ...prev, professeurs: selectedIds }));
     } else {
       setDiplome(prev => ({
         ...prev,
@@ -110,6 +127,12 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
+    if (diplome.professeurs.length > 2) {
+      setError("Maximum 2 professeurs autorisés");
+      setSubmitting(false);
+      return;
+    }
 
     try {
       const selectedProfesseurs = professeurs.filter(p => diplome.professeurs.includes(p.id));
@@ -144,12 +167,12 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Section Informations de base */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-sm font-semibold text-[#D4A017] mb-4 pb-2 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Informations du diplôme
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Type de diplôme*</label>
+            <label className="block text-xs font-bold text-black">Type de diplôme*</label>
             <select
               name="typeDiplome"
               value={diplome.typeDiplome}
@@ -163,7 +186,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
             </select>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Nom du diplôme*</label>
+            <label className="block text-xs font-bold text-black">Nom du diplôme*</label>
             <input
               type="text"
               name="nomDiplome"
@@ -174,7 +197,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Niveau</label>
+            <label className="block text-xs font-bold text-black">Niveau</label>
             <input
               type="text"
               name="niveau"
@@ -185,7 +208,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Année d'obtention</label>
+            <label className="block text-xs font-bold text-black">Année d'obtention</label>
             <input
               type="number"
               name="anneeObtention"
@@ -201,12 +224,12 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
 
       {/* Section Détails du diplôme */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-sm font-semibold text-[#D4A017] mb-4 pb-2 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Détails du diplôme
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Mention</label>
+            <label className="block text-xs font-bold text-black">Mention</label>
             <select
               name="mention"
               value={diplome.mention}
@@ -219,7 +242,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
             </select>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Date de délivrance</label>
+            <label className="block text-xs font-bold text-black">Date de délivrance</label>
             <input
               type="date"
               name="dateDelivrance"
@@ -229,7 +252,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Mode de remise</label>
+            <label className="block text-xs font-bold text-black">Mode de remise</label>
             <select
               name="modeRemise"
               value={diplome.modeRemise}
@@ -242,7 +265,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
             </select>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Nombre de professeurs</label>
+            <label className="block text-xs font-bold text-black">Nombre de professeurs</label>
             <input
               type="number"
               name="nombreProf"
@@ -257,7 +280,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
 
       {/* Section Étudiant */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-sm font-semibold text-[#A52A2A] mb-4 pb-2 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Étudiant diplômé
         </h3>
         <div className="space-y-2">
@@ -271,7 +294,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
             </div>
           ) : (
             <>
-              <label className="block text-xs font-bold text-[#D4A017]">
+              <label className="block text-xs font-bold text-black">
                 Sélectionnez l'étudiant
               </label>
               <select
@@ -294,7 +317,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
 
       {/* Section Professeurs */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-sm font-semibold text-[#A52A2A] mb-4 pb-2 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Professeurs assignés
         </h3>
         <div className="space-y-2">
@@ -308,8 +331,8 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
             </div>
           ) : (
             <>
-              <label className="block text-xs font-bold text-[#D4A017]">
-                Sélectionnez les professeurs
+              <label className="block text-xs font-bold text-black">
+                Sélectionnez les professeurs (max 2)
               </label>
               <div className="flex flex-col gap-1 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
                 {professeurs.map((prof) => {
@@ -324,15 +347,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
                       <input
                         type="checkbox"
                         checked={checked}
-                        onChange={(e) => {
-                          let newSelection = [...diplome.professeurs];
-                          if (e.target.checked) {
-                            newSelection.push(prof.id);
-                          } else {
-                            newSelection = newSelection.filter((id) => id !== prof.id);
-                          }
-                          handleChange(newSelection);
-                        }}
+                        onChange={() => handleProfesseurChange(prof.id)}
                         className="form-checkbox h-4 w-4 text-[#D4A017] border-gray-300 rounded"
                       />
                       {prof.nom} {prof.prenom} - {prof.specialite}
@@ -340,6 +355,15 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
                   );
                 })}
               </div>
+              
+              {/* Message d'erreur en rouge pour la sélection des professeurs */}
+              {error && (
+                <p className="text-xs text-red-500 mt-1 font-medium">{error}</p>
+              )}
+              
+              <p className="text-xs text-gray-500 mt-1">
+                {diplome.professeurs.length} / 2 professeurs sélectionnés
+              </p>
             </>
           )}
         </div>
@@ -347,7 +371,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
 
       {/* Section Statut et Commentaires */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-sm font-semibold text-[#A52A2A] mb-4 pb-2 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Statut et informations supplémentaires
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -363,11 +387,11 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D4A017]"></div>
               </div>
-              <span className="text-sm font-medium text-gray-700">Diplôme validé</span>
+              <span className="text-sm font-medium text-black">Diplôme validé</span>
             </label>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Commentaire</label>
+            <label className="block text-xs font-bold text-black">Commentaire</label>
             <textarea
               name="commentaire"
               value={diplome.commentaire}

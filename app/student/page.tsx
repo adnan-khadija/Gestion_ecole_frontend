@@ -7,7 +7,7 @@ import { Etudiant } from "@/lib/types";
 import { getEtudiants, addEtudiant, updateEtudiant, deleteEtudiant } from "@/lib/services";
 import toast from "react-hot-toast";
 import { Switch } from "@headlessui/react";
-import StudentProfile from "@/components/StudentProfile";
+import StudentProfile from "@/components/cards/StudentProfile";
 import { FaEye } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/Loading";
 

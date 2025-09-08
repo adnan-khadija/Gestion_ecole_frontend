@@ -171,7 +171,7 @@ export default function ProfesseurProfile({ professeur, onClose }: ProfesseurPro
                   <span className="font-semibold" style={{ color: "#8a8a19" }}>Diplômes:</span>
                   <span style={{ color: "#171717" }}>
                     {professeur.diplomes.length
-                      ? professeur.diplomes.map(d => d.nom).join(", ")
+                      ? professeur.diplomes.map(d => d.nomDiplome).join(", ")
                       : "Aucun"}
                   </span>
                 </>

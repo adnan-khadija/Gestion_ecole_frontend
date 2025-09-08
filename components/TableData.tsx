@@ -2,7 +2,7 @@ import { FaEdit, FaTrash, FaInfoCircle, FaTimes, FaPlus, FaFileExcel, FaFileExpo
 import React, { useState, useMemo, useEffect } from 'react';
 import { PaginationControls } from './Pagination';
 import Button from './Button';
-import EtudiantForm from './EtudiantForm';
+import EtudiantForm from './forms/EtudiantForm';
 import { Etudiant, Formation } from '@/lib/types';
 import { getFormations } from '@/lib/services';
 import toast from 'react-hot-toast';

@@ -128,7 +128,7 @@ export interface Utilisateur {
   nom: string;
   prenom: string;
   email: string;
-  motDePasse: string; // hashé côté backend
+  motDePasse: string; 
   role: RoleUtilisateur;
   telephone?: string;
   dateCreation?: string;
@@ -137,18 +137,18 @@ export interface Utilisateur {
 
 // Horaire type simple
 export interface Horaire {
-  jour: string;   // ex: "Lundi"
-  debut: string;  // ex: "08:00"
-  fin: string;    // ex: "12:00"
+  jour: string;  
+  debut: string;  
+  fin: string;   
 }
 
 /* Formation */
 export interface Formation {
   id: number;
   nom: string;
-  duree: number; // en mois ou heures selon convention
-  cout: number;  // décimal en number (ex: 5000.00)
-  professeurs: Professeur[]; // max 2
+  duree: number; 
+  cout: number;  
+  professeurs: Professeur[];
   emploiDuTempsId?: number | null;
   description?: string;
   anneeFormation?: number;
@@ -191,8 +191,9 @@ export interface Professeur {
   photo?: string;
   heuresTravail?: number;
   horaires?: Horaire[];
-  diplomes?: Diplome[]; // diplômes sur lesquels il intervient
-  formations?: Formation[]; // formations qu'il assure
+  diplomes?: Diplome[]; 
+  formations?: Formation[]; 
+  
 }
 
 /* Étudiant */

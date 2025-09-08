@@ -66,40 +66,41 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
     }
   }, [formationInitial]);
 
-  // Gestion des changements
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | number[]) => {
-    if (Array.isArray(e)) {
-      // Pour les checkboxes custom
-      if (e.length > 2) {
-        setError("Maximum 2 professeurs autorisés");
-        return;
-      } else {
-        setError('');
-      }
-      setFormation(prev => ({ ...prev, professeurs: e }));
-      return;
-    }
-
-    const { name, value, type } = e.target as HTMLInputElement;
+  // Gestion des changements pour les champs standards
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
 
-    if (name === "professeurs") {
-      const selectedIds = Array.from((e.target as HTMLSelectElement).selectedOptions).map(opt => parseInt(opt.value));
-      if (selectedIds.length > 2) {
-        setError("Maximum 2 professeurs autorisés");
-        return;
+    setFormation(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked :
+               type === 'number' ? parseFloat(value) || 0 :
+               value
+    }));
+  };
+
+  // Gestion spécifique pour les professeurs
+  const handleProfesseurChange = (professeurId: number) => {
+    setFormation(prev => {
+      const isSelected = prev.professeurs.includes(professeurId);
+      let newProfesseurs;
+      
+      if (isSelected) {
+        newProfesseurs = prev.professeurs.filter(id => id !== professeurId);
       } else {
-        setError("");
+        if (prev.professeurs.length >= 2) {
+          setError("Maximum 2 professeurs autorisés");
+          return prev;
+        }
+        newProfesseurs = [...prev.professeurs, professeurId];
+        setError('');
       }
-      setFormation(prev => ({ ...prev, professeurs: selectedIds }));
-    } else {
-      setFormation(prev => ({
+      
+      return {
         ...prev,
-        [name]: type === 'checkbox' ? checked :
-                 type === 'number' ? parseFloat(value) || 0 :
-                 value
-      }));
-    }
+        professeurs: newProfesseurs
+      };
+    });
   };
 
   // Soumission du formulaire
@@ -151,12 +152,12 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Section Informations de base */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-sm font-semibold text-[#D4A017] mb-4 pb-2 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Informations de base
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Nom de la formation*</label>
+            <label className="block text-xs font-bold text-black">Nom de la formation*</label>
             <input
               type="text"
               name="nom"
@@ -167,7 +168,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Description</label>
+            <label className="block text-xs font-bold text-black">Description</label>
             <textarea
               name="description"
               value={formation.description}
@@ -177,7 +178,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Durée (mois)*</label>
+            <label className="block text-xs font-bold text-black">Durée (mois)*</label>
             <input
               type="number"
               name="duree"
@@ -189,7 +190,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Coût (FCFA)*</label>
+            <label className="block text-xs font-bold text-black">Coût (FCFA)*</label>
             <input
               type="number"
               name="cout"
@@ -206,12 +207,12 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
 
       {/* Section Configuration */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-sm font-semibold text-[#D4A017] mb-4 pb-2 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Configuration
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Mode de formation*</label>
+            <label className="block text-xs font-bold text-black">Mode de formation*</label>
             <select
               name="modeFormation"
               value={formation.modeFormation}
@@ -225,7 +226,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
             </select>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Niveau d'accès requis</label>
+            <label className="block text-xs font-bold text-black">Niveau d'accès requis</label>
             <input
               type="text"
               name="niveauAcces"
@@ -235,7 +236,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Capacité maximale</label>
+            <label className="block text-xs font-bold text-black">Capacité maximale</label>
             <input
               type="number"
               name="capaciteMax"
@@ -246,7 +247,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#A52A2A]">Année de formation</label>
+            <label className="block text-xs font-bold text-black">Année de formation</label>
             <input
               type="number"
               name="anneeFormation"
@@ -260,67 +261,73 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
         </div>
       </div>
 
-      {/* Section Professeurs */}
-    <div className="bg-white rounded-xl p-4 border border-gray-200">
-  <h3 className="text-sm font-semibold text-[#A52A2A] mb-4 pb-2 border-b border-gray-100">
-    Professeurs assignés
-  </h3>
-  <div className="space-y-2">
-    {loading ? (
-      <div className="text-center py-4 text-gray-500">
-        Chargement des professeurs...
-      </div>
-    ) : professeurs.length === 0 ? (
-      <div className="text-center py-4 text-red-500">
-        Aucun professeur disponible
-      </div>
-    ) : (
-      <>
-        <label className="block text-xs font-bold text-[#D4A017]">
-          Sélectionnez les professeurs (max 2)
-        </label>
-        <div className="flex flex-col gap-1 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
-          {professeurs.map((prof) => {
-            const checked = formation.professeurs.includes(prof.id);
-            return (
-              <label
-                key={prof.id}
-                className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${
-                  checked ? 'bg-[#D4A017] text-white' : 'bg-white text-gray-700'
-                } hover:bg-[#F5E9DA] transition-colors`}
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={(e) => {
-                    let newSelection = [...formation.professeurs];
-                    if (e.target.checked) {
-                      if (newSelection.length < 2) newSelection.push(prof.id);
-                    } else {
-                      newSelection = newSelection.filter((id) => id !== prof.id);
-                    }
-                    handleChange(newSelection);
-                  }}
-                  className="form-checkbox h-4 w-4 text-[#D4A017] border-gray-300 rounded"
-                />
-                {prof.nom} {prof.prenom} - {prof.specialite}
+      {/* Section Professeurs avec défilement et hauteur réduite */}
+      <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
+          Professeurs assignés
+        </h3>
+        <div className="space-y-2">
+          {loading ? (
+            <div className="text-center py-4 text-gray-500">
+              Chargement des professeurs...
+            </div>
+          ) : professeurs.length === 0 ? (
+            <div className="text-center py-4 text-red-500">
+              Aucun professeur disponible
+            </div>
+          ) : (
+            <>
+              <label className="block text-xs font-bold text-black">
+                Sélectionnez les professeurs (max 2)
               </label>
-            );
-          })}
+              
+              <div className="max-h-60 overflow-y-auto pr-2 py-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {professeurs.map((prof) => {
+                    const checked = formation.professeurs.includes(prof.id);
+                    return (
+                      <label
+                        key={prof.id}
+                        className={`flex items-center gap-2 p-2 rounded-lg border ${
+                          checked 
+                            ? 'border-[#D4A017] bg-[#FFF8E6]' 
+                            : 'border-gray-200 bg-white'
+                        } cursor-pointer transition-colors min-h-12`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => handleProfesseurChange(prof.id)}
+                          className="h-4 w-4 text-[#D4A017] border-gray-300 rounded focus:ring-[#D4A017]"
+                        />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-black truncate">
+                            {prof.nom} {prof.prenom}
+                          </p>
+                          <p className="text-xs text-gray-600 truncate">{prof.specialite}</p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Message d'erreur en rouge pour la sélection des professeurs */}
+              {error && (
+                <p className="text-xs text-[#FF0000] mt-1 font-medium">{error}</p>
+              )}
+              
+              <p className="text-xs text-gray-500 mt-1">
+                {formation.professeurs.length} / 2 professeurs sélectionnés
+              </p>
+            </>
+          )}
         </div>
-        {error && <p className="text-xs text-[#FF0000] mt-1 font-medium">{error}</p>}
-        <p className="text-xs text-gray-500 mt-1">
-          Cochez jusqu’à 2 professeurs
-        </p>
-      </>
-    )}
-  </div>
-</div>
-
+      </div>
 
       {/* Section Statut */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-sm font-semibold text-[#A52A2A] mb-4 pb-2 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
           Statut
         </h3>
         <div className="flex items-center space-x-6">
@@ -335,6 +342,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D4A017]"></div>
             </div>
+            <span className="text-sm font-medium text-black">Formation active</span>
           </label>
         </div>
       </div>

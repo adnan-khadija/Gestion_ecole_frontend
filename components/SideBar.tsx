@@ -26,10 +26,10 @@ const elementsMenu: MenuItem[] = [
   { nom: "Professeurs", icone: <FaChalkboardTeacher />, lien: "/professeurs" },
   { nom: "Formations", icone: <FaBook />, lien: "/formations" },
   { nom: "Diplômes", icone: <FaFileAlt />, lien: "/deplomes" },
+  { nom: "Emploi du temps", icone: <FaCalendar />, lien: "/emploi-du-temps" },
   { nom: "Absence", icone: <FaRegCalendarCheck />, lien: "/absence" },
   { nom: "Dépense", icone: <FaMoneyBillWave />, lien: "/depense" },
   { nom: "Paiement", icone: <FaCreditCard />, lien: "/paiement" }, 
-  { nom: "Emploi du temps", icone: <FaCalendar />, lien: "/emploi-du-temps" },
   { nom: "Paramètres", icone: <FaCog />, lien: "/parametres" },
 ];
 
