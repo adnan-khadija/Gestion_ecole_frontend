@@ -294,7 +294,7 @@ function TableauDynamiqueFormation({
   onClick={() => setShowFilters(prev => !prev)}
   aria-pressed={showFilters}
   aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
-  className={`ml-2 p-2 rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#0d68ae] ${
+  className={`ml-2 p-2 rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#D4A017] ${
     showFilters 
       ? 'bg-[#A52A2A] text-white border-[#A52A2A]' 
       : 'bg-white text-[#A52A2A] border-[#A52A2A] hover:bg-[#A52A2A] hover:text-white'
@@ -371,7 +371,7 @@ function TableauDynamiqueFormation({
                   <h2 className="text-lg font-bold text-[#A52A2A]">Ajouter une formation</h2>
                   <button
                     onClick={() => setShowAddForm(false)}
-                    className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0d68ae]"
+                    className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
                     aria-label="Fermer"
                   >
                     <FaTimes className="h-5 w-5" />
@@ -397,7 +397,7 @@ function TableauDynamiqueFormation({
                   <h2 className="text-lg font-bold text-[#A52A2A]">Modifier la formation</h2>
                   <button
                     onClick={() => setEditFormation(null)}
-                    className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0d68ae]"
+                    className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
                     aria-label="Fermer"
                   >
                     <FaTimes className="h-5 w-5" />
@@ -416,7 +416,7 @@ function TableauDynamiqueFormation({
   <div className="fixed inset-0 z-50 bg-[#F5F5F5] bg-opacity-50 flex items-center justify-center p-4">
     <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[80vh] overflow-hidden">
       <div className="flex items-center justify-between p-6 border-b">
-        <h2 className="text-xl font-bold text-[#0d68ae]">Prévisualisation de l'importation</h2>
+        <h2 className="text-xl font-bold text-[#D4A017]">Prévisualisation de l'importation</h2>
         <button
           onClick={() => {
             setShowPreview(false);

@@ -90,81 +90,81 @@ const ProfesseurForm = ({ onSave, professeurInitial }: ProfesseurFormProps) => {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Informations personnelles */}
       <div className="bg-white rounded-xl px-2">
-        <h3 className="text-sm font-semibold text-[#0d68ae] mb-2 pb-2 border-b border-gray-100 flex items-center">
+        <h3 className="text-sm font-semibold text-[#D4A017] mb-2 pb-2 border-b border-gray-100 flex items-center">
           Informations personnelles
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#8a8a19]">Nom*</label>
+            <label className="block text-xs font-bold text-[#A52A2A]">Nom*</label>
             <input name="nom" value={prof.nom} onChange={handleChange} required placeholder="Nom"
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a8a19]" />
+              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A]" />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#8a8a19]">Prénom*</label>
+            <label className="block text-xs font-bold text-[#A52A2A]">Prénom*</label>
             <input name="prenom" value={prof.prenom} onChange={handleChange} required placeholder="Prénom"
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a8a19]" />
+              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A]" />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#8a8a19]">Email*</label>
+            <label className="block text-xs font-bold text-[#A52A2A]">Email*</label>
             <input name="email" type="email" value={prof.email} onChange={handleChange} required placeholder="Email"
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a8a19]" />
+              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A]" />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#8a8a19]">Téléphone</label>
+            <label className="block text-xs font-bold text-[#A52A2A]">Téléphone</label>
             <input name="telephone" value={prof.telephone} onChange={handleChange} placeholder="Téléphone"
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a8a19]" />
+              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A]" />
           </div>
         </div>
       </div>
 
       {/* Informations professionnelles */}
       <div className="bg-white rounded-xl p-2">
-        <h3 className="text-sm font-semibold text-[#0d68ae] mb-2 pb-2 border-b border-gray-100 flex items-center">
+        <h3 className="text-sm font-semibold text-[#D4A017] mb-2 pb-2 border-b border-gray-100 flex items-center">
           Informations professionnelles
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#8a8a19]">Spécialité</label>
+            <label className="block text-xs font-bold text-[#A52A2A]">Spécialité</label>
             <input name="specialite" value={prof.specialite} onChange={handleChange} placeholder="Spécialité"
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a8a19]" />
+              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A]" />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#8a8a19]">Date d'embauche</label>
+            <label className="block text-xs font-bold text-[#A52A2A]">Date d'embauche</label>
             <input name="dateEmbauche" value={prof.dateEmbauche} onChange={handleChange} type="date"
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a8a19]" />
+              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A]" />
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#8a8a19]">Statut</label>
+            <label className="block text-xs font-bold text-[#A52A2A]">Statut</label>
             <select name="statut" value={prof.statut || ""} onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a8a19]">
+              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A]">
               <option value="">Sélectionnez un statut</option>
               {Object.values(StatutProfesseur).map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-[#8a8a19]">Heures / semaine</label>
+            <label className="block text-xs font-bold text-[#A52A2A]">Heures / semaine</label>
             <input name="heuresTravail" type="number" min={0} value={prof.heuresTravail} onChange={handleChange}
-              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a8a19]" />
+              className="w-full px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A]" />
           </div>
         </div>
       </div>
 
       {/* Diplômes */}
       <div className="bg-white rounded-xl p-2">
-        <h3 className="text-sm font-semibold text-[#0d68ae] mb-2 pb-2 border-b border-gray-100 flex items-center">Diplômes</h3>
+        <h3 className="text-sm font-semibold text-[#D4A017] mb-2 pb-2 border-b border-gray-100 flex items-center">Diplômes</h3>
         {Array.isArray(diplomes) && diplomes.map((d, i) => (
           <div key={i} className="flex gap-2 items-center mb-2">
             <input value={d} onChange={(e) => updateDiplome(i, e.target.value)} placeholder="Nom du diplôme"
-              className="flex-1 px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a8a19]" />
+              className="flex-1 px-4 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A52A2A]" />
             <button type="button" onClick={() => removeDiplome(i)} className="text-red-600 px-2">✕</button>
           </div>
         ))}
-        <button type="button" onClick={addDiplomeField} className="px-3 py-1 bg-[#0d68ae] text-white rounded text-sm hover:bg-[#0274be] transition">+ Ajouter un diplôme</button>
+        <button type="button" onClick={addDiplomeField} className="px-3 py-1 bg-[#D4A017] text-white rounded text-sm hover:bg-[#0274be] transition">+ Ajouter un diplôme</button>
       </div>
 
       {/* Submit */}
       <div className="flex justify-end space-x-4 mt-8">
-        <button type="submit" className="px-6 py-3 text-sm bg-[#0d68ae] text-white rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#0d68ae] transition-all transform hover:scale-105">
+        <button type="submit" className="px-6 py-3 text-sm bg-[#D4A017] text-white rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] transition-all transform hover:scale-105">
           Enregistrer
         </button>
       </div>

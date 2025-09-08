@@ -280,7 +280,7 @@ function TableauDynamiqueProf({
   onClick={() => setShowFilters(prev => !prev)}
   aria-pressed={showFilters}
   aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
-  className={`ml-2 p-2 rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#0d68ae] ${
+  className={`ml-2 p-2 rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#A52A2A] ${
     showFilters 
       ? 'bg-[#A52A2A] text-white border-[#A52A2A]' 
       : 'bg-white text-[#A52A2A] border-[#A52A2A] hover:bg-[#A52A2A] hover:text-white'
@@ -344,10 +344,10 @@ function TableauDynamiqueProf({
         <div className="h-full flex flex-col bg-white shadow-xl">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4">
-            <h2 className="text-lg font-bold text-[#0d68ae]">Ajouter un professeur</h2>
+            <h2 className="text-lg font-bold text-[#A52A2A]">Ajouter un professeur</h2>
             <button
               onClick={() => setShowAddForm(false)}
-              className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0d68ae]"
+              className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#A52A2A]"
               aria-label="Fermer"
             >
               <FaTimes className="h-5 w-5" />
@@ -375,10 +375,10 @@ function TableauDynamiqueProf({
         <div className="h-full flex flex-col bg-white shadow-xl">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4">
-            <h2 className="text-lg font-bold text-[#0d68ae]">Modifier le professeur</h2>
+            <h2 className="text-lg font-bold text-[#A52A2A]">Modifier le professeur</h2>
             <button
               onClick={() => setEditProf(null)}
-              className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0d68ae]"
+              className="rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#A52A2A]"
               aria-label="Fermer"
             >
               <FaTimes className="h-5 w-5" />
