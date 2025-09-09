@@ -246,7 +246,7 @@ function TableauDynamique<T extends { id: number | string }>({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow relative">
+    <div className="bg-white rounded-lg shadow relative mr-8">
       {/* Barre d'actions */}
       <div className="p-4 mb-8 mx-4">
         {title && <h2 className="text-xl font-bold text-[#0d68ae] mb-4">{title}</h2>}
@@ -529,70 +529,68 @@ function TableauDynamique<T extends { id: number | string }>({
       )}
 
       {/* Tableau principal */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200 mx-4 mb-8">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-white">
-            <tr>
-              {columns.map((column) => (
-                <th 
-                  key={column.key.toString()} 
-                  className="px-2 py-2 text-left text-[10px] bg-[#A52A2A] text-white font-semibold tracking-wider w-24 whitespace-nowrap"
-                >
-                  {column.title}
-                </th>
-              ))}
-              {showActions && (onEdit || onDelete) && (
-                <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider w-24 whitespace-nowrap bg-[#A52A2A] text-white">
-                  Actions
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((item) => (
-              <tr key={item.id} className="hover:bg-[#F5F5F5]">
-                {columns.map((column) => (
-                  <td
-                    key={`${item.id}-${column.key.toString()}`}
-                    className="px-2 py-2 text-[10px] w-24 whitespace-nowrap truncate"
-                    onClick={() => onRowClick && onRowClick(item)}
-                    style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+<div className="overflow-x-auto  rounded-lg border border-gray-200 mx-4">
+  <table className="min-w-max w-full divide-y divide-gray-200">
+    <thead className="bg-white">
+      <tr>
+        {columns.map((column) => (
+          <th
+            key={column.key.toString()}
+            className="px-2 py-2 text-left text-[10px] bg-[#A52A2A] text-white font-semibold tracking-wider whitespace-nowrap"
+          >
+            {column.title}
+          </th>
+        ))}
+        {showActions && (onEdit || onDelete) && (
+          <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider whitespace-nowrap bg-[#A52A2A] text-white">
+            Actions
+          </th>
+        )}
+      </tr>
+    </thead>
+    <tbody>
+      {paginatedData.map((item) => (
+        <tr key={item.id} className="hover:bg-[#F5F5F5]">
+          {columns.map((column) => (
+            <td
+              key={`${item.id}-${column.key.toString()}`}
+              className="px-2 py-2 text-[10px] whitespace-nowrap truncate"
+            >
+              {column.render
+                ? column.render(item)
+                : String(item[column.key as keyof T] ?? '')}
+            </td>
+          ))}
+          {showActions && (onEdit || onDelete) && (
+            <td className="px-2 py-2 whitespace-nowrap">
+              <div className="flex space-x-2">
+                {onEdit && (
+                  <button
+                    onClick={() => setEditItem(item)}
+                    className="text-white transition-colors"
+                    title="Modifier"
                   >
-                    {column.render 
-                      ? column.render(item)
-                      : (item[column.key as keyof T] as React.ReactNode)
-                    }
-                  </td>
-                ))}
-                {showActions && (onEdit || onDelete) && (
-                  <td className="px-2 py-2 whitespace-nowrap w-16">
-                    <div className="flex space-x-2">
-                      {onEdit && (
-                        <button
-                          onClick={() => setEditItem(item)}
-                          className="text-white transition-colors"
-                          title="Modifier"
-                        >
-                          <FaEdit className="h-4 w-4 text-[#D4A017]" />
-                        </button>
-                      )}
-                      {onDelete && (
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="text-white transition-colors"
-                          title="Supprimer"
-                        >
-                          <FaTrash className="h-4 w-4 text-[#A52A2A]" />
-                        </button>
-                      )}
-                    </div>
-                  </td>
+                    <FaEdit className="h-4 w-4 text-[#D4A017]" />
+                  </button>
                 )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                {onDelete && (
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="text-white transition-colors"
+                    title="Supprimer"
+                  >
+                    <FaTrash className="h-4 w-4 text-[#A52A2A]" />
+                  </button>
+                )}
+              </div>
+            </td>
+          )}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
       {/* Pagination */}
       <PaginationControls

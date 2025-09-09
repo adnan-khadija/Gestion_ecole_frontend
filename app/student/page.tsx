@@ -1,41 +1,38 @@
 'use client';
-import React from "react";
-import TableauDynamique from "@/components/TableData";
-import { useState, useEffect } from "react";
-import { Column } from "@/components/TableData";
+import React, { useState, useEffect } from "react";
+import TableauDynamique, { Column, ImportConfig, ExportConfig, FilterConfig } from "@/components/TableauDynamique";
 import { Etudiant } from "@/lib/types";
 import { getEtudiants, addEtudiant, updateEtudiant, deleteEtudiant } from "@/lib/services";
 import toast from "react-hot-toast";
-import { Switch } from "@headlessui/react";
+import EtudiantForm from "@/components/forms/EtudiantForm";
 import StudentProfile from "@/components/cards/StudentProfile";
 import { FaEye } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/Loading";
 
-export default function Student() {
+export default function EtudiantPage() {
   const [etudiants, setEtudiants] = useState<Etudiant[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStudent, setSelectedStudent] = useState<Etudiant | null>(null);
+  const [selectedEtudiant, setSelectedEtudiant] = useState<Etudiant | null>(null);
 
   useEffect(() => {
     getEtudiants()
-      .then((response) => {
-        setEtudiants(response.data);
+      .then((res) => {
+        setEtudiants(res.data);
         setLoading(false);
       })
-      .catch((error) => {
-        console.error("Erreur lors de la récupération des étudiants:", error);
+      .catch((err) => {
+        console.error("Erreur récupération étudiants :", err);
         setLoading(false);
       });
   }, []);
 
-  
-const colonnesEtudiants: Column<Etudiant>[] = [
-  {
+  const colonnesEtudiants: Column<Etudiant>[] = [
+      {
     key: "matricule",
     title: "Matricule",
     render: (item) => (
       <div className="flex items-center gap-2">
-         <button
+        <button
           onClick={(e) => {
             e.stopPropagation();
             setSelectedStudent(item);
@@ -45,206 +42,159 @@ const colonnesEtudiants: Column<Etudiant>[] = [
         >
           <FaEye className="h-4 w-4" />
         </button>
-        <span className="whitespace-nowrap text-gray-500">{item.matricule}</span>
-       
+        <span className="whitespace-nowrap text-gray-500">{item.matricule || "—"}</span>
       </div>
     ),
   },
+  { key: "nom", title: "Nom", render: (item) => <span className="text-gray-500">{item.nom}</span> },
+  { key: "prenom", title: "Prénom", render: (item) => <span className="text-gray-500">{item.prenom}</span> },
   {
-    key: "nom-prenom",
-    title: "Nom | Prénom",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.nom} | {item.prenom}
-      </span>
-    ),
+    key: "dateNaissance",
+    title: "Date Naissance",
+    render: (item) => <span className="text-gray-500">{item.dateNaissance || "—"}</span>,
   },
   {
-    key: "naissance-lieu",
-    title: "Date Naissance | Lieu",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.dateNaissance} | {item.lieuNaissance}
-      </span>
-    ),
+    key: "lieuNaissance",
+    title: "Lieu Naissance",
+    render: (item) => <span className="text-gray-500">{item.lieuNaissance || "—"}</span>,
   },
   {
-    key: "sexe-nationalite",
-    title: "Sexe | Nationalité",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.sexe} | {item.nationalite}
-      </span>
-    ),
+    key: "sexe",
+    title: "Sexe",
+    render: (item) => <span className="text-gray-500">{item.sexe || "—"}</span>,
   },
   {
-    key: "contact",
-    title: "Téléphone | Email",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
+    key: "nationalite",
+    title: "Nationalité",
+    render: (item) => <span className="text-gray-500">{item.nationalite || "—"}</span>,
+  },
+  {
+    key: "telephone",
+    title: "Téléphone",
+    render: (item) =>
+      item.telephone ? (
         <a href={`tel:${item.telephone}`} className="text-[#0d68ae] hover:underline">
           {item.telephone}
-        </a>{" | "}
+        </a>
+      ) : (
+        <span className="text-gray-500">—</span>
+      ),
+  },
+  {
+    key: "email",
+    title: "Email",
+    render: (item) =>
+      item.email ? (
         <a href={`mailto:${item.email}`} className="text-[#0d68ae] hover:underline">
           {item.email}
         </a>
-      </span>
-    ),
+      ) : (
+        <span className="text-gray-500">—</span>
+      ),
   },
+  { key: "adresse", title: "Adresse", render: (item) => <span className="text-gray-500">{item.adresse || "—"}</span> },
+  { key: "ville", title: "Ville", render: (item) => <span className="text-gray-500">{item.ville || "—"}</span> },
   {
-    key: "adresse-ville",
-    title: "Adresse | Ville",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.adresse} | {item.ville}
-      </span>
-    ),
+    key: "formation",
+    title: "Formation",
+    render: (item) => <span className="text-gray-500">{item.formationActuelle?.nom || "—"}</span>,
   },
-  {
-    key: "formation-niveau",
-    title: "Formation | Niveau",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.formationActuelle?.nom || "—"} | {item.niveauScolaire}
-      </span>
-    ),
-  
-  },
-  {
-    key: "groupe-anneeAcademique",
-    title: "Groupe | Année Académique",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.groupeScolaire} | {item.anneeAcademique}
-      </span>
-    ),
+  { key: "niveau", title: "Niveau", render: (item) => <span className="text-gray-500">{item.niveauScolaire || "—"}</span> },
+  { key: "groupe", title: "Groupe", render: (item) => <span className="text-gray-500">{item.groupeScolaire || "—"}</span> },
+  { key: "anneeAcademique", title: "Année Académique", render: (item) => <span className="text-gray-500">{item.anneeAcademique || "—"}</span> },
+  { key: "statut", title: "Statut", render: (item) => <span className="text-gray-500">{item.statut || "—"}</span> },
+  { key: "nouvelEtudiant", title: "Nouvel Étudiant", render: (item) => <span className="text-gray-500">{item.nouvelEtudiant ? "Oui" : "Non"}</span> },
+  { key: "nomTuteur", title: "Nom Tuteur", render: (item) => <span className="text-gray-500">{item.nomTuteur || "—"}</span> },
+  { key: "contactTuteur", title: "Contact Tuteur", render: (item) => <span className="text-gray-500">{item.contactTuteur || "—"}</span> },
+  { key: "situationFamiliale", title: "Situation Familiale", render: (item) => <span className="text-gray-500">{item.situationFamiliale || "—"}</span> },
+  { key: "dateInscription", title: "Date Inscription", render: (item) => <span className="text-gray-500">{item.dateInscription || "—"}</span> },
+
+
+    {key: "handicap", title: "Handicap", render: (item) => <span className="text-gray-500">{item.handicap ? "Oui" : "Non"}</span>},
+    {key:"boursier", title: "Boursier", render: (item) => <span className="text-gray-500">{item.boursier ? "Oui" : "Non"}</span>},
     
-  
-  },
-  {
-    key: "statut-nouvelEtudiant",
-    title: "Statut | Nouvel Étudiant",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.statut} | {item.nouvelEtudiant ? "Oui" : "Non"}
-      </span>
-    ),
-  },
-  {
-    key: "tuteur-contact",
-    title: "Nom Tuteur | Contact",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.nomTuteur || "—"} | {item.contactTuteur || "—"}
-      </span>
-    ),
-  },
-  {
-    key: "situation-dateInscription",
-    title: "Situation Familiale | Date Inscription",
-    render: (item) => (
-      <span className="whitespace-nowrap text-gray-500">
-        {item.situationFamiliale || "—"} | {item.dateInscription}
-      </span>
-    ),
-  },
+  ];
 
-  {
-    key:"boursier",
-    title: "Boursier",
-    render: (item) => (
-      <Switch
-        checked={item.boursier}
-        onChange={() => handleToggle(item.id, "boursier", !item.boursier)}
-        className={`${
-          item.boursier ? "bg-[#F5DEB3]" : "bg-gray-300"
-        } relative inline-flex h-6 w-11 items-center rounded-full`}
-      >
-        <span className="sr-only">Boursier</span>
-        <span
-          className={`${
-            item.boursier ? "translate-x-6" : "translate-x-1"
-          } inline-block h-4 w-4 transform rounded-full bg-white transition`}
-        />
-      </Switch>
-    ),
-  },
-  {
-    key: "handicap",
-    title: "Handicap",
-    render: (item) => (
-      <Switch
-        checked={item.handicap}
-        onChange={() => handleToggle(item.id, "handicap", !item.handicap)}
-        className={`${
-          item.handicap ? "bg-[#F5DEB3]" : "bg-gray-300"
-        } relative inline-flex h-6 w-11 items-center rounded-full`}
-      >
-        <span className="sr-only">Handicap</span>
-        <span
-          className={`${
-            item.handicap ? "translate-x-6" : "translate-x-1"
-          } inline-block h-4 w-4 transform rounded-full bg-white transition`}
-        />
-      </Switch>
-    ),
-  },
+  // Configuration import
+  const importConfig: ImportConfig<Etudiant> = {
+    headers: ["Nom", "Prénom", "Matricule", "Date Naissance", "Email", "Téléphone", "Formation", "Niveau", "Statut"],
+    mapper: (row) => ({
+      id: 0,
+      nom: row["Nom"],
+      prenom: row["Prénom"],
+      matricule: row["Matricule"],
+      dateNaissance: row["Date Naissance"],
+      email: row["Email"],
+      telephone: row["Téléphone"],
+      formationActuelle: { nom: row["Formation"] },
+      niveauScolaire: row["Niveau"],
+      statut: row["Statut"] || "Inactif",
+    } as Etudiant),
+    validator: (row, index) => {
+      const errors = [];
+      if (!row["Nom"]) errors.push(`Ligne ${index + 2}: Nom manquant`);
+      if (!row["Prénom"]) errors.push(`Ligne ${index + 2}: Prénom manquant`);
+      if (!row["Matricule"]) errors.push(`Ligne ${index + 2}: Matricule manquant`);
+      return errors;
+    }
+  };
 
-];
+  // Configuration export
+  const exportConfig: ExportConfig<Etudiant> = {
+    filename: "export_etudiants",
+    mapper: (item) => ({
+      "Nom": item.nom,
+      "Prénom": item.prenom,
+      "Matricule": item.matricule,
+      "Date Naissance": item.dateNaissance,
+      "Email": item.email,
+      "Téléphone": item.telephone,
+      "Formation": item.formationActuelle?.nom || "",
+      "Niveau": item.niveauScolaire,
+      "Statut": item.statut,
+    })
+  };
 
+  // Filtres
+  const filters: FilterConfig[] = [
+    { key: "niveauScolaire", label: "Niveau", options: [{ value: "", label: "Tous" }, ...Array.from(new Set(etudiants.map(e => e.niveauScolaire))).map(n => ({ value: n, label: n }))] },
+    { key: "statut", label: "Statut", options: [{ value: "", label: "Tous" }, { value: "Actif", label: "Actif" }, { value: "Inactif", label: "Inactif" }] },
+  ];
 
-
-// Ajout
-const handleAdd = async (etudiant: any) => {
-  try {
-    const res = await addEtudiant(etudiant); // attend la persistance côté serveur
-    // si ton service renvoie la res.data
-    setEtudiants(prev => [...prev, res.data || etudiant]);
-    toast.success("Étudiant ajouté");
-  } catch (err) {
-    console.error("Erreur ajout:", err);
-    toast.error("Erreur lors de l'ajout");
-    throw err; // propager si Tableau attend l'erreur
-  }
-};
-
-// Édition
-const handleEdit = async (etudiant: Etudiant) => {
-  try {
-    const res = await updateEtudiant(etudiant.id, etudiant);
-    setEtudiants(prev => prev.map(e => (e.id === etudiant.id ? (res.data || etudiant) : e)));
-    toast.success("Étudiant mis à jour");
-  } catch (err) {
-    console.error("Erreur update:", err);
-    toast.error("Erreur lors de la mise à jour");
-    throw err;
-  }
-};
-
-// Suppression
-const handleDelete = async (id: number | string) => {
-  try {
-    await deleteEtudiant(id);
-    setEtudiants(prev => prev.filter(e => e.id !== id));
-    toast.success("Étudiant supprimé");
-  } catch (err) {
-    console.error("Erreur suppression:", err);
-    toast.error("Erreur lors de la suppression");
-    throw err;
-  }
-};
-
-
-  const handleToggle = async (id: string | number, field: "boursier" | "handicap", value: boolean) => {
+  // Actions CRUD
+  const handleAdd = async (etudiant: Etudiant) => {
     try {
-      await updateEtudiant(id, { [field]: value });
-      setEtudiants(etudiants =>
-        etudiants.map(e =>
-          e.id === id ? { ...e, [field]: value } : e
-        )
-      );
-    } catch (error) {
-      console.error("Erreur lors de la modification :", error);
+      const res = await addEtudiant(etudiant);
+      setEtudiants(prev => [...prev, res.data || etudiant]);
+      toast.success("Étudiant ajouté");
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur ajout étudiant");
+      throw err;
+    }
+  };
+
+  const handleEdit = async (etudiant: Etudiant) => {
+    try {
+      const res = await updateEtudiant(etudiant.id, etudiant);
+      setEtudiants(prev => prev.map(e => (e.id === etudiant.id ? (res.data || etudiant) : e)));
+      toast.success("Étudiant mis à jour");
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur mise à jour");
+      throw err;
+    }
+  };
+
+  const handleDelete = async (id: number | string) => {
+    try {
+      await deleteEtudiant(id);
+      setEtudiants(prev => prev.filter(e => e.id !== id));
+      toast.success("Étudiant supprimé");
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur suppression");
+      throw err;
     }
   };
 
@@ -252,33 +202,42 @@ const handleDelete = async (id: number | string) => {
     <div className="container mx-auto p-4 space-y-8">
       {loading ? (
         <div className="flex justify-center items-center h-64">
-
-        <LoadingSpinner />
+          <LoadingSpinner />
         </div>
       ) : (
         <>
-      {/* Tableau des étudiants */}
-    
-      <TableauDynamique<Etudiant>
-  data={etudiants}
-  columns={colonnesEtudiants}
-  onAdd={handleAdd}
-  onEdit={handleEdit}
-  onDelete={handleDelete}
-  actionsColor="blue"
-  emptyMessage="Aucun étudiant trouvé"
-  onRowClick={(student) => setSelectedStudent(student)}
-/>
+          <TableauDynamique<Etudiant>
+            data={etudiants}
+            columns={colonnesEtudiants}
+            onAdd={handleAdd}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onRowClick={(item) => setSelectedEtudiant(item)}
+            emptyMessage="Aucun étudiant trouvé"
+            importConfig={importConfig}
+            exportConfig={exportConfig}
+            filters={filters}
+            formComponent={({ itemInitial, onSave, onCancel }) => (
+              <EtudiantForm
+                etudiantInitial={itemInitial}
+                onSave={onSave}
+                onCancel={onCancel}
+              />
+            )}
+            showActions={true}
+            showSearch={true}
+            showImportExport={true}
+            showFilters={true}
+            showAddButton={true}
+          />
 
-
-      {/* Student profile modal */}
-      {selectedStudent && (
-        <StudentProfile
-          etudiant={selectedStudent}
-          onClose={() => setSelectedStudent(null)}
-        />
-      )}
-      </>
+          {selectedEtudiant && (
+            <StudentProfile
+              etudiant={selectedEtudiant}
+              onClose={() => setSelectedEtudiant(null)}
+            />
+          )}
+        </>
       )}
     </div>
   );

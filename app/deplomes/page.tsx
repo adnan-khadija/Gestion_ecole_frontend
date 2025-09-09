@@ -40,8 +40,7 @@ export default function DiplomesPage() {
     <div className="flex items-center gap-2">
       <button
         onClick={(e) => {
-          e.stopPropagation(); // empêche l'événement de row click
-          // Ici tu peux ouvrir un modal ou un composant pour voir les détails
+          e.stopPropagation(); 
           setSelectedDiplome(item);
         }}
         className="text-[#D4A017] hover:text-gray-700 transition-colors"
@@ -54,13 +53,7 @@ export default function DiplomesPage() {
   ),
 },
 
-        {
-            key: "nomDiplome",
-            title: "Nom du Diplôme",
-            render: (item) => (
-                <span className="whitespace-nowrap text-gray-500">{item.nomDiplome}</span>
-            ),
-        },
+   
         {
             key: "niveau",
             title: "Niveau",
@@ -107,6 +100,16 @@ export default function DiplomesPage() {
                 </span>
             ),
         },
+        {
+            key: "commentaire",
+            title: "Commentaire",
+            render: (item) => (
+                <span className="whitespace-nowrap text-gray-500">{item.commentaire || "—"}</span>
+            ),
+        },
+        {key: "professeurs", title: "Professeurs", render: (item) => <span className="whitespace-nowrap text-gray-500">{item.professeurs?.map(p => p.nom).join(", ") || "—"}</span>},
+        {key: "etudiant", title: "Étudiant", render: (item) => <span className="whitespace-nowrap text-gray-500">{item.etudiant?.nom || "—"}</span>},
+        {key: "signatureAdmin", title: "Signature Admin", render: (item) => <span className="whitespace-nowrap text-gray-500">{item.signatureAdmin || "—"}</span>},
     ];
 
     // Configuration d'importation
@@ -239,7 +242,7 @@ export default function DiplomesPage() {
     }
 
     return (
-        <div className="p-4">
+    <div className="container mx-auto p-4 space-y-8">
             <TableauDynamique<Diplome>
                 data={diplomes}
                 columns={colonnesDiplomes}
