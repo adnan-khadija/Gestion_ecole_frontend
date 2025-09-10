@@ -3,6 +3,25 @@ const API_URL = "http://localhost:5000/etudiants";
 const API_URL2 = "http://localhost:5000/formations";
 const API_URL3 = "http://localhost:5000/professeurs";
 const API_URL4 = "http://localhost:5000/diplomes";
+const API_URL5 = "http://localhost:5000/matieres";
+const API_URL6 = "http://localhost:5000/programmes";
+const API_URL7 = "http://localhost:5000/horaires";
+
+// Matières
+export const getMatieres = () => axios.get(API_URL5);
+export const addMatiere = (data: any) => axios.post(API_URL5, data);
+export const updateMatiere = (id: number, data: any) => axios.put(`${API_URL5}/${id}`, data);
+export const deleteMatiere = (id: number) => axios.delete(`${API_URL5}/${id}`);
+// Programmes
+export const getProgrammes = () => axios.get(API_URL6);
+export const addProgramme = (data: any) => axios.post(API_URL6, data);
+export const updateProgramme = (id: number, data: any) => axios.put(`${API_URL6}/${id}`, data);
+export const deleteProgramme = (id: number) => axios.delete(`${API_URL6}/${id}`);
+// Horaires
+export const getHoraires = () => axios.get(API_URL7);
+export const addHoraire = (data: any) => axios.post(API_URL7, data);
+export const updateHoraire = (id: number, data: any) => axios.put(`${API_URL7}/${id}`, data);
+export const deleteHoraire = (id: number) => axios.delete(`${API_URL7}/${id}`);
 
 // Diplômes
 export const getDiplomes = () => axios.get(API_URL4);

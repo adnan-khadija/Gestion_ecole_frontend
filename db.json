@@ -569,5 +569,132 @@
       "diplomes": [],
       "formations": []
     }
+  ],
+  "matieres": [
+    {
+      "id": "1",
+      "nom": "Algèbre Linéaire",
+      "description": "Étude des espaces vectoriels et des transformations linéaires",
+      "credits": 5,
+      "formationId": "1",
+      "professeurIds": ["3", "4"],
+      "programmeId": "1"
+    },
+    {
+      "id": "2",
+      "nom": "Calcul Différentiel",
+      "description": "Introduction aux dérivées et aux intégrales",
+      "credits": 4,
+      "formationId": "1",
+      "professeurIds": ["3"],
+      "programmeId": "1"
+    },
+    {
+      "id": "3",
+      "nom": "Théorie des Nombres",
+      "description": "Propriétés des nombres entiers et leurs applications",
+      "credits": 3,
+      "formationId": "6",
+      "professeurIds": ["1"],
+      "programmeId": "2"
+    },
+    {
+      "id": "4",
+      "nom": "Statistiques Avancées",
+      "description": "Méthodes statistiques pour l'analyse de données complexes",
+      "credits": 4,
+      "formationId": "6",
+      "professeurIds": ["1"],
+      "programmeId": "2"
+    },
+    {
+      "id": "5",
+      "nom": "Sécurité des Réseaux",
+      "description": "Principes et pratiques de la sécurité informatique",
+      "credits": 5,
+      "formationId": "4",
+      "professeurIds": ["5", "6"],
+      "programmeId": null
+    },
+    {
+      "id": "6",
+      "nom": "Cryptographie",
+      "description": "Techniques de chiffrement et de protection des données",
+      "credits": 4,
+      "formationId": "4",
+      "professeurIds": ["5"],
+      "programmeId": null
+    }
+   
+  ],
+  "programmes": [
+    {
+      "id": "1",
+      "nom": "Programme de Mathématiques Fondamentales",
+      "description": "Programme couvrant les bases et avancées en mathématiques fondamentales",
+      "derue": 24,
+      "dateDebut": "2025-09-01",
+      "dateFin": "2027-09-01",
+      "matieres": [
+        {
+          "id": "1",
+          "nom": "Algèbre Linéaire",
+          "description": "Étude des espaces vectoriels et des transformations linéaires",
+          "credits": 5,
+          "formationId": "1",
+          "professeurIds": ["3", "4"],
+          "programmeId": "1"
+        },
+        {
+          "id": "2",
+          "nom": "Calcul Différentiel",
+          "description": "Introduction aux dérivées et aux intégrales",
+          "credits": 4,
+          "formationId": "1",
+          "professeurIds": ["3"],
+          "programmeId": "1"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "nom": "Programme de Mathématiques Avancées",
+      "description": "Programme axé sur les applications avancées des mathématiques",
+      "derue": 24,
+      "dateDebut": "2025-09-01",
+      "dateFin": "2027-09-01",
+      "matieres": [
+        {
+          "id": "3",
+          "nom": "Théorie des Nombres",
+          "description": "Propriétés des nombres entiers et leurs applications",
+          "credits": 3,
+          "formationId": "6",
+          "professeurIds": ["1"],
+          "programmeId": "2"
+        },
+        {
+          "id": "4",
+          "nom": "Statistiques Avancées",
+          "description": "Méthodes statistiques pour l'analyse de données complexes",
+          "credits": 4,
+          "formationId": "6",
+          "professeurIds": ["1"],
+          "programmeId": "2"
+        }
+      ]
+    }
+  ],
+  "horaires": [
+    {"id":"1",
+    "jour":"Lundi",
+    "debut":"08:00",
+    "fin":"10:00"
+    },
+    {"id":"2",
+    "jour":"Mardi",
+    "debut":"10:00",
+    "fin":"16:00"
+    }
   ]
 }

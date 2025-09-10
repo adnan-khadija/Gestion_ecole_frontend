@@ -4,7 +4,8 @@ import { FiLogOut } from "react-icons/fi";
 import { 
   FaThLarge, FaUsers, FaChalkboardTeacher, FaBook, 
   FaCalendar, FaCog, FaFileAlt, FaRegCalendarCheck, FaMoneyBillWave, 
-  FaCreditCard
+  FaCreditCard,
+  FaClipboardList
 } from 'react-icons/fa';
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -27,6 +28,7 @@ const elementsMenu: MenuItem[] = [
   { nom: "Formations", icone: <FaBook />, lien: "/formations" },
   { nom: "Diplômes", icone: <FaFileAlt />, lien: "/deplomes" },
   { nom: "Emploi du temps", icone: <FaCalendar />, lien: "/emploi-du-temps" },
+  {nom:" Programmes", icone:<FaClipboardList/>, lien:"/programmes"},
   { nom: "Absence", icone: <FaRegCalendarCheck />, lien: "/absence" },
   { nom: "Dépense", icone: <FaMoneyBillWave />, lien: "/depense" },
   { nom: "Paiement", icone: <FaCreditCard />, lien: "/paiement" }, 

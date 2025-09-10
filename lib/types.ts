@@ -140,6 +140,8 @@ export interface Horaire {
   jour: string;  
   debut: string;  
   fin: string;   
+  mois:string;
+  annee:string;
 }
 
 /* Formation */
@@ -165,7 +167,6 @@ export interface Diplome {
   professeurs?: Professeur[]; // relation M:N
   nomDiplome: string;
   niveau?: string; // ex: Bac+2, Bac+3
-  nombreProf?: number;
   anneeObtention?: number;
   estValide?: boolean;
   etudiant?: Etudiant | null; // si lien immédiat
@@ -302,3 +303,23 @@ export interface Paiement {
   referencePaiement?: string;
   numeroRecu?: string;
 }
+export interface Matiere {
+  id: number;
+  nomMatiere: string;
+  description?: string;
+}
+
+export interface Programme {
+  id: number;
+  nomProgramme: string;
+  formation?: Formation;
+  diplome?: Diplome;
+  description?: string;
+  derue: number|string;
+  dateDebut: string;
+  dateFin: string;
+  salle:string;
+  matieres?: Matiere[]; 
+ 
+}
+
