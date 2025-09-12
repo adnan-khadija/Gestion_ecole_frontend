@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Sexe, SituationFamiliale, StatutEtudiant, Etudiant, Formation } from '@/lib/types';
-import { addEtudiant } from '@/lib/services';
+import { addEtudiant, getFormations } from '@/lib/services';
 import toast from 'react-hot-toast';
 
 interface EtudiantFormProps {
   onSave: (etudiant: Etudiant) => void;
-  formations: Formation[];
   etudiantInitial?: Omit<Etudiant, 'id'>;
   onCancel?: () => void;
 }
 
-const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: EtudiantFormProps) => {
+const EtudiantForm = ({ onSave, etudiantInitial, onCancel }: EtudiantFormProps) => {
   const [customFields, setCustomFields] = useState<{ name: string; value: string }[]>([]);
+  const [formations, setFormations] = useState<Formation[]>([]);
+  const [loadingFormations, setLoadingFormations] = useState<boolean>(true);
   const [etudiant, setEtudiant] = useState<Omit<Etudiant, 'id'>>({
     nom: '',
     prenom: '',
@@ -21,11 +22,11 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
     dateNaissance: '',
     lieuNaissance: '',
     matricule: '',
-    sexe: Sexe.Masculin,
+    sexe: Sexe.M,
     nationalite: '',
     ville: '',
-    situationFamiliale: SituationFamiliale.Celibataire,
-    formationActuelle: formations.length > 0 ? formations[0] : { id: '', nom: '', description: '', dateDebut: '', dateFin: '', niveau: '', statut: '', dateCreation: new Date().toISOString() },
+    situationFamiliale: SituationFamiliale.CELIBATAIRE,
+    formationActuelle: null,
     niveauScolaire: '',
     groupeScolaire: '',
     anneeAcademique: '',
@@ -35,16 +36,35 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
     handicap: false,
     photo: '',
     dateInscription: new Date().toISOString().split('T')[0],
-    statut: StatutEtudiant.Actif,
+    statut: StatutEtudiant.ACTIF,
   });
   const [submitting, setSubmitting] = useState<boolean>(false);
+
+  // Charger les formations au montage du composant
+  useEffect(() => {
+    const fetchFormations = async () => {
+      try {
+        setLoadingFormations(true);
+        const response = await getFormations();
+        console.log("Formations chargées:", response.data);
+        setFormations(response.data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des formations:", error);
+        toast.error("Erreur lors du chargement des formations");
+      } finally {
+        setLoadingFormations(false);
+      }
+    };
+
+    fetchFormations();
+  }, []);
 
   useEffect(() => {
     if (etudiantInitial) {
       setEtudiant(etudiantInitial);
       if ((etudiantInitial as any).customFields) {
         setCustomFields(
-          Object.entries((etudiantInitial as any).customFields).map(([name, value]) => ({ name, value }))
+          Object.entries((etudiantInitial as any).customFields).map(([name, value]) => ({ name, value: value as string }))
         );
       }
     }
@@ -58,7 +78,7 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
       const selectedFormation = formations.find(f => String(f.id) === value);
       setEtudiant(prev => ({
         ...prev,
-        formationActuelle: selectedFormation || prev.formationActuelle
+        formationActuelle: selectedFormation || null
       }));
     } else {
       setEtudiant(prev => ({
@@ -73,8 +93,8 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
     setSubmitting(true);
 
     // Si on est en édition, on passe juste l'étudiant modifié
-    if (etudiantInitial) {
-      onSave({ ...etudiant, id: (etudiantInitial as any).id });
+    if (etudiantInitial && 'id' in etudiantInitial) {
+      onSave({ ...etudiant, id: (etudiantInitial as any).id } as Etudiant);
       toast.success("Étudiant modifié avec succès !");
       setSubmitting(false);
       return;
@@ -84,7 +104,7 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
     const now = new Date().toISOString();
     const etudiantComplet: Etudiant & { customFields?: Record<string, string> } = {
       ...etudiant,
-      id: Date.now().toString(),
+      id: Date.now(),
       dateCreation: now,
       dateModification: now,
       formations: [],
@@ -142,7 +162,7 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
               value={etudiant.sexe}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI4IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
             >
               {Object.values(Sexe).map(sexe => (
                 <option key={sexe} value={sexe}>{sexe}</option>
@@ -202,12 +222,12 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
           </div>
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Téléphone*</label>
-            <input
-              type="tel"
-              name="telephone"
-              value={etudiant.telephone}
-              onChange={handleChange}
-              required
+          <input
+  type="tel"
+  name="telephone"
+  value={etudiant.telephone}
+  onChange={handleChange}   
+  required
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
@@ -253,18 +273,26 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
           </div>
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Formation actuelle*</label>
-            <select
-              name="formationActuelle"
-              value={etudiant.formationActuelle?.id || ""}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
-            >
-              <option value="">Sélectionnez une formation</option>
-              {formations.map(formation => (
-                <option key={formation.id} value={formation.id}>{formation.nom}</option>
-              ))}
-            </select>
+            {loadingFormations ? (
+              <div className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg bg-gray-100 animate-pulse">
+                Chargement des formations...
+              </div>
+            ) : (
+              <select
+                name="formationActuelle"
+                value={etudiant.formationActuelle?.id || ""}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
+              >
+                <option value="">Sélectionnez une formation</option>
+                {formations.map(formation => (
+                  <option key={formation.id} value={formation.id}>
+                    {formation.nom}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Niveau scolaire</label>
@@ -331,7 +359,7 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
               name="situationFamiliale"
               value={etudiant.situationFamiliale || ""}
               onChange={handleChange}
-              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI4IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InRvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRl IGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
             >
               <option value="">Sélectionnez une situation</option>
               {Object.values(SituationFamiliale).map((situation) => (
@@ -347,7 +375,7 @@ const EtudiantForm = ({ onSave, formations, etudiantInitial, onCancel }: Etudian
               name="statut"
               value={etudiant.statut || ""}
               onChange={handleChange}
-              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all appearance-none bg-white bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI4IiBmaWxsPSJub25lIiBzdHJva2U9IiM2Qzc4ODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im03IDE1IDUgNSA1LTUiLz48L3N2Zz4=')] bg-no-repeat bg-[center_right_1rem]"
             >
               <option value="">Sélectionnez un statut</option>
               {Object.values(StatutEtudiant).map((statut) => (

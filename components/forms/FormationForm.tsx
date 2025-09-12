@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Formation, ModeFormation, Professeur } from '@/lib/types';
+import { Formation, ModeFormation, Professeur, FormationNom, NiveauAcces } from '@/lib/types';
 import { addFormation, getProfesseurs, updateFormation } from '@/lib/services';
 import toast from 'react-hot-toast';
 
@@ -14,7 +14,7 @@ interface FormationFormProps {
 const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProps) => {
   const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
   const [formation, setFormation] = useState<Omit<Formation, 'id'>>({
-    nom: '',
+    nom: FormationNom.ANIMATEUR_HSE,
     description: '',
     duree: 0,
     cout: 0,
@@ -22,13 +22,17 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
     emploiDuTempsId: null,
     anneeFormation: new Date().getFullYear(),
     estActive: true,
-    modeFormation: ModeFormation.Presentiel,
-    niveauAcces: '',
+    modeFormation: ModeFormation.PRESENTIEL,
+    niveauAcces: NiveauAcces.BAC,
     capaciteMax: 0,
   });
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [showCustomFormation, setShowCustomFormation] = useState<boolean>(false);
+  const [customFormation, setCustomFormation] = useState<string>('');
+  const [showCustomNiveau, setShowCustomNiveau] = useState<boolean>(false);
+  const [customNiveau, setCustomNiveau] = useState<string>('');
 
   // Chargement des professeurs
   useEffect(() => {
@@ -51,7 +55,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
   useEffect(() => {
     if (formationInitial) {
       setFormation({
-        nom: formationInitial.nom || '',
+        nom: formationInitial.nom || FormationNom.ANIMATEUR_HSE,
         description: formationInitial.description || '',
         duree: formationInitial.duree || 0,
         cout: formationInitial.cout || 0,
@@ -59,10 +63,24 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
         emploiDuTempsId: formationInitial.emploiDuTempsId || null,
         anneeFormation: formationInitial.anneeFormation || new Date().getFullYear(),
         estActive: formationInitial.estActive !== undefined ? formationInitial.estActive : true,
-        modeFormation: formationInitial.modeFormation || ModeFormation.Presentiel,
-        niveauAcces: formationInitial.niveauAcces || '',
+        modeFormation: formationInitial.modeFormation || ModeFormation.PRESENTIEL,
+        niveauAcces: formationInitial.niveauAcces || NiveauAcces.BAC,
         capaciteMax: formationInitial.capaciteMax || 0,
       });
+      
+      // Vérifier si le nom de formation initial est dans l'enum
+      const formationNames = Object.values(FormationNom);
+      if (formationInitial.nom && !formationNames.includes(formationInitial.nom as FormationNom)) {
+        setShowCustomFormation(true);
+        setCustomFormation(formationInitial.nom);
+      }
+      
+      // Vérifier si le niveau d'accès initial est dans l'enum
+      const niveauNames = Object.values(NiveauAcces);
+      if (formationInitial.niveauAcces && !niveauNames.includes(formationInitial.niveauAcces as NiveauAcces)) {
+        setShowCustomNiveau(true);
+        setCustomNiveau(formationInitial.niveauAcces);
+      }
     }
   }, [formationInitial]);
 
@@ -77,6 +95,46 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
                type === 'number' ? parseFloat(value) || 0 :
                value
     }));
+  };
+
+  // Gestion du changement de sélection de formation
+  const handleFormationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    
+    if (value === FormationNom.AUTRE) {
+      setShowCustomFormation(true);
+      setFormation(prev => ({ ...prev, nom: customFormation || '' }));
+    } else {
+      setShowCustomFormation(false);
+      setFormation(prev => ({ ...prev, nom: value }));
+    }
+  };
+
+  // Gestion du changement de formation personnalisée
+  const handleCustomFormationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomFormation(value);
+    setFormation(prev => ({ ...prev, nom: value }));
+  };
+
+  // Gestion du changement de sélection de niveau d'accès
+  const handleNiveauChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    
+    if (value === NiveauAcces.AUTRE) {
+      setShowCustomNiveau(true);
+      setFormation(prev => ({ ...prev, niveauAcces: customNiveau || '' }));
+    } else {
+      setShowCustomNiveau(false);
+      setFormation(prev => ({ ...prev, niveauAcces: value }));
+    }
+  };
+
+  // Gestion du changement de niveau d'accès personnalisé
+  const handleCustomNiveauChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomNiveau(value);
+    setFormation(prev => ({ ...prev, niveauAcces: value }));
   };
 
   // Gestion spécifique pour les professeurs
@@ -107,6 +165,13 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
+    // Validation du nom de formation
+    if (!formation.nom.trim()) {
+      setError("Le nom de la formation est requis");
+      setSubmitting(false);
+      return;
+    }
 
     if (formation.professeurs.length > 2) {
       setError("Maximum 2 professeurs autorisés");
@@ -158,15 +223,32 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Nom de la formation*</label>
-            <input
-              type="text"
+            <select
               name="nom"
-              value={formation.nom}
-              onChange={handleChange}
+              value={showCustomFormation ? FormationNom.AUTRE : formation.nom}
+              onChange={handleFormationChange}
               required
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
-            />
+            >
+              {Object.values(FormationNom).map((nom) => (
+                <option key={nom} value={nom}>{nom}</option>
+              ))}
+            </select>
+            
+            {showCustomFormation && (
+              <div className="mt-2">
+                <label className="block text-xs font-bold text-black">Précisez le nom de la formation*</label>
+                <input
+                  type="text"
+                  value={customFormation}
+                  onChange={handleCustomFormationChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all mt-1"
+                />
+              </div>
+            )}
           </div>
+          
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Description</label>
             <textarea
@@ -225,16 +307,33 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
               ))}
             </select>
           </div>
+          
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Niveau d'accès requis</label>
-            <input
-              type="text"
+            <select
               name="niveauAcces"
-              value={formation.niveauAcces}
-              onChange={handleChange}
+              value={showCustomNiveau ? NiveauAcces.AUTRE : formation.niveauAcces}
+              onChange={handleNiveauChange}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
-            />
+            >
+              {Object.values(NiveauAcces).map((niveau) => (
+                <option key={niveau} value={niveau}>{niveau}</option>
+              ))}
+            </select>
+            
+            {showCustomNiveau && (
+              <div className="mt-2">
+                <label className="block text-xs font-bold text-black">Précisez le niveau requis</label>
+                <input
+                  type="text"
+                  value={customNiveau}
+                  onChange={handleCustomNiveauChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all mt-1"
+                />
+              </div>
+            )}
           </div>
+          
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Capacité maximale</label>
             <input

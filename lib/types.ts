@@ -11,6 +11,14 @@ export enum Sexe {
   M = "M",
   F = "F",
 }
+export enum FormationNom {
+  ANIMATEUR_HSE = "Animateur H.S.E",
+  CONTROLEUR_CAMERAS = "Contrôleur & administrateur des caméras de surveillance",
+  REPARATEUR_TELEPHONES = "Réparateur de téléphones",
+  REPARATEUR_PC = "Réparateur de PC portables",
+  DEVELOPPEUR_WEB = "Développeur de sites web",
+  AUTRE = "Autre (précisez)"
+}
 
 // Situation familiale
 export enum SituationFamiliale {
@@ -21,6 +29,12 @@ export enum SituationFamiliale {
   AUTRE = "Autre",
 }
 
+export enum NiveauAcces{
+  BAC="Bac",
+  BAC2="Bac + 2",
+  AUTRE="Autre",
+
+}
 // Statut étudiant
 export enum StatutEtudiant {
   ACTIF = "Actif",
@@ -147,7 +161,7 @@ export interface Horaire {
 /* Formation */
 export interface Formation {
   id: number;
-  nom: string;
+  nom: FormationNom;
   duree: number; 
   cout: number;  
   professeurs: Professeur[];
@@ -156,7 +170,7 @@ export interface Formation {
   anneeFormation?: number;
   estActive?: boolean;
   modeFormation?: ModeFormation;
-  niveauAcces?: string;
+  niveauAcces?: NiveauAcces;
   capaciteMax?: number;
 }
 
@@ -224,12 +238,10 @@ export interface Etudiant {
   nomTuteur?: string;
   contactTuteur?: string;
   photo?: string;
-
+  
   formations?: Formation[]; // M:N
   diplomes?: Diplome[];     // M:N
 
-  dateCreation?: string;
-  dateModification?: string;
 }
 
 /* Scolarité */
@@ -323,3 +335,36 @@ export interface Programme {
  
 }
 
+// export interface Creneau {
+//   id: number;
+//   programme: Programme; // ou directement matiere: Matiere
+//   professeur: Professeur;
+//   salle: Salle; // voir point 4
+//   groupe: Groupe; // voir point 4
+//   dateDebut: string; // Format ISO: "2025-10-27T09:00:00Z"
+//   dateFin: string;   // Format ISO: "2025-10-27T11:00:00Z"
+//   commentaire?: string;
+//   statut?: 'Planifié' | 'Confirmé' | 'Annulé';
+// }
+// // Version améliorée de AbsenceEtudiant
+// export interface AbsenceEtudiant {
+//   id: number;
+//   etudiant: Etudiant;
+//   creneau: Creneau; // On lie l'absence à la session de cours exacte !
+//   estJustifiee?: boolean;
+//   commentaire?: string;
+//   dateSaisie?: string;
+// }
+// export interface Salle {
+//   id: number;
+//   nom: string; // "Amphi A", "Salle 102"
+//   capacite: number;
+//   type?: 'Amphithéâtre' | 'Salle de TD' | 'Laboratoire';
+// }
+// export interface Groupe {
+//   id: number;
+//   nom: string; // "Groupe A"
+//   formation: Formation;
+//   anneeAcademique: string; // "2025-2026"
+//   etudiants: Etudiant[];
+// }

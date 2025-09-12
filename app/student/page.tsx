@@ -35,7 +35,7 @@ export default function EtudiantPage() {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setSelectedStudent(item);
+            setSelectedEtudiant(item);
           }}
           className="text-[#D4A017] hover:text-gray-700 transition-colors"
           title="Voir les détails"
@@ -116,44 +116,80 @@ export default function EtudiantPage() {
   ];
 
   // Configuration import
-  const importConfig: ImportConfig<Etudiant> = {
-    headers: ["Nom", "Prénom", "Matricule", "Date Naissance", "Email", "Téléphone", "Formation", "Niveau", "Statut"],
-    mapper: (row) => ({
-      id: 0,
-      nom: row["Nom"],
-      prenom: row["Prénom"],
-      matricule: row["Matricule"],
-      dateNaissance: row["Date Naissance"],
-      email: row["Email"],
-      telephone: row["Téléphone"],
-      formationActuelle: { nom: row["Formation"] },
-      niveauScolaire: row["Niveau"],
-      statut: row["Statut"] || "Inactif",
-    } as Etudiant),
-    validator: (row, index) => {
-      const errors = [];
-      if (!row["Nom"]) errors.push(`Ligne ${index + 2}: Nom manquant`);
-      if (!row["Prénom"]) errors.push(`Ligne ${index + 2}: Prénom manquant`);
-      if (!row["Matricule"]) errors.push(`Ligne ${index + 2}: Matricule manquant`);
-      return errors;
-    }
-  };
+ const importConfig: ImportConfig<Etudiant> = {
+  headers: [
+    "Matricule", "Nom", "Prénom", "Date Naissance", "Lieu Naissance",
+    "Sexe", "Nationalité", "Téléphone", "Email", "Adresse", "Ville",
+    "Formation", "Niveau", "Groupe", "Année Académique", "Statut",
+    "Nouvel Étudiant", "Nom Tuteur", "Contact Tuteur", "Situation Familiale",
+    "Date Inscription", "Handicap", "Boursier"
+  ],
+  mapper: (row) => ({
+    id: 0, // ID sera généré côté backend
+    matricule: row["Matricule"],
+    nom: row["Nom"],
+    prenom: row["Prénom"],
+    dateNaissance: row["Date Naissance"],
+    lieuNaissance: row["Lieu Naissance"],
+    sexe: row["Sexe"],
+    nationalite: row["Nationalité"],
+    telephone: row["Téléphone"],
+    email: row["Email"],
+    adresse: row["Adresse"],
+    ville: row["Ville"],
+    formationActuelle: { nom: row["Formation"] },
+    niveauScolaire: row["Niveau"],
+    groupeScolaire: row["Groupe"],
+    anneeAcademique: row["Année Académique"],
+    statut: row["Statut"] || "Inactif",
+    nouvelEtudiant: row["Nouvel Étudiant"] === "Oui",
+    nomTuteur: row["Nom Tuteur"],
+    contactTuteur: row["Contact Tuteur"],
+    situationFamiliale: row["Situation Familiale"],
+    dateInscription: row["Date Inscription"],
+    handicap: row["Handicap"] === "Oui",
+    boursier: row["Boursier"] === "Oui",
+  } as Etudiant),
+  validator: (row, index) => {
+    const errors: string[] = [];
+    if (!row["Nom"]) errors.push(`Ligne ${index + 2}: Nom manquant`);
+    if (!row["Prénom"]) errors.push(`Ligne ${index + 2}: Prénom manquant`);
+    if (!row["Matricule"]) errors.push(`Ligne ${index + 2}: Matricule manquant`);
+    return errors;
+  },
+};
+
 
   // Configuration export
-  const exportConfig: ExportConfig<Etudiant> = {
-    filename: "export_etudiants",
-    mapper: (item) => ({
-      "Nom": item.nom,
-      "Prénom": item.prenom,
-      "Matricule": item.matricule,
-      "Date Naissance": item.dateNaissance,
-      "Email": item.email,
-      "Téléphone": item.telephone,
-      "Formation": item.formationActuelle?.nom || "",
-      "Niveau": item.niveauScolaire,
-      "Statut": item.statut,
-    })
-  };
+const exportConfig: ExportConfig<Etudiant> = {
+  filename: "export_etudiants",
+  mapper: (item) => ({
+    "Matricule": item.matricule,
+    "Nom": item.nom,
+    "Prénom": item.prenom,
+    "Date Naissance": item.dateNaissance,
+    "Lieu Naissance": item.lieuNaissance,
+    "Sexe": item.sexe,
+    "Nationalité": item.nationalite,
+    "Téléphone": item.telephone,
+    "Email": item.email,
+    "Adresse": item.adresse,
+    "Ville": item.ville,
+    "Formation": item.formationActuelle?.nom || "",
+    "Niveau": item.niveauScolaire,
+    "Groupe": item.groupeScolaire,
+    "Année Académique": item.anneeAcademique,
+    "Statut": item.statut,
+    "Nouvel Étudiant": item.nouvelEtudiant ? "Oui" : "Non",
+    "Nom Tuteur": item.nomTuteur,
+    "Contact Tuteur": item.contactTuteur,
+    "Situation Familiale": item.situationFamiliale,
+    "Date Inscription": item.dateInscription,
+    "Handicap": item.handicap ? "Oui" : "Non",
+    "Boursier": item.boursier ? "Oui" : "Non",
+  }),
+};
+
 
   // Filtres
   const filters: FilterConfig[] = [

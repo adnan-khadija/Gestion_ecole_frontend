@@ -125,7 +125,7 @@ export default function ProfesseursPage() {
         <span className="whitespace-nowrap text-xs text-gray-500">
           {item.diplomes?.map(d => d.nomDiplome || d.nom).join(", ") || "-"}
         </span>
-      ),
+      )
     },
   ];
 

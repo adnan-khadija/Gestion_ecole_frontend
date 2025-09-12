@@ -62,7 +62,7 @@ const Schedule = () => {
   const colors = {
     marron: "#A52A2A",
     or: "#D4A017",
-    blanc: "#FFF7EE",
+    blanc: "#fce2c4ff",
     rouge: "#FF0000",
     argent: "#C0C0C0"
   };
