@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Diplome, MentionDiplome, ModeRemiseDiplome, TypeDiplome, Etudiant, Professeur } from '@/lib/types';
+import { Diplome, Mention, ModeRemise, TypeDiplome, Etudiant,Enseignant } from '@/lib/types';
 import { addDiplome, updateDiplome, getEtudiants, getProfesseurs } from '@/lib/services';
 import toast from 'react-hot-toast';
 
@@ -13,7 +13,594 @@ interface DiplomeFormProps {
 
 const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => {
   const [etudiants, setEtudiants] = useState<Etudiant[]>([]);
-  const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
+  const [Enseignants, setProfesseurs] = useState<// components/StudentMultiStepForm.tsx
+  import React, { useState } from 'react';
+  import {
+    Sexe,
+    SituationFamiliale,
+    StatutEtudiant,
+    YesOrNo,
+    Student,
+    Niveau,
+    RoleUtilisateur,
+    StudentRequest,
+    StudentResponse,
+    Utilisateur,
+  } from '@/lib/types';
+  import { register,updateUser } from '@/lib/auth';
+  import { addStudent, fetchStudents,updateStudent,} from '@/lib/students';
+  
+  import toast from 'react-hot-toast';
+  
+  interface StudentMultiStepFormProps {
+    onSave: (student: Student) => void;
+    onCancel?: () => void;
+    studentToEdit?: Student; // Nouveau prop pour l'édition
+    isEditing?: boolean; // Mode édition
+    userToEdit?: Utilisateur,
+  
+  }
+  
+  const StudentMultiStepForm = ({ onSave, onCancel ,isEditing,studentToEdit}: StudentMultiStepFormProps) => {
+    const [step, setStep] = useState<number>(1);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [userId, setUserId] = useState<string>('');
+    const [imageFile, setImageFile] = useState<File | null>(null);
+  
+    // Données utilisateur (étape 1)
+    const [userData, setUserData] = useState({
+      email: '',
+      nom: '',
+      prenom: '',
+      telephone: '',
+      password: 'Student@1234',
+      role: RoleUtilisateur.ETUDIANT as RoleUtilisateur,
+      image: '',
+    });
+  
+    // Données étudiant (étape 2)
+    const [studentData, setStudentData] = useState<Omit<StudentRequest, 'customFields'>>({
+      matricule: '',
+      dateNaissance: '',
+      lieuNaissance: '',
+      sexe: Sexe.M,
+      nationalite: '',
+      adresse: '',
+      ville: '',
+      situationFamiliale: SituationFamiliale.CELIBATAIRE,
+      niveau: Niveau.PREMIEREANNEE,
+      groupe: '',
+      anneeAcademique: '',
+      statut: StatutEtudiant.ACTIF,
+      bourse: YesOrNo.NO,
+      handicap: YesOrNo.NO,
+    });
+  
+    const [customFields, setCustomFields] = useState<{ name: string; value: string }[]>([]);
+  
+    // Étape 1: Création utilisateur
+    const handleUserSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+  
+      try {
+        // Préparer les données utilisateur sans l'image base64
+        const userPayload = { 
+          ...userData,
+          image: imageFile ? imageFile.name : null
+        };
+  
+        const newUser = await register(userPayload);
+        const uid = (newUser as any).userId ?? (newUser as any).id;
+        if (!uid) throw new Error('userId non renvoyé par le serveur');
+        
+        setUserId(uid);
+        setStep(2);
+        toast.success('Utilisateur créé avec succès !');
+      } catch (error: any) {
+        toast.error(error?.message || 'Erreur lors de la création de l\'utilisateur');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    // Étape 2: Ajout étudiant
+    const handleStudentSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+  
+      try {
+        const payload: StudentRequest = {
+          matricule: studentData.matricule || '',
+          dateNaissance: studentData.dateNaissance || '',
+          lieuNaissance: studentData.lieuNaissance || '',
+          sexe: studentData.sexe,
+          nationalite: studentData.nationalite || '',
+          adresse: studentData.adresse || '',
+          ville: studentData.ville || '',
+          situationFamiliale: studentData.situationFamiliale,
+          niveau: studentData.niveau || '',
+          groupe: studentData.groupe || '',
+          anneeAcademique: studentData.anneeAcademique || '',
+          statut: studentData.statut,
+          bourse: studentData.bourse,
+          handicap: studentData.handicap,
+          customFields: customFields
+            .filter((f) => f.name && f.name.trim() !== '')
+            .map((f) => ({ 
+              fieldName: f.name.trim(), 
+              fieldValue: f.value || '' 
+            })),
+        };
+        let savedStudent:StudentResponse ;
+        if(isEditing && studentToEdit) {
+          // Mise à jour de l'étudiant existant
+          savedStudent = await updateStudent(studentToEdit.idStudent, payload);
+          toast.success("Étudiant mis à jour avec succès !");
+        }
+       
+        const newStudent = await addStudent(userId, payload);
+        onSave(newStudent as Student);
+        toast.success("Étudiant ajouté avec succès !");
+        
+        // Réinitialiser le formulaire
+        setStep(1);
+        setUserData({ 
+          email: '', 
+          nom: '', 
+          prenom: '', 
+          telephone: '', 
+          password: 'Student@1234', 
+          role: RoleUtilisateur.ETUDIANT,
+          image: '' 
+        });
+        setImageFile(null);
+        setStudentData({
+          matricule: '',
+          dateNaissance: '',
+          lieuNaissance: '',
+          sexe: Sexe.M,
+          nationalite: '',
+          adresse: '',
+          ville: '',
+          situationFamiliale: SituationFamiliale.CELIBATAIRE,
+          niveau: Niveau.PREMIEREANNEE,
+          groupe: '',
+          anneeAcademique: '',
+          statut: StatutEtudiant.ACTIF,
+          bourse: YesOrNo.NO,
+          handicap: YesOrNo.NO,
+        });
+        setCustomFields([]);
+        setUserId('');
+        
+      } catch (error: any) {
+        const serverMsg = error?.response?.data?.message ?? error?.message;
+        toast.error(serverMsg || "Erreur lors de l'ajout des détails étudiant");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    // Handlers
+    const handleUserChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setUserData((prev) => ({ ...prev, [name]: value }));
+    };
+  
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setImageFile(file);
+        setUserData(prev => ({ ...prev, image: file.name }));
+      }
+    };
+  
+    const handleStudentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = e.target;
+  
+      if (name === 'bourse' || name === 'handicap') {
+        setStudentData((prev) => ({ ...prev, [name]: value as YesOrNo }));
+        return;
+      }
+  
+      if (name === 'sexe') {
+        setStudentData((prev) => ({ ...prev, sexe: value as Sexe }));
+        return;
+      }
+  
+      if (name === 'situationFamiliale') {
+        setStudentData((prev) => ({ ...prev, situationFamiliale: value as SituationFamiliale }));
+        return;
+      }
+  
+      if (name === 'niveau') {
+        setStudentData((prev) => ({ ...prev, niveau: value as Niveau }));
+        return;
+      }
+  
+      if (name === 'statut') {
+        setStudentData((prev) => ({ ...prev, statut: value as StatutEtudiant }));
+        return;
+      }
+  
+      setStudentData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    };
+  
+    // Étape 1: Formulaire utilisateur
+    const renderUserForm = () => (
+      <form onSubmit={handleUserSubmit} className="space-y-6">
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <h2 className="text-lg font-semibold text-black mb-4">Étape 1: Informations de base</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-black">Nom*</label>
+              <input
+                type="text"
+                name="nom"
+                value={userData.nom}
+                onChange={handleUserChange}
+                required
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-black">Prénom*</label>
+              <input
+                type="text"
+                name="prenom"
+                value={userData.prenom}
+                onChange={handleUserChange}
+                required
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-black">Email*</label>
+              <input
+                type="email"
+                name="email"
+                value={userData.email}
+                onChange={handleUserChange}
+                required
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-black">Téléphone*</label>
+              <input
+                type="tel"
+                name="telephone"
+                value={userData.telephone}
+                onChange={handleUserChange}
+                required
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
+              />
+            </div>
+            
+            <div className="space-y-2 md:col-span-2">
+              <label className="block text-sm font-bold text-black">Photo de profil</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+              />
+              {imageFile && (
+                <p className="text-sm text-gray-500 mt-1">Fichier sélectionné: {imageFile.name}</p>
+              )}
+            </div>
+          </div>
+        </div>
+  
+        <div className="flex justify-between">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-3 bg-[#D4A017] text-white rounded-lg hover:bg-[#b38714] disabled:opacity-50"
+          >
+            {loading ? 'Création...' : 'Suivant'}
+          </button>
+        </div>
+      </form>
+    );
+  
+    // Étape 2: Formulaire étudiant
+    const renderStudentForm = () => (
+      <form onSubmit={handleStudentSubmit} className="space-y-6">
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <h2 className="text-lg font-semibold text-black mb-4">Étape 2: Informations étudiant</h2>
+          
+          {/* Section Informations personnelles */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-black mb-4">Informations personnelles</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Matricule*</label>
+                <input
+                  type="text"
+                  name="matricule"
+                  value={studentData.matricule}
+                  onChange={handleStudentChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Sexe*</label>
+                <select
+                  name="sexe"
+                  value={studentData.sexe}
+                  onChange={handleStudentChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                >
+                  {Object.values(Sexe).map(sexe => (
+                    <option key={sexe} value={sexe}>{sexe}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Date de naissance*</label>
+                <input
+                  type="date"
+                  name="dateNaissance"
+                  value={studentData.dateNaissance}
+                  onChange={handleStudentChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Lieu de naissance</label>
+                <input
+                  type="text"
+                  name="lieuNaissance"
+                  value={studentData.lieuNaissance}
+                  onChange={handleStudentChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                />
+              </div>
+  
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Nationalité</label>
+                <input
+                  type="text"
+                  name="nationalite"
+                  value={studentData.nationalite}
+                  onChange={handleStudentChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                />
+              </div>
+  
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Situation familiale</label>
+                <select
+                  name="situationFamiliale"
+                  value={studentData.situationFamiliale}
+                  onChange={handleStudentChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                >
+                  {Object.values(SituationFamiliale).map(situation => (
+                    <option key={situation} value={situation}>{situation}</option>
+                  ))}
+                </select>
+              </div>
+  
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Adresse</label>
+                <input
+                  type="text"
+                  name="adresse"
+                  value={studentData.adresse}
+                  onChange={handleStudentChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                />
+              </div>
+  
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Ville</label>
+                <input
+                  type="text"
+                  name="ville"
+                  value={studentData.ville}
+                  onChange={handleStudentChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                />
+              </div>
+            </div>
+          </div>
+  
+          {/* Section Scolarité */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-black mb-4">Scolarité</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Niveau</label>
+                <select
+                  name="niveau"
+                  value={studentData.niveau}
+                  onChange={handleStudentChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                >
+                  {Object.values(Niveau).map(niveau => (
+                    <option key={niveau} value={niveau}>{niveau}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Groupe</label>
+                <input
+                  type="text"
+                  name="groupe"
+                  value={studentData.groupe}
+                  onChange={handleStudentChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Année académique</label>
+                <input
+                  type="text"
+                  name="anneeAcademique"
+                  value={studentData.anneeAcademique}
+                  onChange={handleStudentChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                />
+              </div>
+  
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-black">Statut</label>
+                <select
+                  name="statut"
+                  value={studentData.statut}
+                  onChange={handleStudentChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                >
+                  {Object.values(StatutEtudiant).map(statut => (
+                    <option key={statut} value={statut}>{statut}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+  
+            {/* Section Bourse et Handicap */}
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-black mb-4">Options supplémentaires</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-black">Handicap</label>
+                  <select
+                    name="handicap"
+                    value={studentData.handicap}
+                    onChange={handleStudentChange}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                  >
+                    {Object.values(YesOrNo).map(handicap => (
+                      <option key={handicap} value={handicap}>{handicap}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-black">Boursier</label>
+                  <select
+                    name="bourse"
+                    value={studentData.bourse}
+                    onChange={handleStudentChange}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                  >
+                    {Object.values(YesOrNo).map(bourse => (
+                      <option key={bourse} value={bourse}>{bourse}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          {/* Champs personnalisés */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-black mb-4">Champs personnalisés</h3>
+            {customFields.map((field, idx) => (
+              <div key={idx} className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Nom du champ"
+                  value={field.name}
+                  onChange={e => {
+                    const updated = [...customFields];
+                    updated[idx].name = e.target.value;
+                    setCustomFields(updated);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg"
+                />
+                <input
+                  type="text"
+                  placeholder="Valeur"
+                  value={field.value}
+                  onChange={e => {
+                    const updated = [...customFields];
+                    updated[idx].value = e.target.value;
+                    setCustomFields(updated);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCustomFields(fields => fields.filter((_, i) => i !== idx))}
+                  className="text-red-600 hover:text-red-800 px-2"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setCustomFields(fields => [...fields, { name: '', value: '' }])}
+              className="px-4 py-2 bg-[#D4A017] text-white rounded hover:bg-[#b38714] text-sm"
+            >
+              + Ajouter un champ
+            </button>
+          </div>
+        </div>
+  
+        <div className="flex justify-between">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+          >
+            Retour
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-3 bg-[#D4A017] text-white rounded-lg hover:bg-[#b38714] disabled:opacity-50"
+          >
+            {loading ? 'Création...' : 'Créer l\'étudiant'}
+          </button>
+        </div>
+      </form>
+    );
+  
+    return (
+      <div>
+        {/* Indicateur d'étape */}
+        <div className="flex mb-6">
+          <div className={`flex-1 text-center py-2 ${step >= 1 ? 'bg-[#D4A017] text-white' : 'bg-gray-200'}`}>
+            Étape 1: Utilisateur
+          </div>
+          <div className={`flex-1 text-center py-2 ${step >= 2 ? 'bg-[#D4A017] text-white' : 'bg-gray-200'}`}>
+            Étape 2: Étudiant
+          </div>
+        </div>
+  
+        {step === 1 ? renderUserForm() : renderStudentForm()}
+      </div>
+    );
+  };
+  
+  export default StudentMultiStepForm;[]>([]);
   const [diplome, setDiplome] = useState<Omit<Diplome, 'id'>>({
     typeDiplome: TypeDiplome.LICENCE,
     nomDiplome: '',
@@ -29,23 +616,23 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
     fichierDiplome: '',
     commentaire: '',
     modeRemise: ModeRemiseDiplome.PRESENTIEL,
-    professeurs: [],
+    Enseignants: [],
   });
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  // Chargement des étudiants et professeurs
+  // Chargement des étudiants et Enseignants
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [etudiantsResponse, professeursResponse] = await Promise.all([
+        const [etudiantsResponse, EnseignantsResponse] = await Promise.all([
           getEtudiants(),
           getProfesseurs()
         ]);
         setEtudiants(etudiantsResponse.data);
-        setProfesseurs(professeursResponse.data);
+        setProfesseurs(EnseignantsResponse.data);
       } catch (err) {
         console.error(err);
         toast.error("Erreur lors du chargement des données");
@@ -74,32 +661,32 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
         fichierDiplome: diplomeInitial.fichierDiplome || '',
         commentaire: diplomeInitial.commentaire || '',
         modeRemise: diplomeInitial.modeRemise || ModeRemiseDiplome.PRESENTIEL,
-        professeurs: diplomeInitial.professeurs ? diplomeInitial.professeurs.map(p => p.id) : [],
+        Enseignants: diplomeInitial.Enseignants ? diplomeInitial.Enseignants.map(p => p.id) : [],
       });
     }
   }, [diplomeInitial]);
 
-  // Gestion spécifique pour les professeurs
-  const handleProfesseurChange = (professeurId: number) => {
+  // Gestion spécifique pour les Enseignants
+  const handleProfesseurChange = (EnseignantId: number) => {
     setDiplome(prev => {
-      const isSelected = prev.professeurs.includes(professeurId);
+      const isSelected = prev.Enseignants.includes(EnseignantId);
       let newProfesseurs;
       
       if (isSelected) {
-        newProfesseurs = prev.professeurs.filter(id => id !== professeurId);
+        newProfesseurs = prev.Enseignants.filter(id => id !== EnseignantId);
         setError(''); // Réinitialiser l'erreur lors de la désélection
       } else {
-        if (prev.professeurs.length >= 2) {
-          setError("Maximum 2 professeurs autorisés");
+        if (prev.Enseignants.length >= 2) {
+          setError("Maximum 2 Enseignants autorisés");
           return prev;
         }
-        newProfesseurs = [...prev.professeurs, professeurId];
+        newProfesseurs = [...prev.Enseignants, EnseignantId];
         setError('');
       }
       
       return {
         ...prev,
-        professeurs: newProfesseurs
+        Enseignants: newProfesseurs
       };
     });
   };
@@ -126,8 +713,8 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
     e.preventDefault();
     setSubmitting(true);
 
-    if (diplome.professeurs.length > 2) {
-      setError("Maximum 2 professeurs autorisés");
+    if (diplome.Enseignants.length > 2) {
+      setError("Maximum 2 Enseignants autorisés");
       setSubmitting(false);
       return;
     }
@@ -140,12 +727,12 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
  
 
     try {
-      const selectedProfesseurs = professeurs.filter(p => diplome.professeurs.includes(p.id));
+      const selectedProfesseurs = Enseignants.filter(p => diplome.Enseignants.includes(p.id));
       
       if (diplomeInitial && diplomeInitial.id) {
         const diplomeToUpdate = {
           ...diplome,
-          professeurs: selectedProfesseurs,
+          Enseignants: selectedProfesseurs,
           id: diplomeInitial.id,
         };
         const response = await updateDiplome(diplomeInitial.id, diplomeToUpdate);
@@ -154,7 +741,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
       } else {
         const newDiplome = {
           ...diplome,
-          professeurs: selectedProfesseurs,
+          Enseignants: selectedProfesseurs,
         };
         const response = await addDiplome(newDiplome);
         onSave(response.data);
@@ -270,7 +857,7 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
             </select>
           </div>
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-black">Nombre de professeurs</label>
+            <label className="block text-xs font-bold text-black">Nombre de Enseignants</label>
             <input
               type="number"
               name="nombreProf"
@@ -337,20 +924,20 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
         <div className="space-y-2">
           {loading ? (
             <div className="text-center py-4 text-gray-500">
-              Chargement des professeurs...
+              Chargement des Enseignants...
             </div>
-          ) : professeurs.length === 0 ? (
+          ) : Enseignants.length === 0 ? (
             <div className="text-center py-4 text-red-500">
-              Aucun professeur disponible
+              Aucun Enseignant disponible
             </div>
           ) : (
             <>
               <label className="block text-xs font-bold text-black">
-                Sélectionnez les professeurs (max 2)
+                Sélectionnez les Enseignants (max 2)
               </label>
               <div className="flex flex-col gap-1 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
-                {professeurs.map((prof) => {
-                  const checked = diplome.professeurs.includes(prof.id);
+                {Enseignants.map((prof) => {
+                  const checked = diplome.Enseignants.includes(prof.id);
                   return (
                     <label
                       key={prof.id}
@@ -370,13 +957,13 @@ const DiplomeForm = ({ onSave, diplomeInitial, onCancel }: DiplomeFormProps) => 
                 })}
               </div>
               
-              {/* Message d'erreur en rouge pour la sélection des professeurs */}
+              {/* Message d'erreur en rouge pour la sélection des Enseignants */}
               {error && (
                 <p className="text-xs text-red-500 mt-1 font-medium">{error}</p>
               )}
               
               <p className="text-xs text-gray-500 mt-1">
-                {diplome.professeurs.length} / 2 professeurs sélectionnés
+                {diplome.Enseignants.length} / 2 Enseignants sélectionnés
               </p>
             </>
           )}

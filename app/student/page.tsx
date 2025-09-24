@@ -1,238 +1,293 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import TableauDynamique, { Column, ImportConfig, ExportConfig, FilterConfig } from "@/components/TableauDynamique";
-import { Etudiant } from "@/lib/types";
-import { getEtudiants, addEtudiant, updateEtudiant, deleteEtudiant } from "@/lib/services";
+import { Student, UserResponse, Utilisateur } from "@/lib/types";
+import { fetchStudents, addStudent, updateStudent, deleteStudent } from "@/lib/students";
 import toast from "react-hot-toast";
-import EtudiantForm from "@/components/forms/EtudiantForm";
+import { updateUser, deleteUser, getUsersStudents,fetchUserIdByEmail } from "@/lib/auth";
 import StudentProfile from "@/components/cards/StudentProfile";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/Loading";
+import StudentMultiStepForm from "@/components/forms/EtudiantForm"; 
 
 export default function EtudiantPage() {
-  const [etudiants, setEtudiants] = useState<Etudiant[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [users, setUsers] = useState<UserResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedEtudiant, setSelectedEtudiant] = useState<Etudiant | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [editingUser, setEditingUser] = useState<Utilisateur | null>(null);
 
   useEffect(() => {
-    getEtudiants()
-      .then((res) => {
-        setEtudiants(res.data);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        
+        // Charger les étudiants
+        const studentsData = await fetchStudents();
+        console.log("Étudiants récupérés:", studentsData);
+        
+        // Charger les utilisateurs étudiants
+        const usersData = await getUsersStudents();
+        
+        if (studentsData) {
+          setStudents(studentsData);
+        }
+        if (usersData) {
+          setUsers(usersData);
+        }
+      } catch (err) {
+        console.error("Erreur récupération données :", err);
+        toast.error("Erreur lors du chargement des données");
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Erreur récupération étudiants :", err);
-        setLoading(false);
-      });
+      }
+    };
+
+    loadData();
   }, []);
 
-  const colonnesEtudiants: Column<Etudiant>[] = [
-      {
-    key: "matricule",
-    title: "Matricule",
-    render: (item) => (
-      <div className="flex items-center gap-2">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedEtudiant(item);
-          }}
-          className="text-[#D4A017] hover:text-gray-700 transition-colors"
-          title="Voir les détails"
-        >
-          <FaEye className="h-4 w-4" />
-        </button>
-        <span className="whitespace-nowrap text-gray-500">{item.matricule || "—"}</span>
-      </div>
-    ),
-  },
-  { key: "nom", title: "Nom", render: (item) => <span className="text-gray-500">{item.nom}</span> },
-  { key: "prenom", title: "Prénom", render: (item) => <span className="text-gray-500">{item.prenom}</span> },
-  {
-    key: "dateNaissance",
-    title: "Date Naissance",
-    render: (item) => <span className="text-gray-500">{item.dateNaissance || "—"}</span>,
-  },
-  {
-    key: "lieuNaissance",
-    title: "Lieu Naissance",
-    render: (item) => <span className="text-gray-500">{item.lieuNaissance || "—"}</span>,
-  },
-  {
-    key: "sexe",
-    title: "Sexe",
-    render: (item) => <span className="text-gray-500">{item.sexe || "—"}</span>,
-  },
-  {
-    key: "nationalite",
-    title: "Nationalité",
-    render: (item) => <span className="text-gray-500">{item.nationalite || "—"}</span>,
-  },
-  {
-    key: "telephone",
-    title: "Téléphone",
-    render: (item) =>
-      item.telephone ? (
-        <a href={`tel:${item.telephone}`} className="text-[#0d68ae] hover:underline">
-          {item.telephone}
-        </a>
-      ) : (
-        <span className="text-gray-500">—</span>
-      ),
-  },
-  {
-    key: "email",
-    title: "Email",
-    render: (item) =>
-      item.email ? (
-        <a href={`mailto:${item.email}`} className="text-[#0d68ae] hover:underline">
-          {item.email}
-        </a>
-      ) : (
-        <span className="text-gray-500">—</span>
-      ),
-  },
-  { key: "adresse", title: "Adresse", render: (item) => <span className="text-gray-500">{item.adresse || "—"}</span> },
-  { key: "ville", title: "Ville", render: (item) => <span className="text-gray-500">{item.ville || "—"}</span> },
-  {
-    key: "formation",
-    title: "Formation",
-    render: (item) => <span className="text-gray-500">{item.formationActuelle?.nom || "—"}</span>,
-  },
-  { key: "niveau", title: "Niveau", render: (item) => <span className="text-gray-500">{item.niveauScolaire || "—"}</span> },
-  { key: "groupe", title: "Groupe", render: (item) => <span className="text-gray-500">{item.groupeScolaire || "—"}</span> },
-  { key: "anneeAcademique", title: "Année Académique", render: (item) => <span className="text-gray-500">{item.anneeAcademique || "—"}</span> },
-  { key: "statut", title: "Statut", render: (item) => <span className="text-gray-500">{item.statut || "—"}</span> },
-  { key: "nouvelEtudiant", title: "Nouvel Étudiant", render: (item) => <span className="text-gray-500">{item.nouvelEtudiant ? "Oui" : "Non"}</span> },
-  { key: "nomTuteur", title: "Nom Tuteur", render: (item) => <span className="text-gray-500">{item.nomTuteur || "—"}</span> },
-  { key: "contactTuteur", title: "Contact Tuteur", render: (item) => <span className="text-gray-500">{item.contactTuteur || "—"}</span> },
-  { key: "situationFamiliale", title: "Situation Familiale", render: (item) => <span className="text-gray-500">{item.situationFamiliale || "—"}</span> },
-  { key: "dateInscription", title: "Date Inscription", render: (item) => <span className="text-gray-500">{item.dateInscription || "—"}</span> },
+  // Préparer les données utilisateur à partir d'un étudiant
+ const prepareUserData = (student: Student): Utilisateur | undefined => {
+  const user = users.find(u => u.email === student.email);
+  if (!user) return undefined;
+
+  return {
+    id: user.idUser,
+    email: user.email || '',
+    nom: user.nom || '',
+    prenom: user.prenom || '',
+    telephone: user.telephone || '',
+    role:user.role ||'',
+    image: user.image || '',
+   
+  };
+};
 
 
-    {key: "handicap", title: "Handicap", render: (item) => <span className="text-gray-500">{item.handicap ? "Oui" : "Non"}</span>},
-    {key:"boursier", title: "Boursier", render: (item) => <span className="text-gray-500">{item.boursier ? "Oui" : "Non"}</span>},
-    
+  // Colonnes du tableau avec actions
+  const colonnesEtudiants: Column<Student>[] = [
+    {
+      key: "matricule",
+      title: "Matricule",
+      render: (item) => (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedStudent(item);
+            }}
+            className="text-[#D4A017] hover:text-gray-700 transition-colors"
+            title="Voir les détails"
+          >
+            <FaEye className="h-4 w-4" />
+          </button>
+          <span className="whitespace-nowrap text-gray-500">{item.matricule || "—"}</span>
+        </div>
+      ),
+    },
+    { key: "nom", title: "Nom", render: (item) => <span className="text-gray-500">{item.nom}</span> },
+    { key: "prenom", title: "Prénom", render: (item) => <span className="text-gray-500">{item.prenom}</span> },
+    { key: "dateNaissance", title: "Date Naissance", render: (item) => <span className="text-gray-500">{item.dateNaissance}</span> },
+    { key: "lieuNaissance", title: "Lieu Naissance", render: (item) => <span className="text-gray-500">{item.lieuNaissance}</span> },
+    { key: "sexe", title: "Sexe", render: (item) => <span className="text-gray-500">{item.sexe}</span> },
+    { key: "nationalite", title: "Nationalité", render: (item) => <span className="text-gray-500">{item.nationalite}</span> },
+    { key: "telephone", title: "Téléphone", render: (item) => <span className="text-gray-500">{item.telephone}</span> },
+    { key: "email", title: "Email", render: (item) => <span className="text-gray-500">{item.email}</span> },
+    { key: "adresse", title: "Adresse", render: (item) => <span className="text-gray-500">{item.adresse}</span> },
+    { key: "ville", title: "Ville", render: (item) => <span className="text-gray-500">{item.ville}</span> },
+    { key: "situationFamiliale", title: "Situation Familiale", render: (item) => <span className="text-gray-500">{item.situationFamiliale}</span> },
+    { key: "niveau", title: "Niveau", render: (item) => <span className="text-gray-500">{item.niveau}</span> },
+    { key: "groupe", title: "Groupe", render: (item) => <span className="text-gray-500">{item.groupe}</span> },
+    { key: "anneeAcademique", title: "Année Académique", render: (item) => <span className="text-gray-500">{item.anneeAcademique}</span> },
+    { key: "statut", title: "Statut", render: (item) => <span className="text-gray-500">{item.statut}</span> },
+    { key: "bourse", title: "Boursier", render: (item) => <span className="text-gray-500">{item.bourse ? "Oui" : "Non"}</span> },
+    { key: "handicap", title: "Handicap", render: (item) => <span className="text-gray-500">{item.handicap ? "Oui" : "Non"}</span> },
   ];
 
-  // Configuration import
- const importConfig: ImportConfig<Etudiant> = {
-  headers: [
-    "Matricule", "Nom", "Prénom", "Date Naissance", "Lieu Naissance",
-    "Sexe", "Nationalité", "Téléphone", "Email", "Adresse", "Ville",
-    "Formation", "Niveau", "Groupe", "Année Académique", "Statut",
-    "Nouvel Étudiant", "Nom Tuteur", "Contact Tuteur", "Situation Familiale",
-    "Date Inscription", "Handicap", "Boursier"
-  ],
-  mapper: (row) => ({
-    id: 0, // ID sera généré côté backend
-    matricule: row["Matricule"],
-    nom: row["Nom"],
-    prenom: row["Prénom"],
-    dateNaissance: row["Date Naissance"],
-    lieuNaissance: row["Lieu Naissance"],
-    sexe: row["Sexe"],
-    nationalite: row["Nationalité"],
-    telephone: row["Téléphone"],
-    email: row["Email"],
-    adresse: row["Adresse"],
-    ville: row["Ville"],
-    formationActuelle: { nom: row["Formation"] },
-    niveauScolaire: row["Niveau"],
-    groupeScolaire: row["Groupe"],
-    anneeAcademique: row["Année Académique"],
-    statut: row["Statut"] || "Inactif",
-    nouvelEtudiant: row["Nouvel Étudiant"] === "Oui",
-    nomTuteur: row["Nom Tuteur"],
-    contactTuteur: row["Contact Tuteur"],
-    situationFamiliale: row["Situation Familiale"],
-    dateInscription: row["Date Inscription"],
-    handicap: row["Handicap"] === "Oui",
-    boursier: row["Boursier"] === "Oui",
-  } as Etudiant),
-  validator: (row, index) => {
-    const errors: string[] = [];
-    if (!row["Nom"]) errors.push(`Ligne ${index + 2}: Nom manquant`);
-    if (!row["Prénom"]) errors.push(`Ligne ${index + 2}: Prénom manquant`);
-    if (!row["Matricule"]) errors.push(`Ligne ${index + 2}: Matricule manquant`);
-    return errors;
-  },
+  // Gestion du clic sur Modifier
+  const handleEditClick = (student: Student) => {
+    setEditingStudent(student);
+    setEditingUser(prepareUserData(student));
+    setIsFormOpen(true);
+  };
+
+  // Gestion du clic sur Supprimer
+const handleDeleteClick = async (studentId: string) => {
+  if (!confirm("Êtes-vous sûr de vouloir supprimer cet étudiant et son compte utilisateur ?")) return;
+
+  try {
+    // Trouver l'étudiant
+    const studentToDelete = students.find(s => s.idStudent === studentId);
+    if (!studentToDelete) throw new Error("Étudiant non trouvé");
+
+    // Trouver l'utilisateur correspondant
+    const userToDelete = users.find(u => u.email === studentToDelete.email);
+    console.log("Utilisateur à supprimer:", userToDelete);
+    
+    // Supprimer l'étudiant
+    await deleteStudent(studentId);
+
+    // Supprimer l'utilisateur si trouvé
+    if (userToDelete) {
+      await deleteUser(userToDelete.idUser);
+    }
+
+    // Mettre à jour les états
+    setStudents(prev => prev.filter(s => s.idStudent !== studentId));
+    if (userToDelete) {
+      setUsers(prev => prev.filter(u => u.idUser !== userToDelete.idUser));
+    }
+
+    toast.success("Étudiant et utilisateur supprimés avec succès");
+
+    // Fermer les modales si nécessaire
+    if (selectedStudent?.idStudent === studentId) setSelectedStudent(null);
+    if (editingStudent?.idStudent === studentId) {
+      setEditingStudent(null);
+      setEditingUser(null);
+      setIsFormOpen(false);
+    }
+
+  } catch (error: any) {
+    console.error("Erreur suppression:", error);
+    toast.error(error?.message || "Erreur lors de la suppression");
+  }
 };
 
+
+  // Gestion de l'ajout
+  const handleAdd = () => {
+    setEditingStudent(null);
+    setEditingUser(null);
+    setIsFormOpen(true);
+  };
+
+  // Gestion de la sauvegarde
+  const handleSave = async (savedStudent: Student) => {
+    try {
+      // Mettre à jour l'utilisateur si editingUser existe
+      if (editingUser) {
+        await updateUser(editingUser.id, {
+          email: editingUser.email,
+          nom: editingUser.nom,
+          prenom: editingUser.prenom,
+          telephone: editingUser.telephone,
+          image: editingUser.image,
+        });
+      }
+
+      // Mettre à jour l'étudiant
+      await updateStudent(savedStudent.id, savedStudent);
+
+      // Rafraîchir la liste des étudiants
+      const studentsData = await fetchStudents();
+      setStudents(studentsData);
+
+      toast.success(editingStudent ? "Étudiant mis à jour avec succès" : "Étudiant ajouté avec succès");
+    } catch (error: any) {
+      toast.error(error?.message || "Erreur lors de la sauvegarde");
+    } finally {
+      setIsFormOpen(false);
+      setEditingStudent(null);
+      setEditingUser(null);
+    }
+  };
+
+  // Gestion de l'annulation
+  const handleCancel = () => {
+    setIsFormOpen(false);
+    setEditingStudent(null);
+    setEditingUser(null);
+  };
+
+  // Configuration import
+  const importConfig: ImportConfig<Student> = {
+    headers: [
+      "Matricule", "Nom", "Prénom", "Date Naissance", "Lieu Naissance",
+      "Sexe", "Nationalité", "Téléphone", "Email", "Adresse", "Ville",
+      "Formation", "Niveau", "Groupe", "Année Académique", "Statut",
+      "Nom Tuteur", "Contact Tuteur", "Situation Familiale",
+      "Date Inscription", "Handicap", "Boursier"
+    ],
+    mapper: (row) => ({
+      id: "", 
+      matricule: row["Matricule"],
+      nom: row["Nom"],
+      prenom: row["Prénom"],
+      dateNaissance: row["Date Naissance"],
+      lieuNaissance: row["Lieu Naissance"],
+      sexe: row["Sexe"],
+      nationalite: row["Nationalité"],
+      telephone: row["Téléphone"],
+      email: row["Email"],
+      adresse: row["Adresse"],
+      ville: row["Ville"],
+      niveau: row["Niveau"],
+      groupe: row["Groupe"],
+      anneeAcademique: row["Année Académique"],
+      statut: row["Statut"] || "Inactif",
+      situationFamiliale: row["Situation Familiale"],
+      handicap: row["Handicap"] === "Oui",
+      bourse: row["Boursier"] === "Oui",
+      customFields: {}, 
+    } as Student),
+    validator: (row, index) => {
+      const errors: string[] = [];
+      if (!row["Nom"]) errors.push(`Ligne ${index + 2}: Nom manquant`);
+      if (!row["Prénom"]) errors.push(`Ligne ${index + 2}: Prénom manquant`);
+      if (!row["Matricule"]) errors.push(`Ligne ${index + 2}: Matricule manquant`);
+      return errors;
+    },
+  };
 
   // Configuration export
-const exportConfig: ExportConfig<Etudiant> = {
-  filename: "export_etudiants",
-  mapper: (item) => ({
-    "Matricule": item.matricule,
-    "Nom": item.nom,
-    "Prénom": item.prenom,
-    "Date Naissance": item.dateNaissance,
-    "Lieu Naissance": item.lieuNaissance,
-    "Sexe": item.sexe,
-    "Nationalité": item.nationalite,
-    "Téléphone": item.telephone,
-    "Email": item.email,
-    "Adresse": item.adresse,
-    "Ville": item.ville,
-    "Formation": item.formationActuelle?.nom || "",
-    "Niveau": item.niveauScolaire,
-    "Groupe": item.groupeScolaire,
-    "Année Académique": item.anneeAcademique,
-    "Statut": item.statut,
-    "Nouvel Étudiant": item.nouvelEtudiant ? "Oui" : "Non",
-    "Nom Tuteur": item.nomTuteur,
-    "Contact Tuteur": item.contactTuteur,
-    "Situation Familiale": item.situationFamiliale,
-    "Date Inscription": item.dateInscription,
-    "Handicap": item.handicap ? "Oui" : "Non",
-    "Boursier": item.boursier ? "Oui" : "Non",
-  }),
-};
-
+  const exportConfig: ExportConfig<Student> = {
+    filename: "export_students",
+    mapper: (item) => ({
+      "Matricule": item.matricule,
+      "Nom": item.nom,
+      "Prénom": item.prenom,
+      "Date Naissance": item.dateNaissance,
+      "Lieu Naissance": item.lieuNaissance,
+      "Sexe": item.sexe,
+      "Nationalité": item.nationalite,
+      "Téléphone": item.telephone,
+      "Email": item.email,
+      "Adresse": item.adresse,
+      "Ville": item.ville,
+      "Situation Familiale": item.situationFamiliale,
+      "Niveau": item.niveau,
+      "Groupe": item.groupe,
+      "Année Académique": item.anneeAcademique,
+      "Statut": item.statut,
+      "Handicap": item.handicap ? "Oui" : "Non",
+      "Boursier": item.bourse ? "Oui" : "Non",
+    }),
+  };
 
   // Filtres
   const filters: FilterConfig[] = [
-    { key: "niveauScolaire", label: "Niveau", options: [{ value: "", label: "Tous" }, ...Array.from(new Set(etudiants.map(e => e.niveauScolaire))).map(n => ({ value: n, label: n }))] },
-    { key: "statut", label: "Statut", options: [{ value: "", label: "Tous" }, { value: "Actif", label: "Actif" }, { value: "Inactif", label: "Inactif" }] },
+    { 
+      key: "statut", 
+      label: "Statut", 
+      options: [
+        { value: "", label: "Tous" },
+        { value: "Actif", label: "Actif" },
+        { value: "Inactif", label: "Inactif" }
+      ] 
+    },
+    { key: "niveau", label: "Niveau" ,
+      options: Array.from(new Set(students.map(s => s.niveau))).map(n => ({ value: n, label: n }))
+    },
+    { key: "groupe", label: "Groupe" ,
+      options: Array.from(new Set(students.map(s => s.groupe))).map(g => ({ value: g, label: g }))
+    },
+    { key: "anneeAcademique", label: "Année Académique" ,
+      options: Array.from(new Set(students.map(s => s.anneeAcademique))).map(a => ({ value: a, label: a }))
+    },
   ];
-
-  // Actions CRUD
-  const handleAdd = async (etudiant: Etudiant) => {
-    try {
-      const res = await addEtudiant(etudiant);
-      setEtudiants(prev => [...prev, res.data || etudiant]);
-      toast.success("Étudiant ajouté");
-    } catch (err) {
-      console.error(err);
-      toast.error("Erreur ajout étudiant");
-      throw err;
-    }
-  };
-
-  const handleEdit = async (etudiant: Etudiant) => {
-    try {
-      const res = await updateEtudiant(etudiant.id, etudiant);
-      setEtudiants(prev => prev.map(e => (e.id === etudiant.id ? (res.data || etudiant) : e)));
-      toast.success("Étudiant mis à jour");
-    } catch (err) {
-      console.error(err);
-      toast.error("Erreur mise à jour");
-      throw err;
-    }
-  };
-
-  const handleDelete = async (id: number | string) => {
-    try {
-      await deleteEtudiant(id);
-      setEtudiants(prev => prev.filter(e => e.id !== id));
-      toast.success("Étudiant supprimé");
-    } catch (err) {
-      console.error(err);
-      toast.error("Erreur suppression");
-      throw err;
-    }
-  };
 
   return (
     <div className="container mx-auto p-4 space-y-8">
@@ -242,20 +297,23 @@ const exportConfig: ExportConfig<Etudiant> = {
         </div>
       ) : (
         <>
-          <TableauDynamique<Etudiant>
-            data={etudiants}
+          <TableauDynamique<Student>
+            data={students || []}
             columns={colonnesEtudiants}
+            getRowId={(student)=> student.idStudent}
             onAdd={handleAdd}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onRowClick={(item) => setSelectedEtudiant(item)}
+            onEdit={handleEditClick}
+            onDelete={handleDeleteClick}
+            onRowClick={(item) => setSelectedStudent(item)}
             emptyMessage="Aucun étudiant trouvé"
             importConfig={importConfig}
             exportConfig={exportConfig}
             filters={filters}
             formComponent={({ itemInitial, onSave, onCancel }) => (
-              <EtudiantForm
-                etudiantInitial={itemInitial}
+              <StudentMultiStepForm
+                studentToEdit={itemInitial}
+                userToEdit={itemInitial ? prepareUserData(itemInitial) : undefined}
+                isEditing={!!itemInitial}
                 onSave={onSave}
                 onCancel={onCancel}
               />
@@ -267,10 +325,13 @@ const exportConfig: ExportConfig<Etudiant> = {
             showAddButton={true}
           />
 
-          {selectedEtudiant && (
+         
+
+          {/* Profil étudiant */}
+          {selectedStudent && (
             <StudentProfile
-              etudiant={selectedEtudiant}
-              onClose={() => setSelectedEtudiant(null)}
+              student={selectedStudent}
+              onClose={() => setSelectedStudent(null)}
             />
           )}
         </>

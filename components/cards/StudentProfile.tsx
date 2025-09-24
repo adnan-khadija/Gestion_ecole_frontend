@@ -1,6 +1,6 @@
 "use client";
 
-import { Etudiant } from "@/lib/types";
+import { Student } from "@/lib/types";
 import { FiX, FiDownload } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import jsPDF from "jspdf";
@@ -8,11 +8,11 @@ import html2canvas from "html2canvas";
 import QRCode from "react-qr-code";
 
 type StudentProfileProps = {
-  etudiant: Etudiant & { presenceToken?: string };
+  student: Student & { presenceToken?: string };
   onClose: () => void;
 };
 
-export default function StudentProfile({ etudiant, onClose }: StudentProfileProps) {
+export default function StudentProfile({ student, onClose }: StudentProfileProps) {
   const [show, setShow] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -34,7 +34,7 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${etudiant.nom}_${etudiant.prenom}.pdf`);
+      pdf.save(`${student.nom}_${student.prenom}.pdf`);
     }
   };
 
@@ -81,8 +81,8 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
           {/* Left column: photo + QR */}
           <div className="flex flex-col items-center md:items-start gap-4">
             <img
-              src={etudiant.photo || "/images/logo.png"}
-              alt={`${etudiant.nom} ${etudiant.prenom}`}
+              src={student.photo || "/images/logo.png"}
+              alt={`${student.nom} ${student.prenom}`}
               className="w-36 h-36 rounded-full object-cover shadow-lg border-4"
               style={{ borderColor: "#ef130cff" }} // vivid red
             />
@@ -91,8 +91,8 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
             <div className="p-3 bg-white rounded-lg shadow-md">
               <QRCode
                 value={JSON.stringify({
-                  matricule: etudiant.matricule,
-                  token: etudiant.presenceToken || "no-token",
+                  matricule: student.matricule,
+                  token: student.presenceToken || "no-token",
                 })}
                 size={120}
                 bgColor="#FFFFFF"
@@ -116,77 +116,77 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
               className="text-3xl font-extrabold mb-4 tracking-tight"
               style={{ color: "#424444ff" }} // darker gray-blue
             >
-              {etudiant.prenom} {etudiant.nom}
+              {student.prenom} {student.nom}
             </h2>
             <div className="grid grid-cols-2 gap-y-2 text-sm">
               <span className="font-semibold" style={{ color: "#8a8a19" }}>
                 Matricule:
               </span>
-              <span style={{ color: "#171717" }}>{etudiant.matricule}</span>
+              <span style={{ color: "#171717" }}>{student.matricule}</span>
 
               <span className="font-semibold" style={{ color: "#8a8a19" }}>
                 Email:
               </span>
               <span>
                 <a
-                  href={`mailto:${etudiant.email}`}
+                  href={`mailto:${student.email}`}
                   style={{ color: "#ef130cff" }}
                   className="hover:underline"
                 >
-                  {etudiant.email}
+                  {student.email}
                 </a>
               </span>
 
-              {etudiant.telephone && (
+              {student.telephone && (
                 <>
                   <span className="font-semibold" style={{ color: "#8a8a19" }}>
                     Téléphone:
                   </span>
                   <span>
                     <a
-                      href={`tel:${etudiant.telephone}`}
+                      href={`tel:${student.telephone}`}
                       style={{ color: "#ef130cff" }}
                       className="hover:underline"
                     >
-                      {etudiant.telephone}
+                      {student.telephone}
                     </a>
                   </span>
                 </>
               )}
 
-              {etudiant.adresse && (
+              {student.adresse && (
                 <>
                   <span className="font-semibold" style={{ color: "#8a8a19" }}>
                     Adresse:
                   </span>
-                  <span style={{ color: "#171717" }}>{etudiant.adresse}</span>
+                  <span style={{ color: "#171717" }}>{student.adresse}</span>
                 </>
               )}
 
-              {etudiant.dateNaissance && (
+              {student.dateNaissance && (
                 <>
                   <span className="font-semibold" style={{ color: "#8a8a19" }}>
                     Date de Naissance:
                   </span>
-                  <span style={{ color: "#171717" }}>{etudiant.dateNaissance}</span>
+                  <span style={{ color: "#171717" }}>{student.dateNaissance}</span>
                 </>
               )}
 
-              {etudiant.ville && (
+              {student.ville && (
                 <>
                   <span className="font-semibold" style={{ color: "#8a8a19" }}>
                     Ville:
                   </span>
-                  <span style={{ color: "#171717" }}>{etudiant.ville}</span>
+                  <span style={{ color: "#171717" }}>{student.ville}</span>
                 </>
               )}
 
-              {etudiant.nationalite && (
+              {student.nationalite && (
                 <>
                   <span className="font-semibold" style={{ color: "#8a8a19" }}>
                     Nationalité:
                   </span>
-                  <span style={{ color: "#171717" }}>{etudiant.nationalite}</span>
+                  <span style={{ color: "#171717" }}>{student.nationalite}</span>
                 </>
               )}
 
@@ -194,7 +194,7 @@ export default function StudentProfile({ etudiant, onClose }: StudentProfileProp
                 Boursier:
               </span>
               <span style={{ color: "#171717" }}>
-                {etudiant.boursier ? "Oui" : "Non"}
+                {student.boursier ? "Oui" : "Non"}
               </span>
             </div>
           </div>

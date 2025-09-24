@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
-    "axios": "^1.11.0",
+    "axios": "^1.12.2",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
+    "js-cookie": "^3.0.5",
     "jspdf": "^3.0.1",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.542.0",
     "next": "15.4.6",
     "react": "19.1.0",
@@ -23,9 +25,11 @@
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "react-qr-code": "^2.0.18",
+    "react-router-dom": "^7.9.1",
     "react-spinners": "^0.17.0",
     "recharts": "^3.1.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

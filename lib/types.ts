@@ -1,16 +1,14 @@
 
-// Role utilisateur
-export enum RoleUtilisateur {
-  ADMIN = "Administrateur",
-  ENSEIGNANT = "Enseignant",
-  ETUDIANT = "Étudiant",
-}
-
 // Sexe
 export enum Sexe {
-  M = "M",
-  F = "F",
+  M = "male",
+  F = "female",
 }
+export enum YesOrNo{
+  YES="Yes",
+  NO="No",
+}
+// Noms de formations standardisées
 export enum FormationNom {
   ANIMATEUR_HSE = "Animateur H.S.E",
   CONTROLEUR_CAMERAS = "Contrôleur & administrateur des caméras de surveillance",
@@ -18,6 +16,13 @@ export enum FormationNom {
   REPARATEUR_PC = "Réparateur de PC portables",
   DEVELOPPEUR_WEB = "Développeur de sites web",
   AUTRE = "Autre (précisez)"
+}
+export enum Niveau{
+  PREMIEREANNEE='premiere_annee ',
+  DEUXIEMEANNEE='deuxieme_annee',
+  TROISIEMEANNEE='troisieme_annee',
+  QUATRIEMEANNEE='quatrieme_annee',
+  CINQUIEMEANNEE='cinquieme_annee',
 }
 
 // Situation familiale
@@ -44,26 +49,18 @@ export enum StatutEtudiant {
 }
 
 // Statut professeur
-export enum StatutProfesseur {
+export enum StatutEnseignant {
   PERMANENT = "Permanent",
   CONTRACTUEL = "Contractuel",
   VACATAIRE = "Vacataire",
 }
 
-// Mention diplôme
-export enum MentionDiplome {
-  PASSABLE = "Passable",
-  ASSEZ_BIEN = "Assez bien",
-  BIEN = "Bien",
-  TRES_BIEN = "Très bien",
-  EXCELLENT = "Excellent",
-}
 
 // Mode remise diplôme
-export enum ModeRemiseDiplome {
-  PRESENTIEL = "Présentiel",
-  EN_LIGNE = "En ligne",
-  PAR_COURRIER = "Par courrier",
+export enum ModeRemise{
+  PRESENTIEL = "PRÉSENTIEL",
+  EN_LIGNE = "EN_LIGNE",
+  PAR_COURRIER = "PAR_COURRIER",
 }
 
 // Mode de formation
@@ -135,19 +132,189 @@ export enum TypeDiplome {
   PERSONNALISE = "Champ personnalisé",
 }
 
+// Role utilisateur
+export enum RoleUtilisateur {
+  ADMINISTRATION = "ADMINISTRATION",
+  ETUDIANT = "ETUDIANT",
+  ENSEIGNANT = "ENSEIGNANT"
+}
+export enum AbsenceReason {
+  MALADIE = "MALADIE",
+  URGENCE_FAMILIALE = "URGENCE_FAMILIALE",
+  NON_JUSTIFIEE = "NON_JUSTIFIEE",
+  RETARD="RETARD",
+  RAISON_PERSONNELLE="RAISON_PERSONNELLE",
+  EVENEMENT_SCOLAIRE="EVENEMENT_SCOLAIRE",
+  AUTRE="AUTRE"
+}
+export enum Mention{
+  PASSABLE="PASSABLE",
+  ASSEZ_BIEN="ASSEZ_BIEN",
+  BIEN="BIEN",
+  TRES_BIEN="TRES_BIEN",
+  EXCELLENT="EXCELLENT"
+}
+/* Diplome */
+export interface Diplome {
+  idDiplome: string;
+  typeDiplome: TypeDiplome;
+  customDiplomeLabel:string;
+  niveau: string; 
+  modules:Module[];
+  nomDiplome: string;
+  anneeObtention?: number;
+  estValide?: boolean;
+  mention: Mention;
+  dateDelivrance: string;
+  signatureAdmin: Utilisateur;
+  qrCodeUrl: string; 
+  fichierDiplome?: string; 
+  commentaire?: string;
+  modeRemise?: ModeRemise;
+  professeurs?: Enseignant[]; 
+ students?: Student[];
+}
 
+
+export interface TimeSlot {
+  day: string;       
+  startTime: string;  
+  endTime: string;   
+}
+/* Enseignant */
+export interface Enseignant {
+  enseignantId: string;
+  user:Utilisateur;
+  specialite: string;
+  dateEmbauche: string;
+  statut: StatutEnseignant;
+  heuresTravail?: string;
+  horaires: TimeSlot;
+  diplomes?: Diplome[]; 
+  modules?: Module[];
+  customFields: CustomField[];
+  
+}
+/* Absence */
+export interface Absence {
+  idAbsence: string;
+  student: Student;
+  module: Module;
+  date: string;
+  reason :AbsenceReason;
+  Justified: boolean;
+}
+
+
+export interface CustomField {
+  id: string;                    
+  fieldName: string;           
+  fieldValue: string;           
+  student?: Student;           
+  enseignant?: Enseignant;      
+}
+export interface CustomFieldRequest {
+  fieldName: string;
+  fieldValue: string;
+}
 // Utilisateur (général)
 export interface Utilisateur {
-  id: number;
+  id: string;       
+  email: string;
+  role: RoleUtilisateur;
   nom: string;
   prenom: string;
-  email: string;
-  motDePasse: string; 
-  role: RoleUtilisateur;
-  telephone?: string;
-  dateCreation?: string;
-  dateModification?: string;
+  telephone: string;
+  image?: string | null; 
 }
+export interface Module {
+  idModule: string;
+  nomModule: string;
+  note: number;
+  enseignant: Enseignant;
+  diplome: Diplome;
+  students: Student[];
+  absences?: Absence[];
+}
+export interface Student {
+  idStudent: string;  
+  nom:string;
+  prenom: string;
+  telephone: string;
+  email: string;
+  image?: string | null; 
+  
+  matricule: string;
+  dateNaissance: string;
+  lieuNaissance: string;
+  sexe: Sexe;
+  nationalite: string;
+  adresse: string;
+  ville: string;
+  situationFamiliale: SituationFamiliale;
+  niveau: string;
+  groupe: string;
+  anneeAcademique: string;
+  statut: StatutEtudiant;
+  bourse: YesOrNo;
+  handicap: YesOrNo;
+  absences?: Absence[];
+  diplomes?: Diplome[];
+  modules?: Module[];
+  customFields: CustomField[];
+}
+
+export interface UserRequest {
+  email: string;
+  password: string;
+  role: RoleUtilisateur;
+  nom: string;
+  prenom: string;
+  telephone: string;
+  image?: string | null; 
+}
+export interface UserUpdateRequest {
+  email?: string;
+  nom?: string;
+  prenom?: string;
+  telephone?: string;
+  image?: string | null; 
+}
+export interface UserResponse extends UserRequest {
+  idUser: string;
+}
+
+export interface StudentRequest {
+
+  matricule?: string;
+  dateNaissance?: string;
+  lieuNaissance?: string;
+  sexe?: Sexe;
+  nationalite?: string;
+  adresse?: string;
+  ville: string;
+  situationFamiliale?: SituationFamiliale;
+  niveau: string;
+  groupe: string;
+  statut?: StatutEtudiant;
+  anneeAcademique: string;
+  bourse?: YesOrNo;
+  handicap?: YesOrNo;
+  customFields?: CustomFieldRequest[];
+}
+export interface StudentResponse extends StudentRequest {
+  idStudent: string;
+  email: string;  
+  nom: string;
+  prenom: string;
+  telephone: string;
+  image: string;
+}
+
+
+
+
+
 
 // Horaire type simple
 export interface Horaire {
@@ -164,7 +331,7 @@ export interface Formation {
   nom: FormationNom;
   duree: number; 
   cout: number;  
-  professeurs: Professeur[];
+  professeurs: Enseignant[];
   emploiDuTempsId?: number | null;
   description?: string;
   anneeFormation?: number;
@@ -174,42 +341,6 @@ export interface Formation {
   capaciteMax?: number;
 }
 
-/* Diplome */
-export interface Diplome {
-  id: number;
-  typeDiplome: TypeDiplome;
-  professeurs?: Professeur[]; // relation M:N
-  nomDiplome: string;
-  niveau?: string; // ex: Bac+2, Bac+3
-  anneeObtention?: number;
-  estValide?: boolean;
-  etudiant?: Etudiant | null; // si lien immédiat
-  mention?: MentionDiplome;
-  dateDelivrance?: string;
-  signatureAdmin?: Utilisateur | null;
-  qrCode?: string; // URL ou data
-  fichierDiplome?: string; // URL/chemin
-  commentaire?: string;
-  modeRemise?: ModeRemiseDiplome;
-}
-
-/* Professeur */
-export interface Professeur {
-  id: number;
-  nom: string;
-  prenom: string;
-  email: string;
-  telephone?: string;
-  specialite?: string;
-  dateEmbauche?: string;
-  statut?: StatutProfesseur;
-  photo?: string;
-  heuresTravail?: number;
-  horaires?: Horaire[];
-  diplomes?: Diplome[]; 
-  formations?: Formation[]; 
-  
-}
 
 /* Étudiant */
 export interface Etudiant {
@@ -265,20 +396,6 @@ export interface Scolarite {
   dateModification?: string;
 }
 
-/* Absence */
-export interface AbsenceEtudiant {
-  id: number;
-  etudiant: Etudiant;
-  formation?: Formation | null;
-  dateAbsence: string;
-  heureDebut?: string;
-  heureFin?: string;
-  professeur?: Professeur | null;
-  dateSaisie?: string;
-  justification?: string;
-  estJustifiee?: boolean;
-  commentaire?: string;
-}
 
 /* Depense */
 export interface Depense {
@@ -335,36 +452,3 @@ export interface Programme {
  
 }
 
-// export interface Creneau {
-//   id: number;
-//   programme: Programme; // ou directement matiere: Matiere
-//   professeur: Professeur;
-//   salle: Salle; // voir point 4
-//   groupe: Groupe; // voir point 4
-//   dateDebut: string; // Format ISO: "2025-10-27T09:00:00Z"
-//   dateFin: string;   // Format ISO: "2025-10-27T11:00:00Z"
-//   commentaire?: string;
-//   statut?: 'Planifié' | 'Confirmé' | 'Annulé';
-// }
-// // Version améliorée de AbsenceEtudiant
-// export interface AbsenceEtudiant {
-//   id: number;
-//   etudiant: Etudiant;
-//   creneau: Creneau; // On lie l'absence à la session de cours exacte !
-//   estJustifiee?: boolean;
-//   commentaire?: string;
-//   dateSaisie?: string;
-// }
-// export interface Salle {
-//   id: number;
-//   nom: string; // "Amphi A", "Salle 102"
-//   capacite: number;
-//   type?: 'Amphithéâtre' | 'Salle de TD' | 'Laboratoire';
-// }
-// export interface Groupe {
-//   id: number;
-//   nom: string; // "Groupe A"
-//   formation: Formation;
-//   anneeAcademique: string; // "2025-2026"
-//   etudiants: Etudiant[];
-// }

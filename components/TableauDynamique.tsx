@@ -31,11 +31,12 @@ export type FilterConfig = {
   options: { value: string; label: string }[];
 };
 
-type TableauDynamiqueProps<T extends { id: number | string }> = {
+type TableauDynamiqueProps<T> = {
   data: T[];
   columns: Column<T>[];
+  getRowId?: (item: T) => string | number; // NOUVELLE PROPRIÉTÉ
   onEdit?: (item: T) => Promise<void> | void;
-  onDelete?: (id: number | string) => Promise<void> | void;
+  onDelete?: (id: string) => Promise<void> | void;
   onAdd?: (item: T) => Promise<void> | void;
   onRowClick?: (item: T) => void;
   emptyMessage?: string;
@@ -63,9 +64,10 @@ type TableauDynamiqueProps<T extends { id: number | string }> = {
   showAddButton?: boolean;
 };
 
-function TableauDynamique<T extends { id: number | string }>({
+function TableauDynamique<T>({
   data,
   columns,
+  getRowId, // NOUVEAU: Fonction pour obtenir l'ID unique
   onEdit,
   onDelete,
   onAdd,
@@ -95,6 +97,24 @@ function TableauDynamique<T extends { id: number | string }>({
   const [filtersVisible, setFiltersVisible] = useState(false);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
+
+  // Fonction pour obtenir l'ID unique d'un élément
+  const getUniqueId = (item: T, index: number): string | number => {
+    if (getRowId) {
+      return getRowId(item);
+    }
+    
+    // Fallback: chercher des propriétés d'ID communes
+    const itemAny = item as any;
+    if (itemAny.id) return itemAny.id;
+    if (itemAny.idStudent) return itemAny.idStudent;
+    if (itemAny.idUser) return itemAny.idUser;
+    if (itemAny.userId) return itemAny.userId;
+    if (itemAny.studentId) return itemAny.studentId;
+    
+    // Si aucun ID n'est trouvé, utiliser l'index comme fallback
+    return `row-${index}`;
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -175,7 +195,7 @@ function TableauDynamique<T extends { id: number | string }>({
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
       result = result.filter(item =>
-        Object.values(item)
+        Object.values(item as any)
           .join(' ')
           .toLowerCase()
           .includes(q)
@@ -186,7 +206,7 @@ function TableauDynamique<T extends { id: number | string }>({
     Object.entries(activeFilters).forEach(([key, value]) => {
       if (value) {
         result = result.filter(item => 
-          String(item[key as keyof T] || '') === String(value)
+          String((item as any)[key] || '') === String(value)
         );
       }
     });
@@ -223,9 +243,9 @@ function TableauDynamique<T extends { id: number | string }>({
     }
   };
 
-  const handleDelete = async (id: number | string) => {
+  const handleDelete = async (id: string | number) => {
     try {
-      if (onDelete) await onDelete(id);
+      if (onDelete) await onDelete(id.toString());
       toast.success("Élément supprimé avec succès !");
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
@@ -473,21 +493,27 @@ function TableauDynamique<T extends { id: number | string }>({
                     </tr>
                   </thead>
                   <tbody>
-                    {previewData.map((item, index) => (
-                      <tr key={index} className="hover:bg-[#F5F5F5]">
-                        {columns.map((column) => (
-                          <td 
-                            key={`${index}-${column.key.toString()}`} 
-                            className="px-2 py-2 text-[10px] text-gray-700 w-24 whitespace-nowrap truncate"
-                          >
-                            {column.render 
-                              ? column.render(item)
-                              : String(item[column.key as keyof T] ?? '')
-                            }
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
+                    {previewData.map((item, index) => {
+                      const rowKey = getUniqueId(item, index);
+                      return (
+                        <tr key={rowKey} className="hover:bg-[#F5F5F5]">
+                          {columns.map((column) => {
+                            const cellKey = `${rowKey}-${column.key.toString()}`;
+                            return (
+                              <td 
+                                key={cellKey}
+                                className="px-2 py-2 text-[10px] text-gray-700 w-24 whitespace-nowrap truncate"
+                              >
+                                {column.render 
+                                  ? column.render(item)
+                                  : String((item as any)[column.key as keyof T] ?? '')
+                                }
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -529,68 +555,73 @@ function TableauDynamique<T extends { id: number | string }>({
       )}
 
       {/* Tableau principal */}
-<div className="overflow-x-auto  rounded-lg border border-gray-200 mx-4">
-  <table className="min-w-max w-full divide-y divide-gray-200">
-    <thead className="bg-white">
-      <tr>
-        {columns.map((column) => (
-          <th
-            key={column.key.toString()}
-            className="px-2 py-2 text-left text-[10px] bg-[#A52A2A] text-white font-semibold tracking-wider whitespace-nowrap"
-          >
-            {column.title}
-          </th>
-        ))}
-        {showActions && (onEdit || onDelete) && (
-          <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider whitespace-nowrap bg-[#A52A2A] text-white">
-            Actions
-          </th>
-        )}
-      </tr>
-    </thead>
-    <tbody>
-      {paginatedData.map((item) => (
-        <tr key={item.id} className="hover:bg-[#F5F5F5]">
-          {columns.map((column) => (
-            <td
-              key={`${item.id}-${column.key.toString()}`}
-              className="px-2 py-2 text-[10px] whitespace-nowrap truncate"
-            >
-              {column.render
-                ? column.render(item)
-                : String(item[column.key as keyof T] ?? '')}
-            </td>
-          ))}
-          {showActions && (onEdit || onDelete) && (
-            <td className="px-2 py-2 whitespace-nowrap">
-              <div className="flex space-x-2">
-                {onEdit && (
-                  <button
-                    onClick={() => setEditItem(item)}
-                    className="text-white transition-colors"
-                    title="Modifier"
-                  >
-                    <FaEdit className="h-4 w-4 text-[#D4A017]" />
-                  </button>
-                )}
-                {onDelete && (
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="text-white transition-colors"
-                    title="Supprimer"
-                  >
-                    <FaTrash className="h-4 w-4 text-[#A52A2A]" />
-                  </button>
-                )}
-              </div>
-            </td>
-          )}
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
+      <div className="overflow-x-auto rounded-lg border border-gray-200 mx-4">
+        <table className="min-w-max w-full divide-y divide-gray-200">
+          <thead className="bg-white">
+            <tr>
+              {columns.map((column) => (
+                <th
+                  key={column.key.toString()}
+                  className="px-2 py-2 text-left text-[10px] bg-[#A52A2A] text-white font-semibold tracking-wider whitespace-nowrap"
+                >
+                  {column.title}
+                </th>
+              ))}
+              {showActions && (onEdit || onDelete) && (
+                <th className="px-2 py-2 text-left text-[10px] font-semibold tracking-wider whitespace-nowrap bg-[#A52A2A] text-white">
+                  Actions
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedData.map((item, index) => {
+              const rowKey = getUniqueId(item, index);
+              return (
+                <tr key={rowKey} className="hover:bg-[#F5F5F5]">
+                  {columns.map((column) => {
+                    const cellKey = `${rowKey}-${column.key.toString()}`;
+                    return (
+                      <td
+                        key={cellKey}
+                        className="px-2 py-2 text-[10px] whitespace-nowrap truncate"
+                      >
+                        {column.render
+                          ? column.render(item)
+                          : String((item as any)[column.key as keyof T] ?? '')}
+                      </td>
+                    );
+                  })}
+                  {showActions && (onEdit || onDelete) && (
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex space-x-2">
+                        {onEdit && (
+                          <button
+                            onClick={() => setEditItem(item)}
+                            className="text-white transition-colors"
+                            title="Modifier"
+                          >
+                            <FaEdit className="h-4 w-4 text-[#D4A017]" />
+                          </button>
+                        )}
+                        {onDelete && (
+                          <button
+                            onClick={() => handleDelete(getUniqueId(item, index))}
+                            className="text-white transition-colors"
+                            title="Supprimer"
+                          >
+                            <FaTrash className="h-4 w-4 text-[#A52A2A]" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
       {/* Pagination */}
       <PaginationControls
