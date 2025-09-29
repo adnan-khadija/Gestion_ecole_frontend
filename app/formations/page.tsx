@@ -2,9 +2,10 @@
 import React from "react";
 import TableauDynamique, { Column, ImportConfig, ExportConfig, FilterConfig } from "@/components/TableauDynamique";
 import { useState, useEffect } from "react";
-import { Formation, Professeur, ModeFormation } from "@/lib/types";
-import { getFormations, getProfesseurs, addFormation, updateFormation, deleteFormation } from "@/lib/services";
+import { Formation, Enseignant, ModeFormation } from "@/lib/types";
 import toast from "react-hot-toast";
+import  {fetchFormations, addFormation,updateFormation,deleteFormation} from "@/lib/formation";
+import { fetchEnseignants } from "@/lib/enseignant";
 import FormationCard from "@/components/cards/FormationCard";
 import { FaEye } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/Loading";
@@ -12,22 +13,24 @@ import FormationForm from "@/components/forms/FormationForm";
 
 export default function FormationPage() {
   const [formations, setFormations] = useState<Formation[]>([]);
-  const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
+  const [professeurs, setEnseignants] = useState<Enseignant[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFormation, setSelectedFormation] = useState<Formation | null>(null);
 
-  useEffect(() => {
-    Promise.all([getFormations(), getProfesseurs()])
-      .then(([resFormations, resProfesseurs]) => {
-        setFormations(resFormations.data);
-        setProfesseurs(resProfesseurs.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Erreur lors de la récupération des données:", error);
-        setLoading(false);
-      });
-  }, []);
+useEffect(() => {
+  Promise.all([fetchFormations(), fetchEnseignants()])
+    .then(([resFormations, resEnseignants]) => {
+      setFormations(resFormations); // <-- pas resFormations.data
+      setEnseignants(resEnseignants); // <-- pas resEnseignants.data
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la récupération des données:", error);
+      setLoading(false);
+    });
+}, []);
+
+  console.log("formation",fetchFormations);
 
   const colonnesFormations: Column<Formation>[] = [
     {
@@ -60,15 +63,15 @@ export default function FormationPage() {
       key: "cout",
       title: "Coût (MAD)",
       render: (item) => (
-        <span className="whitespace-nowrap text-gray-500">{item.cout.toLocaleString()}</span>
+        <span className="whitespace-nowrap text-gray-500">{item.cout}</span>
       ),
     },
     {
       key: "professeurs",
-      title: "Professeurs",
+      title: "Enseignants",
       render: (item) => (
         <span className="whitespace-nowrap text-gray-500">
-          {item.professeurs?.map(p => `${p.prenom} ${p.nom}`).join(", ") || "—"}
+          {item.professeurs?.map(p => `${p.user.prenom} ${p.user.nom}`).join(", ") || "—"}
         </span>
       ),
     },
@@ -124,59 +127,30 @@ export default function FormationPage() {
     },
   ];
 
-  // Configuration d'importation
+ // Configuration import
   const importConfig: ImportConfig<Formation> = {
+   apiUrl: 'http://localhost:8080/api/v1/admin/formations/import',
     headers: [
-      "Nom", "Durée (mois)", "Coût (MAD)", "Mode de formation", "Année de formation",
-      "Statut", "Niveau d'accès", "Capacité max", "Description", "Professeurs"
+      "ID",
+     "Nom",
+      "Durée",
+      "Coût",
+      "Professeurs",
+      "Description",
+      "Année",
+      "ModeFormation",
+      "AnnéeAcces",
+      "CapacitéMax",
+      "EstActive",
     ],
-    mapper: (row) => {
-      // Trouver les professeurs par nom
-      const nomsProfesseurs = row["Professeurs"] ? row["Professeurs"].split(",") : [];
-      const professeursFormation = professeurs.filter(p => 
-        nomsProfesseurs.includes(`${p.prenom} ${p.nom}`)
-      );
-
-      return {
-        id: 0, // Généré côté backend
-        nom: row["Nom"],
-        duree: parseInt(row["Durée (mois)"]) || 0,
-        cout: parseFloat(row["Coût (MAD)"]) || 0,
-        modeFormation: row["Mode de formation"] as ModeFormation,
-        anneeFormation: row["Année de formation"],
-        estActive: row["Statut"] === "Active",
-        niveauAcces: row["Niveau d'accès"],
-        capaciteMax: parseInt(row["Capacité max"]) || 0,
-        description: row["Description"],
-        professeurs: professeursFormation,
-      } as Formation;
-    },
-    validator: (row, index) => {
-      const errors = [];
-      if (!row["Nom"]) errors.push(`Ligne ${index + 2}: Nom de la formation manquant`);
-      if (!row["Durée (mois)"]) errors.push(`Ligne ${index + 2}: Durée manquante`);
-      if (!row["Coût (MAD)"]) errors.push(`Ligne ${index + 2}: Coût manquant`);
-      return errors;
-    }
   };
 
-  // Configuration d'exportation
+  // Configuration export
   const exportConfig: ExportConfig<Formation> = {
-    filename: "export_formations",
-    mapper: (formation) => ({
-      "Nom": formation.nom,
-      "Durée (mois)": formation.duree,
-      "Coût (MAD)": formation.cout,
-      "Mode de formation": formation.modeFormation,
-      "Année de formation": formation.anneeFormation,
-      "Statut": formation.estActive ? "Active" : "Désactivée",
-      "Niveau d'accès": formation.niveauAcces,
-      "Capacité max": formation.capaciteMax,
-      "Description": formation.description,
-      "Professeurs": formation.professeurs?.map(p => `${p.prenom} ${p.nom}`).join(", ") || ""
-    })
+  
+    filename: 'formations',
+    apiUrl: 'http://localhost:8080/api/v1/admin/formations/export',  
   };
-
   // Configuration des filtres
   const filters: FilterConfig[] = [
     {
@@ -206,6 +180,7 @@ export default function FormationPage() {
     try {
       const res = await addFormation(formation);
       setFormations(prev => [...prev, res.data || formation]);
+      refreshFormations();
       toast.success("Formation ajoutée");
     } catch (err) {
       console.error("Erreur ajout:", err);
@@ -216,8 +191,9 @@ export default function FormationPage() {
 
   const handleEdit = async (formation: Formation) => {
     try {
-      const res = await updateFormation(formation.id, formation);
-      setFormations(prev => prev.map(f => (f.id === formation.id ? (res.data || formation) : f)));
+      const res = await updateFormation(formation.idFormation, formation);
+      setFormations(prev => prev.map(f => (f.idFormation === formation.idFormation ? (res.data || formation) : f)));
+      refreshFormations(); 
       toast.success("Formation mise à jour");
     } catch (err) {
       console.error("Erreur update:", err);
@@ -226,10 +202,11 @@ export default function FormationPage() {
     }
   };
 
-  const handleDelete = async (id: number | string) => {
+  const handleDelete = async (id:string) => {
     try {
       await deleteFormation(id);
-      setFormations(prev => prev.filter(f => f.id !== id));
+      setFormations(prev => prev.filter(f => f.idFormation !== id));
+      refreshFormations();
       toast.success("Formation supprimée");
     } catch (err) {
       console.error("Erreur suppression:", err);
@@ -238,7 +215,10 @@ export default function FormationPage() {
     }
   };
 
-  
+  const refreshFormations = async () => {
+    const resFormations = await fetchFormations();
+    setFormations(resFormations);
+  };
 
   return (
     <div className="container mx-auto p-4 space-y-8">
@@ -252,6 +232,7 @@ export default function FormationPage() {
           <TableauDynamique<Formation>
             data={formations}
             columns={colonnesFormations}
+            getRowId={(formation) => formation.idFormation }
             onAdd={handleAdd}
             onEdit={handleEdit}
             onDelete={handleDelete}

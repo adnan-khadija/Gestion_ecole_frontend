@@ -6,6 +6,8 @@ import { SearchBar } from './SearchBar';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import toast from 'react-hot-toast';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 // Types génériques
 export type Column<T> = {
@@ -15,15 +17,16 @@ export type Column<T> = {
 };
 
 export type ImportConfig<T> = {
+  apiUrl?: string; 
   headers: string[];
-  mapper: (row: Record<string, any>) => T;
-  validator?: (row: Record<string, any>, index: number) => string[];
 };
+
 
 export type ExportConfig<T> = {
   filename: string;
-  mapper: (item: T) => Record<string, any>;
+  apiUrl?: string; // URL de l'endpoint backend
 };
+
 
 export type FilterConfig = {
   key: string;
@@ -127,65 +130,157 @@ function TableauDynamique<T>({
   }, [showAddForm, editItem]);
 
   // Import Excel
-  const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !importConfig) return;
+// Remplacer l'ancienne handleImportExcel par celle-ci
+const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
+  try {
+    // Lire le fichier côté client (FileReader)
     const reader = new FileReader();
-    reader.onload = (event: ProgressEvent<FileReader>) => {
-      const result = event.target?.result;
-      if (!result) return;
+    reader.onload = (evt) => {
+      const data = evt.target?.result;
+      if (!data) return;
 
-      const dataBuff = new Uint8Array(result as ArrayBuffer);
-      const workbook = XLSX.read(dataBuff, { type: 'array' });
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData: Record<string, any>[] = XLSX.utils.sheet_to_json(worksheet);
-
-      if (!jsonData.length) {
-        toast.error("Le fichier est vide !");
+      const workbook = XLSX.read(data, { type: 'binary' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      if (!sheet) {
+        toast.error("Feuille non trouvée dans le fichier.");
         return;
       }
 
-      const errors: string[] = [];
-      const mappedData: T[] = [];
+      // Lire toutes les lignes en tant que tableaux (header:1)
+      const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-      jsonData.forEach((row, index) => {
-        // Validation si configurée
-        if (importConfig.validator) {
-          const rowErrors = importConfig.validator(row, index);
-          if (rowErrors.length > 0) {
-            errors.push(...rowErrors);
-            return;
-          }
+      if (!rows || rows.length === 0) {
+        toast.error("Fichier vide ou format non supporté.");
+        return;
+      }
+
+      const providedHeaders: string[] = importConfig?.headers ?? [];
+
+      // Normaliser la 1ere ligne pour comparaison
+      const firstRow = rows[0].map((h: any) => String(h ?? '').trim().toLowerCase());
+
+      // Détecte si la première ligne correspond aux headers fournis
+      const headersMatch =
+        providedHeaders.length > 0 &&
+        providedHeaders.length <= firstRow.length &&
+        providedHeaders.every((h, idx) => String(h ?? '').trim().toLowerCase() === firstRow[idx]);
+
+      let headersToUse: string[] = [];
+
+      if (providedHeaders.length > 0) {
+        // cas : headers fournis dans importConfig
+        headersToUse = providedHeaders;
+      } else {
+        // pas de headers fournis : on tente de dériver du fichier
+        // si première ligne ressemble à des headers (texte non vide), on l'utilise
+        const firstRowNonEmptyCount = firstRow.filter((c: string) => c !== '').length;
+        if (firstRowNonEmptyCount >= 1 && rows.length > 1) {
+          // utiliser la première ligne comme headers (pas de transformation)
+          headersToUse = rows[0].map((h: any, i: number) => String(h ?? `col${i}`).trim());
+        } else {
+          // fallback : créer headers génériques selon le nombre max de colonnes
+          const maxCols = Math.max(...rows.map(r => r.length));
+          headersToUse = Array.from({ length: maxCols }, (_, i) => `col${i + 1}`);
         }
-
-        mappedData.push(importConfig.mapper(row));
-      });
-
-      if (errors.length > 0) {
-        toast.error("Erreur(s) lors de l'import :\n" + errors.join("\n"));
-        return;
       }
 
-      setPreviewData(mappedData);
+      // Déterminer l'index de départ des données (si première ligne contient des en-têtes, la sauter)
+      const startIndex = headersMatch || (providedHeaders.length === 0 && rows.length > 1 && headersToUse.every(h => h.toString().trim() !== '')) 
+        ? 1 
+        : 0;
+
+      // Construire les objets à partir des lignes et des headersToUse
+      const parsed: T[] = [];
+      for (let r = startIndex; r < rows.length; r++) {
+        const row = rows[r] || [];
+        const obj: any = {};
+        for (let c = 0; c < headersToUse.length; c++) {
+          // Utiliser la valeur de la colonne ou '' si absent
+          const val = row[c] ?? '';
+          // garder la valeur brute (string/number), mais convertir null/undefined en ''
+          obj[headersToUse[c]] = val;
+        }
+        // Optionnel : ignorer les lignes totalement vides
+        const allEmpty = Object.values(obj).every(v => v === '' || v === null || v === undefined);
+        if (!allEmpty) parsed.push(obj as T);
+      }
+
+      // Mise à jour de la preview et ouverture de la modale
+      setPreviewData(parsed);
       setShowPreview(true);
+      toast.success(`Fichier chargé : ${parsed.length} ligne(s) prêtes à prévisualiser.`);
     };
 
-    reader.readAsArrayBuffer(file);
-  };
+    // Lire en binaire pour XLSX
+    reader.readAsBinaryString(file);
+  } catch (err: any) {
+    console.error("Erreur lors de la lecture du fichier:", err);
+    toast.error("Erreur lors de la lecture du fichier Excel.");
+  } finally {
+    // réinitialiser valeur input pour permettre re-upload du même fichier
+    if (e.target) e.target.value = '';
+  }
+  if( !importConfig || !importConfig.apiUrl) return;
+  try {
+    const token = Cookies.get('token');
+    if (!token) {
+      toast.error("Token manquant. Veuillez vous reconnecter.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    await axios.post(importConfig.apiUrl, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    toast.success("Fichier importé avec succès !");
+  }
+  catch (error) {
+    console.error("Erreur lors de l'importation du fichier:", error);
+    toast.error("Erreur lors de l'importation du fichier Excel.");
+  }
+};
+
 
   // Export Excel
-  const handleExportExcel = () => {
-    if (!exportConfig) return;
+  const handleExportExcel = async () => {
+  if (!exportConfig || !exportConfig.apiUrl) return;
 
-    const exportData = data.map(exportConfig.mapper);
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  try {
+    // Récupérer le token depuis le cookie
+    const token = Cookies.get('token');
+    if (!token) {
+      toast.error("Token manquant. Veuillez vous reconnecter.");
+      return;
+    }
+
+    const response = await axios.get(exportConfig.apiUrl, {
+      responseType: 'blob', // Important pour récupérer un fichier
+      headers: {
+        Authorization: `Bearer ${token}`, // Ajouter le token ici
+      },
+    });
+
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    
     saveAs(blob, `${exportConfig.filename}_${new Date().toISOString().slice(0, 10)}.xlsx`);
-  };
+    toast.success("Exportation réussie !");
+  } catch (error) {
+    console.error(error);
+    toast.error("Erreur lors de l'exportation !");
+  }
+};
 
   // Filtrage des données
   const filteredData = useMemo(() => {
@@ -262,7 +357,7 @@ function TableauDynamique<T>({
     XLSX.utils.book_append_sheet(wb, ws, "Template");
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(blob, "Modele_Import.xlsx");
+    saveAs(blob, `Modele_${exportConfig?.filename}.xlsx`);
   };
 
   return (

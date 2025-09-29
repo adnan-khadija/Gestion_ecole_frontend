@@ -1,49 +1,47 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from "react";
 import TableauDynamique, { Column, ImportConfig, ExportConfig, FilterConfig } from "@/components/TableauDynamique";
-import { Professeur, StatutProfesseur } from "@/lib/types";
-import { getProfesseurs, addProfesseur, updateProfesseur, deleteProfesseur, getFormations, getDiplomes } from "@/lib/services";
+import { Enseignant, StatutEnseignant, Utilisateur, UserResponse, Diplome, Module } from "@/lib/types";
 import toast from "react-hot-toast";
+import { fetchEnseignants, addEnseignant, deleteEnseignant, updateEnseignant } from "@/lib/enseignant";
 import { FaEye } from "react-icons/fa";
+import { deleteUser } from "@/lib/auth";
 import { LoadingSpinner } from "@/components/Loading";
-import ProfesseurProfile from "@/components/cards/ProfesseurProfile";
-import ProfesseurForm from "@/components/forms/ProfesseurForm";
+import { fetchDiplomes } from "@/lib/diplome";
+import EnseignantProfile from "@/components/cards/EnseignantProfile";
+import EnseignantMultiStepForm from "@/components/forms/ProfesseurForm";
 
-export default function ProfesseursPage() {
-  const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
-  const [formations, setFormations] = useState<any[]>([]);
-  const [diplomes, setDiplomes] = useState<any[]>([]);
+export default function EnseignantsPage() {
+  const [professeurs, setEnseignants] = useState<Enseignant[]>([]);
+  const [diplomes, setDiplomes] = useState<Diplome[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProf, setSelectedProf] = useState<Professeur | null>(null);
+  const [selectedProf, setSelectedProf] = useState<Enseignant | null>(null);
 
   // Chargement initial
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profsResponse, formationsResponse, diplomesResponse] = await Promise.all([
-          getProfesseurs(),
-          getFormations(),
-          getDiplomes()
+        const [profsResponse, diplomeResponse] = await Promise.all([
+          fetchEnseignants(),
+          fetchDiplomes(),
         ]);
-        
-        setProfesseurs(profsResponse.data);
-        setFormations(formationsResponse.data);
-        setDiplomes(diplomesResponse.data);
-        setLoading(false);
+        setEnseignants(profsResponse);
+        setDiplomes(diplomeResponse);
       } catch (error) {
         console.error("Erreur lors de la récupération des données:", error);
+        toast.error("Erreur lors du chargement des données");
+      } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  // Colonnes du tableau pour Professeur
-  const colonnesProfesseurs: Column<Professeur>[] = [
+  // Colonnes du tableau pour Enseignant
+  const colonnesEnseignants: Column<Enseignant>[] = [
     {
-      key: "nom",
-      title: "Nom",
+      key: "user.prenom",
+      title: "Prénom",
       render: (item) => (
         <div className="flex items-center gap-2">
           <button
@@ -56,29 +54,31 @@ export default function ProfesseursPage() {
           >
             <FaEye className="h-4 w-4" />
           </button>
-          <span className="whitespace-nowrap text-xs text-gray-500">{item.nom}</span>
+          <span className="whitespace-nowrap text-gray-500">{item.user.prenom || "—"}</span>
         </div>
       ),
     },
     {
-      key: "prenom",
-      title: "Prénom",
+      key: "user.nom",
+      title: "Nom",
       render: (item) => (
-        <span className="whitespace-nowrap text-xs text-gray-500">{item.prenom}</span>
+        <span className="whitespace-nowrap text-xs text-gray-700">
+          {item.user?.nom || "-"}
+        </span>
       ),
     },
     {
-      key: "telephone",
-      title: "Téléphone",
-      render: (item) => (
-        <span className="whitespace-nowrap text-xs text-gray-500">{item.telephone || "-"}</span>
-      ),
-    },
-    {
-      key: "email",
+      key: "user.email",
       title: "Email",
       render: (item) => (
-        <span className="whitespace-nowrap text-xs text-gray-500">{item.email}</span>
+        <span className="whitespace-nowrap text-xs text-gray-500">{item.user?.email || "-"}</span>
+      ),
+    },
+    {
+      key: "user.telephone",
+      title: "Téléphone",
+      render: (item) => (
+        <span className="whitespace-nowrap text-xs text-gray-500">{item.user?.telephone || "-"}</span>
       ),
     },
     {
@@ -92,7 +92,7 @@ export default function ProfesseursPage() {
       key: "statut",
       title: "Statut",
       render: (item) => (
-        <span className="whitespace-nowrap text-xs text-gray-500">{item.statut || "-"}</span>
+        <span className="whitespace-nowrap text-xs text-gray-500">{item.statusEnseignant || "-"}</span>
       ),
     },
     {
@@ -110,66 +110,26 @@ export default function ProfesseursPage() {
       ),
     },
     {
-      key: "formations",
-      title: "Formations",
-      render: (item) => (
-        <span className="whitespace-nowrap text-xs text-gray-500">
-          {item.formations?.map(f => f.nom).join(", ") || "-"}
-        </span>
-      ),
-    },
-    {
       key: "diplomes",
       title: "Diplômes",
       render: (item) => (
         <span className="whitespace-nowrap text-xs text-gray-500">
-          {item.diplomes?.map(d => d.nomDiplome || d.nom).join(", ") || "-"}
+          {item.diplomes?.map(d => d.nomDiplome).join(", ") || "-"}
         </span>
       )
     },
   ];
 
   // Configuration d'import
-  const importConfig: ImportConfig<Professeur> = {
-    headers: ['Nom', 'Prénom', 'Email', 'Téléphone', 'Spécialité', 'Statut', 'Date embauche', 'Heures travail'],
-    mapper: (row: Record<string, any>) => ({
-      id: 0, // Généré côté backend
-      nom: row.Nom,
-      prenom: row.Prénom,
-      email: row.Email,
-      telephone: row.Téléphone,
-      specialite: row.Spécialité,
-      statut: row.Statut as StatutProfesseur,
-      dateEmbauche: row['Date embauche'],
-      heuresTravail: parseInt(row['Heures travail']) || 0,
-    } as Professeur),
-    validator: (row: Record<string, any>, index: number) => {
-      const errors: string[] = [];
-      if (!row.Nom) errors.push(`Ligne ${index + 1}: Le nom est requis`);
-      if (!row.Prénom) errors.push(`Ligne ${index + 1}: Le prénom est requis`);
-      if (!row.Email) errors.push(`Ligne ${index + 1}: L'email est requis`);
-      if (!Object.values(StatutProfesseur).includes(row.Statut)) {
-        errors.push(`Ligne ${index + 1}: Statut invalide`);
-      }
-      return errors;
-    }
+  const importConfig: ImportConfig<Enseignant> = {
+    headers: [],
+    apiUrl: ""
   };
 
   // Configuration d'export
-  const exportConfig: ExportConfig<Professeur> = {
+  const exportConfig: ExportConfig<Enseignant> = {
     filename: 'professeurs',
-    mapper: (item: Professeur) => ({
-      Nom: item.nom,
-      Prénom: item.prenom,
-      Email: item.email,
-      Téléphone: item.telephone,
-      Spécialité: item.specialite,
-      Statut: item.statut,
-      'Date embauche': item.dateEmbauche,
-      'Heures travail': item.heuresTravail,
-      Formations: item.formations?.map(f => f.nom).join(", ") || "-",
-      Diplômes: item.diplomes?.map(d => d.nomDiplome || d.nom).join(", ") || "-",
-    })
+    apiUrl: ''
   };
 
   // Configuration des filtres
@@ -179,7 +139,7 @@ export default function ProfesseursPage() {
       label: 'Statut',
       options: [
         { value: '', label: 'Tous' },
-        ...Object.values(StatutProfesseur).map(statut => ({
+        ...Object.values(StatutEnseignant).map(statut => ({
           value: statut,
           label: statut
         }))
@@ -198,97 +158,142 @@ export default function ProfesseursPage() {
     }
   ];
 
-  // Ajout
-  const handleAdd = async (prof: Professeur) => {
+  // CORRECTION : Fonction de rafraîchissement
+  const refreshEnseignants = async () => {
     try {
-      const res = await addProfesseur(prof);
-      setProfesseurs(prev => [...prev, res.data || prof]);
-      toast.success("Professeur ajouté");
-    } catch (err) {
+      const profsResponse = await fetchEnseignants();
+      setEnseignants(profsResponse);
+    } catch (error) {
+      console.error("Erreur rafraîchissement:", error);
+      throw error;
+    }
+  };
+
+  // Ajout
+  const handleAdd = async (prof: Enseignant) => {
+    try {
+      await addEnseignant(prof);
+      toast.success("Enseignant ajouté");
+      await refreshEnseignants();
+    } catch (err: any) {
       console.error("Erreur ajout:", err);
-      toast.error("Erreur lors de l'ajout");
+      toast.error(err.message || "Erreur lors de l'ajout");
       throw err;
     }
   };
 
   // Édition
-  const handleEdit = async (prof: Professeur) => {
+  const handleEdit = async (prof: Enseignant) => {
+    if (!prof.enseignantId) {
+      toast.error("ID enseignant manquant !");
+      return;
+    }
     try {
-      const res = await updateProfesseur(prof.id, prof);
-      setProfesseurs(prev => prev.map(p => (p.id === prof.id ? (res.data || prof) : p)));
-      toast.success("Professeur mis à jour");
-    } catch (err) {
+      await updateEnseignant(prof.enseignantId, prof);
+      toast.success("Enseignant mis à jour");
+      await refreshEnseignants();
+    } catch (err: any) {
       console.error("Erreur update:", err);
-      toast.error("Erreur lors de la mise à jour");
+      toast.error(err.message || "Erreur lors de la mise à jour");
       throw err;
     }
   };
 
-  // Suppression
-  const handleDelete = async (id: number | string) => {
+  // CORRECTION : Suppression améliorée
+  const handleDelete = async (enseignantId: string | number) => {
+    const idString = enseignantId.toString();
+    
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cet enseignant et son compte utilisateur ?")) {
+      return;
+    }
+
     try {
-      await deleteProfesseur(id);
-      setProfesseurs(prev => prev.filter(p => p.id !== id));
-      toast.success("Professeur supprimé");
-    } catch (err) {
-      console.error("Erreur suppression:", err);
-      toast.error("Erreur lors de la suppression");
+      console.log("Début suppression enseignant ID:", idString);
+
+      // Trouver l'enseignant à supprimer
+      const enseignantToDelete = professeurs.find(p => p.enseignantId === idString);
+      if (!enseignantToDelete) {
+        throw new Error("Enseignant non trouvé");
+      }
+
+      // Récupérer l'ID utilisateur
+      const userId = enseignantToDelete.user?.id || enseignantToDelete.userId;
+      if (!userId) {
+        throw new Error("ID utilisateur non trouvé");
+      }
+
+      console.log("Suppression enseignant ID:", idString, "User ID:", userId);
+
+      // CORRECTION : Supprimer d'abord l'enseignant
+      await deleteEnseignant(idString);
+      console.log("Enseignant supprimé avec succès");
+
+      // Ensuite supprimer l'utilisateur
+      await deleteUser(userId);
+      console.log("Utilisateur supprimé avec succès");
+
+      toast.success("Enseignant et utilisateur supprimés avec succès");
+      
+      // Mettre à jour l'état local
+      if (selectedProf?.enseignantId === idString) {
+        setSelectedProf(null);
+      }
+      
+      // Rafraîchir la liste
+      await refreshEnseignants();
+
+    } catch (err: any) {
+      console.error("Erreur détaillée suppression:", err);
+      toast.error(err.message || "Erreur lors de la suppression");
       throw err;
     }
   };
 
-
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4 space-y-8">
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <LoadingSpinner />
-        </div>
-      ) : (
-        <>
-          {/* Tableau des professeurs avec le composant TableauDynamique */}
-          <TableauDynamique<Professeur>
-            data={professeurs}
-            columns={colonnesProfesseurs}
-            onAdd={handleAdd}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onRowClick={(prof) => setSelectedProf(prof)}
-            emptyMessage="Aucun professeur trouvé"
-            
-            // Configuration import/export
-            importConfig={importConfig}
-            exportConfig={exportConfig}
-            
-            // Configuration des filtres
-            filters={professeurFilters}
-            
-            // Composant de formulaire personnalisé
-            formComponent={({ itemInitial, onSave, onCancel }) => (
-                    <ProfesseurForm
-                        professeurInitial={itemInitial}
-                        onSave={onSave}
-                        onCancel={onCancel}
-                    />
-                )}
-            
-            // Options d'affichage
-            showActions={true}
-            showSearch={true}
-            showImportExport={true}
-            showFilters={true}
-            showAddButton={true}
+      {/* Tableau des professeurs avec le composant TableauDynamique */}
+      <TableauDynamique<Enseignant>
+        data={professeurs}
+        columns={colonnesEnseignants}
+        getRowId={(item) => item.enseignantId || item.id || ""}
+        onAdd={handleAdd}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onRowClick={(prof) => setSelectedProf(prof)}
+        emptyMessage="Aucun professeur trouvé"
+        importConfig={importConfig}
+        exportConfig={exportConfig}
+        filters={professeurFilters}
+        formComponent={({ itemInitial, onSave, onCancel }) => (
+          <EnseignantMultiStepForm
+            enseignantToEdit={itemInitial}
+            userToEdit={itemInitial?.user}
+            isEditing={!!itemInitial && !!itemInitial.enseignantId}
+            onSave={onSave}
+            onCancel={onCancel}
           />
+        )}
+        showActions={true}
+        showSearch={true}
+        showImportExport={true}
+        showFilters={true}
+        showAddButton={true}
+      />
 
-          {/* Profil du professeur (modal) */}
-          {selectedProf && (
-            <ProfesseurProfile
-              professeur={selectedProf}
-              onClose={() => setSelectedProf(null)}
-            />
-          )}
-        </>
+      {/* Profil du professeur (modal) */}
+      {selectedProf && (
+        <EnseignantProfile
+          professeur={selectedProf}
+          onClose={() => setSelectedProf(null)}
+        />
       )}
     </div>
   );

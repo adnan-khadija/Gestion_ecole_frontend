@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import TableauDynamique, { Column, ImportConfig, ExportConfig, FilterConfig } from "@/components/TableauDynamique";
 import { Student, UserResponse, Utilisateur } from "@/lib/types";
-import { fetchStudents, addStudent, updateStudent, deleteStudent } from "@/lib/students";
+import { fetchStudents, updateStudent, deleteStudent } from "@/lib/students";
 import toast from "react-hot-toast";
 import { updateUser, deleteUser, getUsersStudents,fetchUserIdByEmail } from "@/lib/auth";
 import StudentProfile from "@/components/cards/StudentProfile";
@@ -106,6 +106,10 @@ export default function EtudiantPage() {
     { key: "handicap", title: "Handicap", render: (item) => <span className="text-gray-500">{item.handicap ? "Oui" : "Non"}</span> },
   ];
 
+   const refreshStudents = async () => {
+      const resStudents = await fetchStudents();
+      setStudents(resStudents);
+    };
   // Gestion du clic sur Modifier
   const handleEditClick = (student: Student) => {
     setEditingStudent(student);
@@ -118,38 +122,26 @@ const handleDeleteClick = async (studentId: string) => {
   if (!confirm("Êtes-vous sûr de vouloir supprimer cet étudiant et son compte utilisateur ?")) return;
 
   try {
-    // Trouver l'étudiant
     const studentToDelete = students.find(s => s.idStudent === studentId);
     if (!studentToDelete) throw new Error("Étudiant non trouvé");
-
-    // Trouver l'utilisateur correspondant
     const userToDelete = users.find(u => u.email === studentToDelete.email);
-    console.log("Utilisateur à supprimer:", userToDelete);
-    
-    // Supprimer l'étudiant
-    await deleteStudent(studentId);
 
-    // Supprimer l'utilisateur si trouvé
+    await deleteStudent(studentId);
     if (userToDelete) {
       await deleteUser(userToDelete.idUser);
     }
 
-    // Mettre à jour les états
-    setStudents(prev => prev.filter(s => s.idStudent !== studentId));
-    if (userToDelete) {
-      setUsers(prev => prev.filter(u => u.idUser !== userToDelete.idUser));
-    }
+    // Rafraîchir la liste des étudiants
+    await refreshStudents();
 
     toast.success("Étudiant et utilisateur supprimés avec succès");
 
-    // Fermer les modales si nécessaire
     if (selectedStudent?.idStudent === studentId) setSelectedStudent(null);
     if (editingStudent?.idStudent === studentId) {
       setEditingStudent(null);
       setEditingUser(null);
       setIsFormOpen(false);
     }
-
   } catch (error: any) {
     console.error("Erreur suppression:", error);
     toast.error(error?.message || "Erreur lors de la suppression");
@@ -167,7 +159,6 @@ const handleDeleteClick = async (studentId: string) => {
   // Gestion de la sauvegarde
   const handleSave = async (savedStudent: Student) => {
     try {
-      // Mettre à jour l'utilisateur si editingUser existe
       if (editingUser) {
         await updateUser(editingUser.id, {
           email: editingUser.email,
@@ -177,13 +168,10 @@ const handleDeleteClick = async (studentId: string) => {
           image: editingUser.image,
         });
       }
-
-      // Mettre à jour l'étudiant
-      await updateStudent(savedStudent.id, savedStudent);
+      await updateStudent(savedStudent.idStudent, savedStudent);
 
       // Rafraîchir la liste des étudiants
-      const studentsData = await fetchStudents();
-      setStudents(studentsData);
+      await refreshStudents();
 
       toast.success(editingStudent ? "Étudiant mis à jour avec succès" : "Étudiant ajouté avec succès");
     } catch (error: any) {
@@ -204,67 +192,34 @@ const handleDeleteClick = async (studentId: string) => {
 
   // Configuration import
   const importConfig: ImportConfig<Student> = {
+   apiUrl: 'http://localhost:8080/api/v1/admin/students/import',
     headers: [
-      "Matricule", "Nom", "Prénom", "Date Naissance", "Lieu Naissance",
-      "Sexe", "Nationalité", "Téléphone", "Email", "Adresse", "Ville",
-      "Formation", "Niveau", "Groupe", "Année Académique", "Statut",
-      "Nom Tuteur", "Contact Tuteur", "Situation Familiale",
-      "Date Inscription", "Handicap", "Boursier"
+      "prenom",
+      "nom",
+      "matricule",
+      "email",
+      "telephone",
+      "dateNaissance",
+      "lieuNaissance",
+      "sexe",
+      "nationalite",
+      "adresse",
+      "ville",
+      "situationFamiliale",
+      "niveau",
+      "groupe",
+      "anneeAcademique",
+      "statut",
+      "bourse",
+      "handicap"
     ],
-    mapper: (row) => ({
-      id: "", 
-      matricule: row["Matricule"],
-      nom: row["Nom"],
-      prenom: row["Prénom"],
-      dateNaissance: row["Date Naissance"],
-      lieuNaissance: row["Lieu Naissance"],
-      sexe: row["Sexe"],
-      nationalite: row["Nationalité"],
-      telephone: row["Téléphone"],
-      email: row["Email"],
-      adresse: row["Adresse"],
-      ville: row["Ville"],
-      niveau: row["Niveau"],
-      groupe: row["Groupe"],
-      anneeAcademique: row["Année Académique"],
-      statut: row["Statut"] || "Inactif",
-      situationFamiliale: row["Situation Familiale"],
-      handicap: row["Handicap"] === "Oui",
-      bourse: row["Boursier"] === "Oui",
-      customFields: {}, 
-    } as Student),
-    validator: (row, index) => {
-      const errors: string[] = [];
-      if (!row["Nom"]) errors.push(`Ligne ${index + 2}: Nom manquant`);
-      if (!row["Prénom"]) errors.push(`Ligne ${index + 2}: Prénom manquant`);
-      if (!row["Matricule"]) errors.push(`Ligne ${index + 2}: Matricule manquant`);
-      return errors;
-    },
   };
 
   // Configuration export
   const exportConfig: ExportConfig<Student> = {
-    filename: "export_students",
-    mapper: (item) => ({
-      "Matricule": item.matricule,
-      "Nom": item.nom,
-      "Prénom": item.prenom,
-      "Date Naissance": item.dateNaissance,
-      "Lieu Naissance": item.lieuNaissance,
-      "Sexe": item.sexe,
-      "Nationalité": item.nationalite,
-      "Téléphone": item.telephone,
-      "Email": item.email,
-      "Adresse": item.adresse,
-      "Ville": item.ville,
-      "Situation Familiale": item.situationFamiliale,
-      "Niveau": item.niveau,
-      "Groupe": item.groupe,
-      "Année Académique": item.anneeAcademique,
-      "Statut": item.statut,
-      "Handicap": item.handicap ? "Oui" : "Non",
-      "Boursier": item.bourse ? "Oui" : "Non",
-    }),
+  
+    filename: 'etudiants',
+    apiUrl: 'http://localhost:8080/api/v1/admin/students/all/export',  
   };
 
   // Filtres

@@ -50,24 +50,24 @@ export enum StatutEtudiant {
 
 // Statut professeur
 export enum StatutEnseignant {
-  PERMANENT = "Permanent",
-  CONTRACTUEL = "Contractuel",
-  VACATAIRE = "Vacataire",
+  PERMANENT = "permanent",
+  CONTRACTUEL = "contractuel",
+  VACATAIRE = "vacataire",
 }
 
 
 // Mode remise diplôme
 export enum ModeRemise{
-  PRESENTIEL = "PRÉSENTIEL",
+  PRESENTIEL = "PRESENTIEL",
   EN_LIGNE = "EN_LIGNE",
   PAR_COURRIER = "PAR_COURRIER",
 }
 
 // Mode de formation
 export enum ModeFormation {
-  PRESENTIEL = "Présentiel",
-  EN_LIGNE = "En ligne",
-  HYBRIDE = "Hybride",
+  PRESENTIEL = "PRESENTIEL",
+  EN_LIGNE = "EN_LIGNE",
+  HYBRIDE = "HYBRIDE",
 }
 
 // Mode paiement (général)
@@ -124,12 +124,12 @@ export enum StatutDepense {
 
 // Type diplôme
 export enum TypeDiplome {
-  LICENCE = "Licence",
-  MASTER = "Master",
-  DEUG = "Deug",
-  DIPLOME_1_AN = "Diplôme 1 an",
-  DIPLOME_20_MOIS = "Diplôme 20 mois",
-  PERSONNALISE = "Champ personnalisé",
+  LICENCE = "LICENCE",
+  MASTER = "MASTER",
+  DEUG = "DEUG",
+  DIPLOME_1_AN = "DIPLOME_1_AN",
+  DIPLOME_20_MOIS = "DIPLOME_20_MOIS",
+  PERSONNALISE = "CUSTOM",
 }
 
 // Role utilisateur
@@ -172,7 +172,7 @@ export interface Diplome {
   commentaire?: string;
   modeRemise?: ModeRemise;
   professeurs?: Enseignant[]; 
- students?: Student[];
+  student:Student;
 }
 
 
@@ -187,7 +187,7 @@ export interface Enseignant {
   user:Utilisateur;
   specialite: string;
   dateEmbauche: string;
-  statut: StatutEnseignant;
+  statusEnseignant: StatutEnseignant;
   heuresTravail?: string;
   horaires: TimeSlot;
   diplomes?: Diplome[]; 
@@ -310,145 +310,107 @@ export interface StudentResponse extends StudentRequest {
   telephone: string;
   image: string;
 }
+export interface DiplomeRequest {
+  typeDiplome: TypeDiplome;
+  customDiplomeLabel?:string;
+  niveau: string; 
+  nomDiplome: string;
+  anneeObtention?: number;
+  estValide?: boolean;
+  mention: Mention;
+  dateDelivrance: string;
+  modeRemise?: ModeRemise;
+  commentaire?: string;
+  professeursIds?: string[]; 
+  studentId: string;
+}
+export interface DiplomeResponse extends DiplomeRequest {
+  idDiplome: string;
+  signatureAdmin: Utilisateur;
+  qrCodeUrl: string; 
 
-
-
-
-
-
-// Horaire type simple
-export interface Horaire {
-  jour: string;  
-  debut: string;  
-  fin: string;   
-  mois:string;
-  annee:string;
 }
 
+// Interface principale EnseignantRequest
+export interface EnseignantRequest {
+  userId: string;             
+  specialite: string;
+  dateEmbauche: string;        
+  statusEnseignant: StatutEnseignant;
+  heuresTravail: string;       
+  horaire: HoraireRequest;
+  moduleIds: string[];         
+  diplomeIds: string[];       
+  customFields: CustomFieldRequest[];
+}
+
+export interface EnseignantResponse extends EnseignantRequest{
+  enseignantId:string;
+  userId:string;
+  
+
+}
+export interface HoraireRequest{
+  jour: string;       
+  heureDebut: string;  
+  heureFin: string;   
+}
+export interface HoraireResponse extends HoraireRequest{
+}
+
+
+export interface EmploiDuTemps{
+  id:string;
+  slots:EmploiSlot;
+}
+export interface EmploiSlot{
+  id :string;
+  jour:string;
+  heureDebut:string;
+  heureFin:string;
+  module :string;
+}
 /* Formation */
 export interface Formation {
-  id: number;
+  idFormation: string;
   nom: FormationNom;
   duree: number; 
   cout: number;  
-  professeurs: Enseignant[];
-  emploiDuTempsId?: number | null;
+  professeurs?: Enseignant[];
+  emploiDuTempsId: EmploiDuTemps;
   description?: string;
-  anneeFormation?: number;
+  anneeFormation?: string;
   estActive?: boolean;
   modeFormation?: ModeFormation;
   niveauAcces?: NiveauAcces;
   capaciteMax?: number;
 }
-
-
-/* Étudiant */
-export interface Etudiant {
-  id: number;
-  matricule?: string;
-  nom: string;
-  prenom: string;
-  dateNaissance?: string;
-  lieuNaissance?: string;
-  sexe?: Sexe;
-  nationalite?: string;
-  email?: string;
-  telephone?: string;
-  adresse?: string;
-  ville?: string;
-  situationFamiliale?: SituationFamiliale;
-  formationActuelle?: Formation | null;
-  niveauScolaire?: string;
-  groupeScolaire?: string;
-  anneeAcademique?: string;
-  statut?: StatutEtudiant;
-  dateInscription?: string;
-  boursier?: boolean;
-  handicap?: boolean;
-  nouvelEtudiant?: boolean;
-  nomTuteur?: string;
-  contactTuteur?: string;
-  photo?: string;
-  
-  formations?: Formation[]; // M:N
-  diplomes?: Diplome[];     // M:N
-
+export interface FormationRequest{
+  nom:string;
+  duree:number;
+  cout: number;
+  enseignantsIds:string[];
+  description:string;
+  anneeFormation:string;
+  estActive:Boolean;
+  modeFormation:ModeFormation;
+  niveauAcces:string;
+  capaciteMax:number;
 }
-
-/* Scolarité */
-export interface Scolarite {
-  id: number;
-  etudiant: Etudiant;
-  formation?: Formation | null;
-  anneeAcademique?: string;
-  coutScolarite: number;
-  montantPaye: number;
-  etatScolarite: EtatScolarite;
-  modePaiement?: ModePaiementScolarite;
-  dateDernierPaiement?: string;
-  commentaire?: string;
-  numeroRecu?: string;
-  fichierRecu?: string; // URL
-  scanRecu?: string;    // URL
-  dateEmissionRecu?: string;
-  emetteurRecu?: string;
-  dateCreation?: string;
-  dateModification?: string;
+export interface FormationResponse extends FormationRequest{
+  idFormation:string;
+}
+export interface ModuleRequest{
+  nomModule:string;
+  note:number;
+  enseignantId:string;
+  diplomeId:string;
+  studentIds:string[];
+}
+export interface ModuleResponse extends ModuleRequest{
+  idModule:string;
 }
 
 
-/* Depense */
-export interface Depense {
-  id: number;
-  dateDepense: string;
-  categorie: CategorieDepense;
-  nomConcerne?: string;
-  uniteDepense?: UniteDepense;
-  description?: string;
-  montant: number;
-  modePaiement?: ModePaiement;
-  fournisseur?: string;
-  numeroFacture?: string;
-  fichierFacture?: string;
-  statut: StatutDepense;
-  datePaiement?: string;
-  creePar?: Utilisateur;
-  dateCreation?: string;
-}
 
-/* Paiement (transaction) */
-export interface Paiement {
-  id: number ;
-  etudiant?: Etudiant | null;
-  formation?: Formation | null;
-  diplome?: Diplome | null;
-  montant: number;
-  modePaiement: ModePaiement;
-  etatPaiement: EtatPaiement;
-  fichierRecu?: string;
-  datePaiement?: string;
-  creePar?: Utilisateur;
-  commentaire?: string;
-  referencePaiement?: string;
-  numeroRecu?: string;
-}
-export interface Matiere {
-  id: number;
-  nomMatiere: string;
-  description?: string;
-}
-
-export interface Programme {
-  id: number;
-  nomProgramme: string;
-  formation?: Formation;
-  diplome?: Diplome;
-  description?: string;
-  derue: number|string;
-  dateDebut: string;
-  dateFin: string;
-  salle:string;
-  matieres?: Matiere[]; 
- 
-}
 

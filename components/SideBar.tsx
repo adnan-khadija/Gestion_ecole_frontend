@@ -26,7 +26,7 @@ const elementsMenu: MenuItem[] = [
   { nom: "Étudiants", icone: <FaUsers />, lien: "/student" },
   { nom: "Professeurs", icone: <FaChalkboardTeacher />, lien: "/professeurs" },
   { nom: "Formations", icone: <FaBook />, lien: "/formations" },
-  { nom: "Diplômes", icone: <FaFileAlt />, lien: "/deplomes" },
+  { nom: "Diplômes", icone: <FaFileAlt />, lien: "/diplomes" },
   { nom: "Emploi du temps", icone: <FaCalendar />, lien: "/emploi-du-temps" },
   {nom:" Programmes", icone:<FaClipboardList/>, lien:"/programmes"},
   { nom: "Absence", icone: <FaRegCalendarCheck />, lien: "/absence" },

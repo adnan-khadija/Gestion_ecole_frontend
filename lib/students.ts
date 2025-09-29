@@ -101,19 +101,23 @@ export const deleteStudent = async (id: string): Promise<void> => {
     throw new Error(error.response?.data?.message || 'Erreur suppression étudiant');
   }
 };
-const handleExport = async () => {
+export const getProfilStudentById = async (id: string): Promise<StudentResponse> => {
   const token = Cookies.get('token');
-  const response = await axios.get(`${API_URL}/admin/students/export`, {
-    headers: { Authorization: `Bearer ${token}` },
-    responseType: 'blob'
-  });
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'etudiants.xlsx');
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  if (!token) throw new Error('Token manquant');
+
+  try {
+    const response = await axios.get(`${API_URL}/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+
+    });
+    return response.data.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Erreur lors de la récupération du profil de l'étudiant");
+  }
+  
 };
 
 

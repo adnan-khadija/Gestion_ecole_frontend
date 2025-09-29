@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Formation, ModeFormation, Professeur, FormationNom, NiveauAcces } from '@/lib/types';
-import { addFormation, getProfesseurs, updateFormation } from '@/lib/services';
+import { Formation, ModeFormation, Enseignant, FormationNom, NiveauAcces, FormationRequest, FormationResponse } from '@/lib/types';
+import { fetchEnseignants } from '@/lib/enseignant';
+import { addFormation, updateFormation } from '@/lib/formation';
 import toast from 'react-hot-toast';
 
 interface FormationFormProps {
@@ -12,15 +13,14 @@ interface FormationFormProps {
 }
 
 const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProps) => {
-  const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
-  const [formation, setFormation] = useState<Omit<Formation, 'id'>>({
+  const [enseignants, setEnseignants] = useState<Enseignant[]>([]);
+  const [formation, setFormation] = useState<FormationRequest>({
     nom: FormationNom.ANIMATEUR_HSE,
     description: '',
     duree: 0,
     cout: 0,
-    professeurs: [],
-    emploiDuTempsId: null,
-    anneeFormation: new Date().getFullYear(),
+    enseignantsIds: [],
+    anneeFormation: new Date().getFullYear().toString(),
     estActive: true,
     modeFormation: ModeFormation.PRESENTIEL,
     niveauAcces: NiveauAcces.BAC,
@@ -34,39 +34,41 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
   const [showCustomNiveau, setShowCustomNiveau] = useState<boolean>(false);
   const [customNiveau, setCustomNiveau] = useState<string>('');
 
-  // Chargement des professeurs
+  // Chargement des enseignants
   useEffect(() => {
-    const fetchProfesseurs = async () => {
+    const loadEnseignants = async () => {
       try {
         setLoading(true);
-        const response = await getProfesseurs();
-        setProfesseurs(response.data);
+        const response = await fetchEnseignants();
+        console.log("fetchEnseignants response:", response);
+        setEnseignants(response || []);
       } catch (err) {
         console.error(err);
-        toast.error("Erreur lors du chargement des professeurs");
+        toast.error("Erreur lors du chargement des enseignants");
       } finally {
         setLoading(false);
       }
     };
-    fetchProfesseurs();
+    loadEnseignants();
   }, []);
 
   // Initialisation si formationInitial existe
   useEffect(() => {
     if (formationInitial) {
-      setFormation({
+      const initialData: FormationRequest = {
         nom: formationInitial.nom || FormationNom.ANIMATEUR_HSE,
         description: formationInitial.description || '',
         duree: formationInitial.duree || 0,
         cout: formationInitial.cout || 0,
-        professeurs: formationInitial.professeurs ? formationInitial.professeurs.map(p => p.id) : [],
-        emploiDuTempsId: formationInitial.emploiDuTempsId || null,
-        anneeFormation: formationInitial.anneeFormation || new Date().getFullYear(),
+        enseignantsIds: formationInitial.professeurs ? formationInitial.professeurs.map(p => p.id) : [],
+        anneeFormation: formationInitial.anneeFormation || new Date().getFullYear().toString(),
         estActive: formationInitial.estActive !== undefined ? formationInitial.estActive : true,
         modeFormation: formationInitial.modeFormation || ModeFormation.PRESENTIEL,
         niveauAcces: formationInitial.niveauAcces || NiveauAcces.BAC,
         capaciteMax: formationInitial.capaciteMax || 0,
-      });
+      };
+      
+      setFormation(initialData);
       
       // Vérifier si le nom de formation initial est dans l'enum
       const formationNames = Object.values(FormationNom);
@@ -92,30 +94,33 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
     setFormation(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked :
-               type === 'number' ? parseFloat(value) || 0 :
+               type === 'number' ? (value === '' ? 0 : parseFloat(value)) :
                value
     }));
   };
 
   // Gestion du changement de sélection de formation
-  const handleFormationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    
-    if (value === FormationNom.AUTRE) {
-      setShowCustomFormation(true);
-      setFormation(prev => ({ ...prev, nom: customFormation || '' }));
-    } else {
-      setShowCustomFormation(false);
-      setFormation(prev => ({ ...prev, nom: value }));
-    }
-  };
+const handleFormationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const value = e.target.value;
+
+  if (value === FormationNom.AUTRE) {
+    setShowCustomFormation(true);
+    // Ne pas mettre customFormation encore
+    setFormation(prev => ({ ...prev, nom: '' }));
+  } else {
+    setShowCustomFormation(false);
+    setFormation(prev => ({ ...prev, nom: value }));
+  }
+};
+
 
   // Gestion du changement de formation personnalisée
-  const handleCustomFormationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCustomFormation(value);
-    setFormation(prev => ({ ...prev, nom: value }));
-  };
+const handleCustomFormationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setCustomFormation(value);
+  setFormation(prev => ({ ...prev, nom: value }));
+};
+
 
   // Gestion du changement de sélection de niveau d'accès
   const handleNiveauChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -137,77 +142,98 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
     setFormation(prev => ({ ...prev, niveauAcces: value }));
   };
 
-  // Gestion spécifique pour les professeurs
-  const handleProfesseurChange = (professeurId: number) => {
+  // Gestion spécifique pour les enseignants
+  const handleEnseignantChange = (enseignantId: string) => {
     setFormation(prev => {
-      const isSelected = prev.professeurs.includes(professeurId);
-      let newProfesseurs;
+      const isSelected = prev.enseignantsIds.includes(enseignantId);
+      let newEnseignantsIds;
       
       if (isSelected) {
-        newProfesseurs = prev.professeurs.filter(id => id !== professeurId);
+        newEnseignantsIds = prev.enseignantsIds.filter(id => id !== enseignantId);
       } else {
-        if (prev.professeurs.length >= 2) {
-          setError("Maximum 2 professeurs autorisés");
+        if (prev.enseignantsIds.length >= 2) {
+          setError("Maximum 2 enseignants autorisés");
           return prev;
         }
-        newProfesseurs = [...prev.professeurs, professeurId];
+        newEnseignantsIds = [...prev.enseignantsIds, enseignantId];
         setError('');
       }
       
       return {
         ...prev,
-        professeurs: newProfesseurs
+        enseignantsIds: newEnseignantsIds
       };
     });
+  };
+
+  // Validation du formulaire
+  const validateForm = (): boolean => {
+    if (!formation.nom.trim()) {
+      setError("Le nom de la formation est requis");
+      return false;
+    }
+
+    if (formation.duree <= 0) {
+      setError("La durée doit être supérieure à 0");
+      return false;
+    }
+
+    if (formation.cout < 0) {
+      setError("Le coût ne peut pas être négatif");
+      return false;
+    }
+
+    if (formation.enseignantsIds.length > 2) {
+      setError("Maximum 2 enseignants autorisés");
+      return false;
+    }
+
+    setError('');
+    return true;
   };
 
   // Soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setSubmitting(true);
 
-    // Validation du nom de formation
-    if (!formation.nom.trim()) {
-      setError("Le nom de la formation est requis");
-      setSubmitting(false);
-      return;
-    }
-
-    if (formation.professeurs.length > 2) {
-      setError("Maximum 2 professeurs autorisés");
-      setSubmitting(false);
-      return;
-    }
-
-    const selectedProfesseurs = professeurs.filter(p => formation.professeurs.includes(p.id));
-
     try {
-      if (formationInitial && formationInitial.id) {
-        const formationToUpdate = {
-          ...formation,
-          professeurs: selectedProfesseurs,
-          id: formationInitial.id,
-          dateCreation: formationInitial.dateCreation,
-          dateModification: new Date().toISOString(),
-        };
-        const response = await updateFormation(formationInitial.id, formationToUpdate);
-        onSave(response.data);
+      let response: FormationResponse;
+
+      if (formationInitial && formationInitial.idFormation) {
+        // Modification
+        response = await updateFormation(formationInitial.idFormation, formation);
         toast.success("Formation modifiée avec succès !");
       } else {
-        const now = new Date().toISOString();
-        const newFormation = {
-          ...formation,
-          professeurs: selectedProfesseurs,
-          dateCreation: now,
-          dateModification: now,
-        };
-        const response = await addFormation(newFormation);
-        onSave(response.data);
+        // Création
+        response = await addFormation(formation);
         toast.success("Formation ajoutée avec succès !");
       }
+
+      // Convertir la réponse en Formation pour onSave
+      const formationComplete: Formation = {
+        idFormation: response.idFormation,
+        nomFormation: response.nom,
+        duree: response.duree,
+        cout: response.cout,
+        description: response.description,
+        anneeFormation: response.anneeFormation,
+        estActive: response.estActive,
+        modeFormation: response.modeFormation,
+        niveauAcces: response.niveauAcces,
+        capaciteMax: response.capaciteMax,
+        professeurs: enseignants.filter(e => response.enseignantsIds.includes(e.enseignantId))
+      };
+
+      onSave(formationComplete);
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Erreur lors de l'enregistrement");
+      toast.error(err.message || "Erreur lors de l'enregistrement");
     } finally {
       setSubmitting(false);
     }
@@ -259,6 +285,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
+          
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Durée (mois)*</label>
             <input
@@ -271,6 +298,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
+          
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Coût (FCFA)*</label>
             <input
@@ -345,6 +373,7 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
             />
           </div>
+          
           <div className="space-y-1">
             <label className="block text-xs font-bold text-black">Année de formation</label>
             <input
@@ -360,33 +389,33 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
         </div>
       </div>
 
-      {/* Section Professeurs avec défilement et hauteur réduite */}
+      {/* Section Enseignants */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
         <h3 className="text-sm font-semibold text-black mb-4 pb-2 border-b border-gray-100">
-          Professeurs assignés
+          Enseignants assignés
         </h3>
         <div className="space-y-2">
           {loading ? (
             <div className="text-center py-4 text-gray-500">
-              Chargement des professeurs...
+              Chargement des enseignants...
             </div>
-          ) : professeurs.length === 0 ? (
+          ) : enseignants.length === 0 ? (
             <div className="text-center py-4 text-red-500">
-              Aucun professeur disponible
+              Aucun enseignant disponible
             </div>
           ) : (
             <>
               <label className="block text-xs font-bold text-black">
-                Sélectionnez les professeurs (max 2)
+                Sélectionnez les enseignants (max 2)
               </label>
               
               <div className="max-h-60 overflow-y-auto pr-2 py-1">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {professeurs.map((prof) => {
-                    const checked = formation.professeurs.includes(prof.id);
+                  {enseignants.map((enseignant) => {
+                    const checked = formation.enseignantsIds.includes(enseignant.enseignantId);
                     return (
                       <label
-                        key={prof.id}
+                        key={enseignant.enseignantId}
                         className={`flex items-center gap-2 p-2 rounded-lg border ${
                           checked 
                             ? 'border-[#D4A017] bg-[#FFF8E6]' 
@@ -396,14 +425,14 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
                         <input
                           type="checkbox"
                           checked={checked}
-                          onChange={() => handleProfesseurChange(prof.id)}
+                          onChange={() => handleEnseignantChange(enseignant.enseignantId)}
                           className="h-4 w-4 text-[#D4A017] border-gray-300 rounded focus:ring-[#D4A017]"
                         />
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-black truncate">
-                            {prof.nom} {prof.prenom}
+                            {enseignant.user?.prenom} {enseignant.user?.nom}
                           </p>
-                          <p className="text-xs text-gray-600 truncate">{prof.specialite}</p>
+                          <p className="text-xs text-gray-600 truncate">{enseignant.specialite}</p>
                         </div>
                       </label>
                     );
@@ -411,13 +440,12 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
                 </div>
               </div>
               
-              {/* Message d'erreur en rouge pour la sélection des professeurs */}
               {error && (
-                <p className="text-xs text-[#FF0000] mt-1 font-medium">{error}</p>
+                <p className="text-xs text-red-500 mt-1 font-medium">{error}</p>
               )}
               
               <p className="text-xs text-gray-500 mt-1">
-                {formation.professeurs.length} / 2 professeurs sélectionnés
+                {formation.enseignantsIds.length} / 2 enseignants sélectionnés
               </p>
             </>
           )}
@@ -446,20 +474,27 @@ const FormationForm = ({ onSave, formationInitial, onCancel }: FormationFormProp
         </div>
       </div>
 
+      {/* Message d'erreur général */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-600 text-sm font-medium">{error}</p>
+        </div>
+      )}
+
       {/* Boutons de soumission */}
       <div className="flex justify-end space-x-4 mt-8">
         <button
           type="button"
           onClick={onCancel}
           disabled={submitting}
-          className="px-6 py-3 text-sm bg-[#C0C0C0] text-white font-medium rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 text-sm bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition-all disabled:opacity-50"
         >
           Annuler
         </button>
         <button
           type="submit"
           disabled={submitting}
-          className="px-6 py-3 text-sm bg-[#D4A017] text-white font-medium rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:ring-opacity-50 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 text-sm bg-[#D4A017] text-white font-medium rounded-lg hover:bg-[#B8860B] transition-all disabled:opacity-50"
         >
           {submitting ? 'En cours...' : formationInitial ? 'Modifier' : 'Créer'} la formation
         </button>

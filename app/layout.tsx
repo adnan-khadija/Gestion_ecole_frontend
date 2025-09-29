@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "@/components/SideBar";
 import { Header } from "@/components/Header";
+import { ToasterProvider } from "@/components/ToasterProvider"; // Créez ce composant
 
 export const metadata: Metadata = {
   title: "Gestion d'école",
@@ -25,6 +26,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
           </div>
         </div>
+        <ToasterProvider />
+
       </body>
     </html>
   );
