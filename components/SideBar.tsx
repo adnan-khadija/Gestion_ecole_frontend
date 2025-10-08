@@ -5,7 +5,12 @@ import {
   FaThLarge, FaUsers, FaChalkboardTeacher, FaBook, 
   FaCalendar, FaCog, FaFileAlt, FaRegCalendarCheck, FaMoneyBillWave, 
   FaCreditCard,
-  FaClipboardList
+  FaClipboardList,
+  FaUniversity,
+  FaPuzzlePiece,
+  FaUserTimes,
+  FaGraduationCap,
+  FaCubes
 } from 'react-icons/fa';
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,14 +28,15 @@ const TEXT_DARK = "#2C2C2C";
 
 const elementsMenu: MenuItem[] = [
   { nom: "Tableau de bord", icone: <FaThLarge />, lien: "/dashboard" },
-  { nom: "Étudiants", icone: <FaUsers />, lien: "/student" },
+  { nom: "Étudiants", icone: <FaUsers />, lien: "/students" },
   { nom: "Professeurs", icone: <FaChalkboardTeacher />, lien: "/professeurs" },
-  { nom: "Formations", icone: <FaBook />, lien: "/formations" },
+  { nom: "Formations", icone: <FaGraduationCap />, lien: "/formations" },
+  {nom:"Modules", icone:<FaCubes />, lien:"/modules"},
   { nom: "Diplômes", icone: <FaFileAlt />, lien: "/diplomes" },
   { nom: "Emploi du temps", icone: <FaCalendar />, lien: "/emploi-du-temps" },
   {nom:" Programmes", icone:<FaClipboardList/>, lien:"/programmes"},
-  { nom: "Absence", icone: <FaRegCalendarCheck />, lien: "/absence" },
-  { nom: "Dépense", icone: <FaMoneyBillWave />, lien: "/depense" },
+  { nom: "Absence", icone: <FaUserTimes />, lien: "/absences" },
+  { nom: "Dépense", icone: <FaMoneyBillWave />, lien: "/depenses" },
   { nom: "Paiement", icone: <FaCreditCard />, lien: "/paiement" }, 
   { nom: "Paramètres", icone: <FaCog />, lien: "/parametres" },
 ];

@@ -224,7 +224,15 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     // réinitialiser valeur input pour permettre re-upload du même fichier
     if (e.target) e.target.value = '';
   }
-  if( !importConfig || !importConfig.apiUrl) return;
+  
+};
+
+const handleConfirmImport = async () => {
+  if (!importConfig?.apiUrl || previewData.length === 0) {
+    toast.error("Configuration d'import manquante ou aucune donnée à importer.");
+    return;
+  }
+
   try {
     const token = Cookies.get('token');
     if (!token) {
@@ -232,8 +240,17 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
       return;
     }
 
+    // Convertir previewData en fichier Excel
+    const ws = XLSX.utils.json_to_sheet(previewData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const file = new Blob([excelBuffer], { 
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file, 'import.xlsx');
 
     await axios.post(importConfig.apiUrl, formData, {
       headers: {
@@ -243,13 +260,17 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     });
 
     toast.success("Fichier importé avec succès !");
-  }
-  catch (error) {
+    setShowPreview(false);
+    setPreviewData([]);
+    
+    // Optionnel: recharger les données
+    // window.location.reload();
+    
+  } catch (error) {
     console.error("Erreur lors de l'importation du fichier:", error);
     toast.error("Erreur lors de l'importation du fichier Excel.");
   }
 };
-
 
   // Export Excel
   const handleExportExcel = async () => {
@@ -625,21 +646,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={async () => {
-                    try {
-                      if (onAdd) {
-                        for (const item of previewData) {
-                          await onAdd(item);
-                        }
-                      }
-                      setShowPreview(false);
-                      setPreviewData([]);
-                      toast.success("Importation réussie !");
-                    } catch (error) {
-                      console.error(error);
-                      toast.error("Erreur lors de l'importation");
-                    }
-                  }}
+                  onClick={handleConfirmImport}
                 >
                   Confirmer l'importation
                 </Button>

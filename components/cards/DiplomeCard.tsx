@@ -21,17 +21,17 @@ export default function DiplomeCard({ diplome, onClose }: DiplomeCardProps) {
   useEffect(() => {
     setShow(true);
     // Charger le QR Code si le diplôme a un ID
-    if (diplome.id) {
+    if (diplome.idDiplome) {
       loadQrCode();
     }
-  }, [diplome.id]);
+  }, [diplome.idDiplome]);
 
   const loadQrCode = async () => {
-    if (!diplome.id) return;
+    if (!diplome.idDiplome) return;
     
     setLoadingQrCode(true);
     try {
-      const url = await generateQrCode(diplome.id);
+      const url = await generateQrCode(diplome.idDiplome);
       setQrCodeUrl(url);
     } catch (error) {
       console.error("Erreur lors du chargement du QR Code:", error);

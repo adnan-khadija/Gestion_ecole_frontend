@@ -712,7 +712,7 @@ const EnseignantMultiStepForm: React.FC<EnseignantMultiStepFormProps> = ({
                         htmlFor={`module-${module.idModule}`}
                         className="text-sm text-gray-700 cursor-pointer"
                       >
-                        {module.nomModule}
+                        {module.nom}
                       </label>
                     </div>
                   ))

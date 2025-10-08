@@ -147,18 +147,26 @@ export const deleteDiplome = async (id: string): Promise<void> => {
 export const generateQrCode = async (diplomeId: string): Promise<string> => {
   const token = Cookies.get('token');
   if (!token) throw new Error('Token manquant');
+    if (!diplomeId || diplomeId === "undefined" || diplomeId === "null") {
+    throw new Error('ID du diplôme invalide');
+  }
 
   try {
     const response = await axios.get(`${API_URL}/${diplomeId}/qrcode`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Accept: 'image/png', // <-- Ajouté pour préciser le type attendu
       },
-      responseType: 'blob',
+      responseType: 'arraybuffer', // <-- Correct pour recevoir l'image
     });
 
-    // Convertir le blob en URL utilisable
-    const qrCodeUrl = URL.createObjectURL(response.data);
+    // Vérifie que la réponse contient bien des données
+    if (!response.data || response.data.byteLength === 0) {
+      throw new Error('QR code vide ou non généré');
+    }
+
+    const blob = new Blob([response.data], { type: 'image/png' });
+    const qrCodeUrl = URL.createObjectURL(blob);
     return qrCodeUrl;
   } catch (error: any) {
     console.error('Erreur génération QR code:', error.response?.data || error);

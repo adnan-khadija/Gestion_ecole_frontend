@@ -229,13 +229,34 @@ export interface Utilisateur {
 }
 export interface Module {
   idModule: string;
-  nomModule: string;
+  nom: string;
   note: number;
   enseignant: Enseignant;
   diplome: Diplome;
   students: Student[];
   absences?: Absence[];
 }
+export interface ModuleRequest {
+   nom: string;
+   coefficient: number;
+   description?: string;
+   heuresTotal: number;
+   heuresCours: number;
+   heuresTD: number;
+   heuresTP: number;
+   enseignantId: string;
+   diplomeId: string;
+}
+export interface ModuleResponse extends ModuleRequest {
+  idModule: string;
+  note: number;
+  enseignantNom: string;
+  enseignantPrenom: string;
+  diplomeNom: string;
+  studentsIds: string[];
+  nombreEtudiants: number;
+}
+
 export interface Student {
   idStudent: string;  
   nom:string;
@@ -346,7 +367,6 @@ export interface EnseignantRequest {
 
 export interface EnseignantResponse extends EnseignantRequest{
   enseignantId:string;
-  userId:string;
   
 
 }
