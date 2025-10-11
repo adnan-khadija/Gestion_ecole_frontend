@@ -213,6 +213,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setPreviewData(parsed);
       setShowPreview(true);
       toast.success(`Fichier chargé : ${parsed.length} ligne(s) prêtes à prévisualiser.`);
+      console.log("Données parsées pour la prévisualisation:", parsed);
     };
 
     // Lire en binaire pour XLSX
@@ -263,8 +264,7 @@ const handleConfirmImport = async () => {
     setShowPreview(false);
     setPreviewData([]);
     
-    // Optionnel: recharger les données
-    // window.location.reload();
+
     
   } catch (error) {
     console.error("Erreur lors de l'importation du fichier:", error);

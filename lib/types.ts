@@ -393,7 +393,7 @@ export interface EmploiSlot{
 /* Formation */
 export interface Formation {
   idFormation: string;
-  nom: FormationNom;
+  nom: string;
   duree: number; 
   cout: number;  
   professeurs?: Enseignant[];

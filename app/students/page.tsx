@@ -173,7 +173,6 @@ const handleDeleteClick = async (studentId: string) => {
       // Rafraîchir la liste des étudiants
       await refreshStudents();
 
-      toast.success(editingStudent ? "Étudiant mis à jour avec succès" : "Étudiant ajouté avec succès");
     } catch (error: any) {
       toast.error(error?.message || "Erreur lors de la sauvegarde");
     } finally {
