@@ -1,18 +1,27 @@
 "use client";
 
-import { ModuleResponse } from "@/lib/types";
-import { FiX, FiDownload } from "react-icons/fi";
+import { ModuleResponse, StudentResponse } from "@/lib/types";
+import { FiX, FiDownload, FiArrowLeft } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { FaUser, FaUsers, FaTrash } from "react-icons/fa";
+import { fetchStudentByModule, removeStudentFromModule } from "@/lib/modules";
+import { LoadingSpinner } from "@/components/Loading";
+import toast from "react-hot-toast";
 
 type ModuleCardProps = {
   module: ModuleResponse;
   onClose: () => void;
 };
 
+type ViewMode = 'details' | 'students';
+
 export default function ModuleCard({ module, onClose }: ModuleCardProps) {
   const [show, setShow] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('details');
+  const [students, setStudents] = useState<StudentResponse[]>([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,6 +31,38 @@ export default function ModuleCard({ module, onClose }: ModuleCardProps) {
   const handleClose = () => {
     setShow(false);
     setTimeout(() => onClose(), 300);
+  };
+
+  const handleShowStudents = async () => {
+    setViewMode('students');
+    setLoadingStudents(true);
+    try {
+      const studentsData = await fetchStudentByModule(module.idModule);
+      setStudents(studentsData);
+    } catch (err) {
+      console.error("Erreur chargement étudiants:", err);
+      toast.error("Erreur lors du chargement des étudiants");
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  const handleBackToDetails = () => {
+    setViewMode('details');
+  };
+
+  const handleRemoveStudent = async (studentId: string) => {
+   
+    try {
+      await removeStudentFromModule(module.idModule, studentId);
+      toast.success("Étudiant retiré du module avec succès");
+      // Recharger la liste des étudiants
+      const updatedStudents = await fetchStudentByModule(module.idModule);
+      setStudents(updatedStudents);
+    } catch (err) {
+      console.error("Erreur suppression étudiant:", err);
+      toast.error("Erreur lors du retrait de l'étudiant");
+    }
   };
 
   const generatePDF = async () => {
@@ -69,204 +110,361 @@ export default function ModuleCard({ module, onClose }: ModuleCardProps) {
           className="rounded-t-2xl p-5 flex justify-between items-center sticky top-0 z-10"
           style={{ backgroundColor: "#838380ff" }}
         >
-          <button
-            onClick={handleClose}
-            className="text-white hover:text-gray-200 transition-colors"
-          >
-            <FiX size={26} />
-          </button>
+          <div className="flex items-center gap-4">
+            {viewMode === 'students' && (
+              <button
+                onClick={handleBackToDetails}
+                className="text-white hover:text-gray-200 transition-colors"
+                title="Retour aux détails"
+              >
+                <FiArrowLeft size={24} />
+              </button>
+            )}
+            <button
+              onClick={handleClose}
+              className="text-white hover:text-gray-200 transition-colors"
+            >
+              <FiX size={26} />
+            </button>
+          </div>
+
           <h2 className="text-xl font-bold text-white text-center flex-1 mx-4">
-            Détails du Module
+            {viewMode === 'details' ? 'Détails du Module' : 'Liste des Étudiants'}
           </h2>
-          <button
-            onClick={generatePDF}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm hover:opacity-90"
-            style={{
-              backgroundColor: "#eb7c78ff",
-              color: "#171717",
-            }}
-          >
-            <FiDownload />
-            PDF
-          </button>
+
+          <div className="flex items-center gap-2">
+            {viewMode === 'details' && (
+              <button
+                onClick={handleShowStudents}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm hover:opacity-90"
+                style={{
+                  backgroundColor: "#eb7c78ff",
+                  color: "#171717",
+                }}
+              >
+                <FaUsers />
+                Liste Étudiants
+              </button>
+            )}
+            <button
+              onClick={generatePDF}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm hover:opacity-90"
+              style={{
+                backgroundColor: "#eb7c78ff",
+                color: "#171717",
+              }}
+            >
+              <FiDownload />
+              PDF
+            </button>
+          </div>
         </div>
 
         {/* Main Content */}
-        <div className="p-6 space-y-6">
-          {/* Section en-tête */}
-          <div className="flex flex-col items-center gap-4 text-center">
-            {/* Coefficient */}
-            <div className="px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-              Coefficient: {module.coefficient}
-            </div>
-
-            {/* Informations principales */}
-            <div className="flex-1">
-              <h1
-                className="text-4xl font-extrabold mb-2 tracking-tight"
-                style={{ color: "#424444ff" }}
-              >
-                {module.nom}
-              </h1>
-              <p className="text-lg mb-4" style={{ color: "#ef130cff" }}>
-                {module.diplomeNom}
-              </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800">
-                  Note: {module.note}/20
-                </span>
-                <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800">
-                  {module.nombreEtudiants} étudiants
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Informations du module */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Colonne gauche - Informations principales */}
-            <div
-              className="rounded-xl p-6 shadow-inner"
-              style={{ backgroundColor: "#ccccccff" }}
-            >
-              <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
-                Informations du Module
-              </h3>
-              <div className="space-y-3">
-                <InfoRow label="Nom" value={module.nom} />
-                <InfoRow label="Diplôme" value={module.diplomeNom} />
-                <InfoRow label="Coefficient" value={module.coefficient?.toString()} />
-                <InfoRow label="Note moyenne" value={`${module.note}/20`} />
-              </div>
-            </div>
-
-            {/* Colonne droite - Répartition des heures */}
-            <div
-              className="rounded-xl p-6 shadow-inner"
-              style={{ backgroundColor: "#ccccccff" }}
-            >
-              <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
-                Répartition des Heures
-              </h3>
-              <div className="space-y-3">
-                <InfoRow label="Heures totales" value={module.heuresTotal?.toString()} />
-                <InfoRow label="Heures de cours" value={module.heuresCours?.toString()} />
-                <InfoRow label="Heures de TD" value={module.heuresTD?.toString()} />
-                <InfoRow label="Heures de TP" value={module.heuresTP?.toString()} />
-                <InfoRow 
-                  label="Heures restantes" 
-                  value={calculateHeuresRestantes()?.toString()} 
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Description */}
-          {module.description && (
-            <div
-              className="rounded-xl p-6 shadow-inner"
-              style={{ backgroundColor: "#ccccccff" }}
-            >
-              <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
-                Description
-              </h3>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <p className="text-sm" style={{ color: "#171717" }}>
-                  {module.description}
-                </p>
-              </div>
-            </div>
+        <div className="p-6">
+          {viewMode === 'details' ? (
+            <DetailsView 
+              module={module} 
+              calculateHeuresRestantes={calculateHeuresRestantes}
+            />
+          ) : (
+            <StudentsView 
+              students={students}
+              loading={loadingStudents}
+              onRemoveStudent={handleRemoveStudent}
+              moduleName={module.nom}
+            />
           )}
-
-          {/* Enseignant */}
-          <div
-            className="rounded-xl p-6 shadow-inner"
-            style={{ backgroundColor: "#ccccccff" }}
-          >
-            <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
-              Enseignant Responsable
-            </h3>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="flex flex-col gap-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-sm" style={{ color: "#8a8a19" }}>
-                    Nom:
-                  </span>
-                  <span className="text-sm" style={{ color: "#171717" }}>
-                    {module.enseignantPrenom} {module.enseignantNom}
-                  </span>
-                </div>
-                
-              </div>
-            </div>
-          </div>
-
-          {/* Statistiques */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <StatCard 
-              title="Coefficient" 
-              value={module.coefficient || 0} 
-              color="#ef130cff"
-            />
-            <StatCard 
-              title="Heures Total" 
-              value={module.heuresTotal || 0} 
-              color="#ccccccff"
-            />
-            <StatCard 
-              title="Étudiants" 
-              value={module.nombreEtudiants || 0} 
-              color="#8a8a19"
-            />
-            <StatCard 
-              title="Note Moyenne" 
-              value={`${module.note}/20`} 
-              color="#eb7c78ff"
-            />
-          </div>
-
-          {/* Détail des heures */}
-          <div
-            className="rounded-xl p-6 shadow-inner"
-            style={{ backgroundColor: "#ccccccff" }}
-          >
-            <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
-              Détail de la Répartition Horaires
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <HourDetailCard 
-                title="Cours" 
-                hours={module.heuresCours} 
-                totalHours={module.heuresTotal}
-                color="#ef130cff"
-              />
-              <HourDetailCard 
-                title="TD" 
-                hours={module.heuresTD} 
-                totalHours={module.heuresTotal}
-                color="#8a8a19"
-              />
-              <HourDetailCard 
-                title="TP" 
-                hours={module.heuresTP} 
-                totalHours={module.heuresTotal}
-                color="#ccccccff"
-              />
-              <HourDetailCard 
-                title="Restantes" 
-                hours={calculateHeuresRestantes()} 
-                totalHours={module.heuresTotal}
-                color="#eb7c78ff"
-              />
-            </div>
-          </div>
-
-        
         </div>
       </div>
     </div>
   );
 }
+
+// Composant pour la vue détails
+interface DetailsViewProps {
+  module: ModuleResponse;
+  calculateHeuresRestantes: () => number;
+}
+
+const DetailsView = ({ module, calculateHeuresRestantes }: DetailsViewProps) => (
+  <div className="space-y-6">
+    {/* Section en-tête */}
+    <div className="flex flex-col items-center gap-4 text-center">
+      {/* Coefficient */}
+      <div className="px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+        Coefficient: {module.coefficient}
+      </div>
+
+      {/* Informations principales */}
+      <div className="flex-1">
+        <h1
+          className="text-4xl font-extrabold mb-2 tracking-tight"
+          style={{ color: "#424444ff" }}
+        >
+          {module.nom}
+        </h1>
+        <p className="text-lg mb-4" style={{ color: "#ef130cff" }}>
+          {module.diplomeNom}
+        </p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800">
+            Note: {module.note}/20
+          </span>
+          <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800">
+            {module.nombreEtudiants} étudiants
+          </span>
+        </div>
+      </div>
+    </div>
+
+    {/* Informations du module */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Colonne gauche - Informations principales */}
+      <div
+        className="rounded-xl p-6 shadow-inner"
+        style={{ backgroundColor: "#ccccccff" }}
+      >
+        <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
+          Informations du Module
+        </h3>
+        <div className="space-y-3">
+          <InfoRow label="Nom" value={module.nom} />
+          <InfoRow label="Diplôme" value={module.diplomeNom} />
+          <InfoRow label="Coefficient" value={module.coefficient?.toString()} />
+          <InfoRow label="Note moyenne" value={`${module.note}/20`} />
+        </div>
+      </div>
+
+      {/* Colonne droite - Répartition des heures */}
+      <div
+        className="rounded-xl p-6 shadow-inner"
+        style={{ backgroundColor: "#ccccccff" }}
+      >
+        <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
+          Répartition des Heures
+        </h3>
+        <div className="space-y-3">
+          <InfoRow label="Heures totales" value={module.heuresTotal?.toString()} />
+          <InfoRow label="Heures de cours" value={module.heuresCours?.toString()} />
+          <InfoRow label="Heures de TD" value={module.heuresTD?.toString()} />
+          <InfoRow label="Heures de TP" value={module.heuresTP?.toString()} />
+          <InfoRow 
+            label="Heures restantes" 
+            value={calculateHeuresRestantes()?.toString()} 
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* Description */}
+    {module.description && (
+      <div
+        className="rounded-xl p-6 shadow-inner"
+        style={{ backgroundColor: "#ccccccff" }}
+      >
+        <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
+          Description
+        </h3>
+        <div className="bg-white rounded-lg p-4 shadow-sm">
+          <p className="text-sm" style={{ color: "#171717" }}>
+            {module.description}
+          </p>
+        </div>
+      </div>
+    )}
+
+    {/* Enseignant */}
+    <div
+      className="rounded-xl p-6 shadow-inner"
+      style={{ backgroundColor: "#ccccccff" }}
+    >
+      <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
+        Enseignant Responsable
+      </h3>
+      <div className="bg-white rounded-lg p-4 shadow-sm">
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-sm" style={{ color: "#8a8a19" }}>
+              Nom:
+            </span>
+            <span className="text-sm" style={{ color: "#171717" }}>
+              {module.enseignantPrenom} {module.enseignantNom}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Statistiques */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <StatCard 
+        title="Coefficient" 
+        value={module.coefficient || 0} 
+        color="#ef130cff"
+      />
+      <StatCard 
+        title="Heures Total" 
+        value={module.heuresTotal || 0} 
+        color="#ccccccff"
+      />
+      <StatCard 
+        title="Étudiants" 
+        value={module.nombreEtudiants || 0} 
+        color="#8a8a19"
+      />
+      <StatCard 
+        title="Note Moyenne" 
+        value={`${module.note}/20`} 
+        color="#eb7c78ff"
+      />
+    </div>
+
+    {/* Détail des heures */}
+    <div
+      className="rounded-xl p-6 shadow-inner"
+      style={{ backgroundColor: "#ccccccff" }}
+    >
+      <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
+        Détail de la Répartition Horaires
+      </h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <HourDetailCard 
+          title="Cours" 
+          hours={module.heuresCours} 
+          totalHours={module.heuresTotal}
+          color="#ef130cff"
+        />
+        <HourDetailCard 
+          title="TD" 
+          hours={module.heuresTD} 
+          totalHours={module.heuresTotal}
+          color="#8a8a19"
+        />
+        <HourDetailCard 
+          title="TP" 
+          hours={module.heuresTP} 
+          totalHours={module.heuresTotal}
+          color="#ccccccff"
+        />
+        <HourDetailCard 
+          title="Restantes" 
+          hours={calculateHeuresRestantes()} 
+          totalHours={module.heuresTotal}
+          color="#eb7c78ff"
+        />
+      </div>
+    </div>
+  </div>
+);
+
+// Composant pour la vue étudiants
+interface StudentsViewProps {
+  students: StudentResponse[];
+  loading: boolean;
+  onRemoveStudent: (studentId: string) => void;
+  moduleName: string;
+}
+
+const StudentsView = ({ students, loading, onRemoveStudent, moduleName }: StudentsViewProps) => {
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-16">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-gray-600">Chargement des étudiants...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+   {/* En-tête de la liste */}
+<div className="text-center">
+  <h3 className="text-2xl font-bold mb-2" style={{ color: "#A52A2A" }}>
+    Étudiants du module
+  </h3>
+  <p className="text-lg" style={{ color: "#D4A017" }}>
+    {moduleName}
+  </p>
+  <div 
+    className="mt-2 px-4 py-2 rounded-full inline-block"
+    style={{ 
+      backgroundColor: "#fce2c4ff", 
+      color: "#A52A2A" 
+    }}
+  >
+    {students.length} étudiant{students.length !== 1 ? 's' : ''}
+  </div>
+</div>
+
+      {/* Liste des étudiants */}
+      <div className="space-y-4">
+        {students.length === 0 ? (
+          <div className="text-center py-12 bg-gray-50 rounded-xl">
+            <FaUsers className="mx-auto text-4xl text-gray-300 mb-4" />
+            <h4 className="text-lg font-medium text-gray-900 mb-2">
+              Aucun étudiant dans ce module
+            </h4>
+            <p className="text-gray-500">
+              Aucun étudiant n'est actuellement inscrit à ce module.
+            </p>
+          </div>
+        ) : (
+          students.map((student) => (
+            <StudentCard 
+              key={student.idStudent} 
+              student={student} 
+              onRemove={() => onRemoveStudent(student.idStudent)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Composant pour chaque carte étudiant
+interface StudentCardProps {
+  student: StudentResponse;
+  onRemove: () => void;
+}
+
+const StudentCard = ({ student, onRemove }: StudentCardProps) => (
+  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4 flex-1">
+        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+          <span className="text-blue-600 font-medium">
+            {student.prenom[0]}{student.nom[0]}
+          </span>
+        </div>
+        
+        <div className="flex-1">
+          <h4 className="font-semibold text-gray-900">
+            {student.prenom} {student.nom}
+          </h4>
+          <div className="flex flex-wrap gap-4 mt-1 text-sm text-gray-600">
+            <span>Thelephone: {student.telephone}</span>
+            <span>Email: {student.email}</span>
+            <span>
+              Née le: {new Date(student.dateNaissance).toLocaleDateString('fr-FR')}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={onRemove}
+        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+        title="Retirer du module"
+      >
+        <FaTrash />
+      </button>
+    </div>
+  </div>
+);
 
 // Composant pour afficher une ligne d'information
 interface InfoRowProps {

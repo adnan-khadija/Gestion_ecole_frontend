@@ -39,7 +39,7 @@ type TableauDynamiqueProps<T> = {
   columns: Column<T>[];
   getRowId?: (item: T) => string | number; // NOUVELLE PROPRIÉTÉ
   onEdit?: (item: T) => Promise<void> | void;
-  onDelete?: (id: string) => Promise<void> | void;
+onDelete?: (item: T) => Promise<void> | void;
   onAdd?: (item: T) => Promise<void> | void;
   onRowClick?: (item: T) => void;
   emptyMessage?: string;
@@ -70,7 +70,7 @@ type TableauDynamiqueProps<T> = {
 function TableauDynamique<T>({
   data,
   columns,
-  getRowId, // NOUVEAU: Fonction pour obtenir l'ID unique
+  getRowId, 
   onEdit,
   onDelete,
   onAdd,

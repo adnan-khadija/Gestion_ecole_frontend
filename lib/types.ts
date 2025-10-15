@@ -55,6 +55,13 @@ export enum StatutEnseignant {
   VACATAIRE = "vacataire",
 }
 
+export enum TypeNote {
+  C1 = "Contrôle 1",
+  C2 = "Contrôle 2",
+  EXAMEN_TH = "Examen Théorique",
+  EXAMEN_PR = "Examen Pratique",
+  RATTRAPAGE = "Rattrapage"
+}
 
 // Mode remise diplôme
 export enum ModeRemise{
@@ -237,24 +244,25 @@ export interface Module {
   absences?: Absence[];
 }
 export interface ModuleRequest {
-   nom: string;
-   coefficient: number;
-   description?: string;
-   heuresTotal: number;
-   heuresCours: number;
-   heuresTD: number;
-   heuresTP: number;
-   enseignantId: string;
-   diplomeId: string;
+  nom: string;
+  coefficient: number;
+  description?: string;
+  heuresTotal?: number;
+  heuresCours?: number;
+  heuresTD?: number;
+  heuresTP?: number;
+  enseignantId?: string | null;
+  diplomeId: string;
 }
+
 export interface ModuleResponse extends ModuleRequest {
   idModule: string;
-  note: number;
-  enseignantNom: string;
-  enseignantPrenom: string;
+  note?: number | null; 
+  enseignantNom?: string | null; 
+  enseignantPrenom?: string | null;
   diplomeNom: string;
-  studentsIds: string[];
-  nombreEtudiants: number;
+  studentsIds?: string[];
+  nombreEtudiants?: number;
 }
 
 export interface Student {
@@ -351,6 +359,10 @@ export interface DiplomeResponse extends DiplomeRequest {
   qrCodeUrl: string; 
 
 }
+export interface BulkNoteRequest {
+  enseignantId: string;
+  notes: NoteRequest[];
+}
 
 // Interface principale EnseignantRequest
 export interface EnseignantRequest {
@@ -420,17 +432,30 @@ export interface FormationRequest{
 export interface FormationResponse extends FormationRequest{
   idFormation:string;
 }
-export interface ModuleRequest{
-  nomModule:string;
-  note:number;
-  enseignantId:string;
-  diplomeId:string;
-  studentIds:string[];
+
+export interface NoteRequest{
+  studentId: string;
+  moduleId:string;
+  typeNote:TypeNote;
+  valeur:number;
+  enseignantId: string;
+  anneeScolaire:string;
+
 }
-export interface ModuleResponse extends ModuleRequest{
-  idModule:string;
+export interface NoteResponse {
+  idNote:string;
+  studentNom:string;
+  studentPrenom:string;
+  matricule:string;
+  moduleNom:string;
+  dateCreation:string;
+  dateModification:string;
+  saisiePar:string;
+   studentId: string;
+  moduleId:string;
+  typeNote:TypeNote;
+  valeur:number;
+  anneeScolaire:string;
+
 }
-
-
-
 

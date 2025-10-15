@@ -18,6 +18,16 @@ export interface LoginResponse {
   message: string;
   data: LoginResponseData;
 }
+export const getAuthHeaders = () => {
+  const token = Cookies.get("token");
+  if (!token) throw new Error("Token manquant");
+
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+};
+
 
 export const login = async (email: string, motDePasse: string): Promise<LoginResponseData> => {
   try {

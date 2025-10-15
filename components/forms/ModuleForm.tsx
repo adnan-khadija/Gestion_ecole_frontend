@@ -145,11 +145,7 @@ export default function ModuleForm({ moduleInitial, onSave, onCancel }: ModuleFo
             return;
         }
         
-        if (!formData.enseignantId) {
-            setError("Veuillez sélectionner un enseignant");
-            setSubmitting(false);
-            return;
-        }
+       
         
         if (!formData.diplomeId) {
             setError("Veuillez sélectionner un diplôme");
@@ -343,7 +339,6 @@ export default function ModuleForm({ moduleInitial, onSave, onCancel }: ModuleFo
                                         value={formData.enseignantId}
                                         onChange={handleChange}
                                         className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
-                                        required
                                         disabled={submitting}
                                     >
                                         <option value="">Sélectionnez un enseignant</option>

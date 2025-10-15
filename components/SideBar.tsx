@@ -1,5 +1,4 @@
 "use client";
-
 import { FiLogOut } from "react-icons/fi";
 import { 
   FaThLarge, FaUsers, FaChalkboardTeacher, FaBook, 
@@ -15,11 +14,13 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
+import { useState } from "react";
 
 type MenuItem = {
   nom: string;
   icone: React.ReactNode;
-  lien: string;
+  lien?: string;
+  sousMenu?: { nom: string; lien: string }[];
 };
 
 const PRIMARY_BROWN = "#A52A2A";
@@ -31,11 +32,16 @@ const elementsMenu: MenuItem[] = [
   { nom: "Étudiants", icone: <FaUsers />, lien: "/students" },
   { nom: "Professeurs", icone: <FaChalkboardTeacher />, lien: "/professeurs" },
   { nom: "Formations", icone: <FaGraduationCap />, lien: "/formations" },
-  {nom:"Modules", icone:<FaCubes />, lien:"/modules"},
+  { 
+    nom: "Modules", 
+    icone: <FaCubes />, 
+    lien: "/modules" },
+   
+
   { nom: "Diplômes", icone: <FaFileAlt />, lien: "/diplomes" },
   { nom: "Emploi du temps", icone: <FaCalendar />, lien: "/emploi-du-temps" },
-  {nom:" Programmes", icone:<FaClipboardList/>, lien:"/programmes"},
-  {nom :"Notes", icone:<FaPuzzlePiece/>, lien:"/notes"},
+  { nom: "Programmes", icone: <FaClipboardList />, lien: "/programmes" },
+  { nom: "Notes", icone: <FaPuzzlePiece />, lien: "/notes" },
   { nom: "Absence", icone: <FaUserTimes />, lien: "/absences" },
   { nom: "Dépense", icone: <FaMoneyBillWave />, lien: "/depenses" },
   { nom: "Paiement", icone: <FaCreditCard />, lien: "/paiement" }, 
@@ -45,6 +51,7 @@ const elementsMenu: MenuItem[] = [
 export default function Sidebar() {
   const pathname = usePathname() || "/";
   const router = useRouter();
+  const [openModules, setOpenModules] = useState(false);
 
   const handleDeconnexion = () => {
     router.push("/connexion");
@@ -52,26 +59,55 @@ export default function Sidebar() {
 
   return (
     <aside className="w-56 flex-shrink-0 h-screen bg-white shadow-xl flex flex-col">
-      {/* Logo */}
       <div className="px-6 py-4 flex items-center justify-center border-b border-gray-200">
-        <Image
-          src="/images/logo.png"
-          alt="Logo"
-          width={120}
-          height={40}
-          className="h-10 object-contain"
-        />
+        <Image src="/images/logo.png" alt="Logo" width={120} height={40} className="h-10 object-contain" />
       </div>
 
-      {/* Menu */}
       <nav className="p-6 flex-1 overflow-y-auto">
         <ul className="space-y-2">
           {elementsMenu.map((item) => {
             const actif = pathname === item.lien;
+            // Si le menu a un sous-menu
+            if (item.sousMenu) {
+              return (
+                <li key={item.nom} className="w-full">
+                  <button
+                    onClick={() => setOpenModules(!openModules)}
+                    className={`flex items-center w-full p-3 rounded-xl transition-all select-none ${
+                      openModules ? "bg-[#F5E9DA] shadow-sm" : "hover:bg-[#F5E9DA]"
+                    }`}
+                  >
+                    <span className="mr-3 text-lg flex-shrink-0" style={{ color: PRIMARY_BROWN }}>
+                      {item.icone}
+                    </span>
+                    <span className="font-medium text-sm">{item.nom}</span>
+                    <span className="ml-auto text-sm">{openModules ? "▲" : "▼"}</span>
+                  </button>
+                  {openModules && (
+                    <ul className="ml-6 mt-2 space-y-1">
+                      {item.sousMenu.map((sub) => (
+                        <li key={sub.lien}>
+                          <Link
+                            href={sub.lien}
+                            className={`block text-sm p-2 rounded hover:bg-gray-100 ${
+                              pathname === sub.lien ? "bg-gray-200 font-bold" : ""
+                            }`}
+                          >
+                            {sub.nom}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            }
+
+            // Menu normal
             return (
               <li key={item.lien} className="w-full">
                 <Link
-                  href={item.lien}
+                  href={item.lien!}
                   className={`flex items-center w-full p-3 rounded-xl transition-all select-none ${
                     actif ? "bg-[#F5E9DA] shadow-sm" : "hover:bg-[#F5E9DA]"
                   }`}
@@ -79,10 +115,7 @@ export default function Sidebar() {
                   <span className="mr-3 text-lg flex-shrink-0" style={{ color: PRIMARY_BROWN }}>
                     {item.icone}
                   </span>
-                  <span
-                    className="font-medium text-sm truncate"
-                    style={{ color: actif ? PRIMARY_BROWN : TEXT_DARK }}
-                  >
+                  <span className="font-medium text-sm truncate" style={{ color: actif ? PRIMARY_BROWN : TEXT_DARK }}>
                     {item.nom}
                   </span>
                   {actif && (
@@ -98,7 +131,6 @@ export default function Sidebar() {
         </ul>
       </nav>
 
-      {/* Déconnexion */}
       <div className="p-4 border-t border-gray-200">
         <button
           onClick={handleDeconnexion}
