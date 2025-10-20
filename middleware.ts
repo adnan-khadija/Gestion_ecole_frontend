@@ -32,6 +32,7 @@ export function middleware(request: NextRequest) {
       '/student'
     ],
     ENSEIGNANT: [
+      '/enseignant',
       '/teacher',
       '/api/teacher',
       '/notes',
@@ -39,6 +40,7 @@ export function middleware(request: NextRequest) {
       '/students'
     ],
     ETUDIANT: [
+      '/etudiant',
       '/student', 
       '/api/student',
       '/notes' // Les étudiants peuvent voir leurs notes

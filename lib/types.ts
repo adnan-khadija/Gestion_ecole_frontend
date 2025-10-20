@@ -77,13 +77,6 @@ export enum ModeFormation {
   HYBRIDE = "HYBRIDE",
 }
 
-// Mode paiement (général)
-export enum ModePaiement {
-  ESPECES = "Espèces",
-  CHEQUE = "Chèque",
-  VIREMENT = "Virement",
-  CARTE = "Carte bancaire",
-}
 
 // État paiement (transaction)
 export enum EtatPaiement {
@@ -106,15 +99,20 @@ export enum EtatScolarite {
   NON_REGLE = "Non réglé",
 }
 
-// Catégorie dépense
 export enum CategorieDepense {
-  SALAIRE = "Salaire de professeur",
-  EQUIPEMENT = "Équipement",
-  EVENEMENT = "Événement",
-  MAINTENANCE = "Maintenance",
-  AUTRE = "Autre",
+  SALAIRE_ENSEIGNANT = "SALAIRE_ENSEIGNANT",
+  SALAIRE_PERSONNEL = "SALAIRE_PERSONNEL",
+  FACTURE_ELECTRICITE = "FACTURE_ELECTRICITE",
+  FACTURE_EAU = "FACTURE_EAU",
+  FACTURE_INTERNET = "FACTURE_INTERNET",
+  MATERIEL_PEDAGOGIQUE = "MATERIEL_PEDAGOGIQUE",
+  MATERIEL_INFORMATIQUE = "MATERIEL_INFORMATIQUE",
+  MATERIEL_BUREAU = "MATERIEL_BUREAU",
+  MAINTENANCE = "MAINTENANCE",
+  EVENEMENT = "EVENEMENT",
+  FORMATION = "FORMATION",
+  AUTRE = "AUTRE"
 }
-
 // Unité de dépense
 export enum UniteDepense {
   HEURE = "Par heure",
@@ -122,11 +120,11 @@ export enum UniteDepense {
   FORFAIT = "Montant forfaitaire",
 }
 
-// Statut dépense
 export enum StatutDepense {
-  PAYEE = "Payée",
-  EN_ATTENTE = "En attente",
-  ANNULEE = "Annulée",
+  EN_ATTENTE = "EN_ATTENTE",
+  APPROUVEE = "APPROUVEE", 
+  PAYEE = "PAYEE",
+  REJETEE = "REJETEE"
 }
 
 // Type diplôme
@@ -161,6 +159,50 @@ export enum Mention{
   TRES_BIEN="TRES_BIEN",
   EXCELLENT="EXCELLENT"
 }
+export enum TypeSeance{
+  COURS="COURS",
+  TD="TD",
+  TP="TP",
+  ATELIER="ATELIER",
+  CONFERENCE="CONFERENCE"
+}
+export enum JourSemaine{
+  LUNDI="LUNDI",
+  MARDI="MARDI",
+  MERCREDI="MERCREDI",
+  JEUDI="JEUDI",
+  VENDREDI="VENDREDI",
+  SAMEDI="SAMEDI",
+  DIMANCHE="DIMANCHE"
+}
+
+export enum TypePaiement {
+  FRAIS_INSCRIPTION = "FRAIS_INSCRIPTION",
+  FRAIS_SCOLARITE = "FRAIS_SCOLARITE",
+  FRAIS_EXAMEN = "FRAIS_EXAMEN",
+  FRAIS_BIBLIOTHEQUE = "FRAIS_BIBLIOTHEQUE",
+  FRAIS_TRANSPORT = "FRAIS_TRANSPORT",
+  FRAIS_HEBERGEMENT = "FRAIS_HEBERGEMENT",
+  FRAIS_MATERIEL = "FRAIS_MATERIEL",
+  AUTRE = "AUTRE",
+}
+export enum ModePaiement {
+  MENSUEL = 'MENSUEL',
+  TRIMESTRIEL = 'TRIMESTRIEL',
+  ANNUEL = 'ANNUEL',
+  ESPECES = 'ESPECES',
+  CHEQUE = 'CHEQUE',
+  VIREMENT_BANCAIRE = 'VIREMENT_BANCAIRE',
+  CARTE_BANCAIRE = 'CARTE_BANCAIRE'
+}
+export enum StatutPaiement {
+  EN_ATTENTE = 'EN_ATTENTE',
+  VALIDE = 'VALIDE',
+  ANNULE = 'ANNULE',
+  REMBOURSE = 'REMBOURSE'
+}
+
+
 /* Diplome */
 export interface Diplome {
   idDiplome: string;
@@ -458,4 +500,116 @@ export interface NoteResponse {
   anneeScolaire:string;
 
 }
+
+export interface AbsenceRequest{
+  moduleId:string;
+  date:string;
+  studentsIds:string[];
+  reason:AbsenceReason;
+  justified:boolean;
+
+}
+export interface AbsenceResponse{
+  idAbsence:string;
+  studentId:string;
+  studentName:string;
+  studentMatricule:string;
+  moduleId:string;
+  moduleName:string;
+  date:string;
+  reason:AbsenceReason;
+  justified:boolean;
+}
+
+export interface EmploiDuTempsRequest {
+  moduleId:string;
+  enseignantId:string;
+  jour:JourSemaine;
+  heureDebut:string;
+  heureFin:string;
+  salle:string;
+  typeSeance:TypeSeance;
+  groupe:string;
+  anneeAcademique:string;
+  remarques:string;
+
+}
+export interface EmploiDuTempsResponse extends EmploiDuTempsRequest{
+  idEmploi :string;
+  moduleName:string;
+  enseignantName:string;
+  
+}
+export interface DepenseRequest{
+  categorieDepense:CategorieDepense;
+  montant:number;
+  dateDepense:string;
+  libelle:string;
+  description:string;
+  enseignantId:string;
+  beneficiaire:string;
+  numeroPiece:string;
+  statutDepense:StatutDepense;
+  anneeAcademique:string;
+  remarques:string;
+}
+export interface DepenseResponse extends DepenseRequest{
+  idDepense:string;
+  numeroDepense:string;
+  enseignantName:string;
+  justificatifPath:string;
+  createdAt:string;
+  updatedAt:string;
+}
+export interface PaiementRequest {
+  studentId: string;                 
+  typePaiement: TypePaiement;       
+  montant: number;                   
+  datePaiement: string;             
+  modePaiement: ModePaiement;        
+  statutPaiement: StatutPaiement;    
+  anneeAcademique: string;           
+  referenceTransaction?: string;     
+  description?: string;              
+  remarques?: string;                
+}
+export interface PaiementUpdateRequest {
+  typePaiement?: TypePaiement;
+  montant?: number;
+  datePaiement?: string;
+  modePaiement?: ModePaiement;
+  statutPaiement?: StatutPaiement;
+  referenceTransaction?: string;
+  description?: string;
+  remarques?: string;
+}
+export interface PaiementResponse {
+  idPaiement: string;
+  studentId: string;
+  studentName: string;
+  studentMatricule: string;
+  numeroPaiement: string;
+  typePaiement: TypePaiement;
+  montant: number;
+  datePaiement: string;
+  modePaiement: ModePaiement;
+  statutPaiement: StatutPaiement;
+  anneeAcademique: string;
+  referenceTransaction?: string;
+  description?: string;
+  remarques?: string;
+  recuPdfPath?: string;
+  createdAt: string;
+  updatedAt: string;
+  annule: boolean;
+  dateAnnulation?: string;
+  motifAnnulation?: string;
+}
+
+
+
+
+
+
+
 

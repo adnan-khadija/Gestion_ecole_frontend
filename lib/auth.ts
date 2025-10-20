@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { RoleUtilisateur,UserRequest, UserResponse, UserUpdateRequest } from './types';
+import { EnseignantResponse, RoleUtilisateur,UserRequest, UserResponse, UserUpdateRequest } from './types';
 
 
 const API_URL = 'http://localhost:8080/api/v1';
@@ -27,7 +27,30 @@ export const getAuthHeaders = () => {
     "Content-Type": "application/json",
   };
 };
+export const fetchCurrentUser = async () => {
+  const token = Cookies.get("token");
+  const response = await axios.get("http://localhost:8080/api/v1/user/me", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
 
+export const fetchCurrentEnseignant = async (email: string): Promise<EnseignantResponse> => {
+  try {
+    const headers = getAuthHeaders();
+
+    const response = await axios.get("http://localhost:8080/api/v1/enseignant/me", {
+      params: { email },
+      headers,
+    });
+
+    
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Erreur lors de la récupération de l’enseignant connecté :', error);
+    throw error;
+  }
+};
 
 export const login = async (email: string, motDePasse: string): Promise<LoginResponseData> => {
   try {

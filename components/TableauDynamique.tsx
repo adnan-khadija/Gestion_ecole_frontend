@@ -489,29 +489,44 @@ const handleConfirmImport = async () => {
             <span className="text-sm font-medium text-[#A52A2A] whitespace-nowrap">Filtrer par:</span>
             
             <div className="flex flex-col sm:flex-row gap-3 w-full">
-              {filters.map((filter) => (
-                <div key={filter.key} className="flex flex-col">
-                  <label className="text-xs text-gray-600 mb-1">{filter.label}</label>
-                  <select
-                    value={activeFilters[filter.key] || ''}
-                    onChange={(e) => {
-                      setActiveFilters(prev => ({
-                        ...prev,
-                        [filter.key]: e.target.value
-                      }));
-                      setCurrentPage(1);
-                    }}
-                    className="border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent"
-                  >
-                    <option value="">Tous</option>
-                    {filter.options.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ))}
+           
+{filters.map((filter) => (
+  <div key={filter.key} className="flex flex-col">
+    <label className="text-xs text-gray-600 mb-1">{filter.label}</label>
+    {filter.type === 'date' ? (
+      // Input date avec calendrier
+      <input
+        type="date"
+        value={activeFilters[filter.key] || ''}
+        onChange={(e) => {
+          setActiveFilters(prev => ({
+            ...prev,
+            [filter.key]: e.target.value
+          }));
+        }}
+        className="border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent"
+      />
+    ) : (
+      // Select normal pour les autres filtres
+      <select
+        value={activeFilters[filter.key] || ''}
+        onChange={(e) => {
+          setActiveFilters(prev => ({
+            ...prev,
+            [filter.key]: e.target.value
+          }));
+        }}
+        className="border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#A52A2A] focus:border-transparent"
+      >
+        {filter.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    )}
+  </div>
+))}
               
               {/* Bouton pour effacer les filtres */}
               {Object.values(activeFilters).some(Boolean) && (

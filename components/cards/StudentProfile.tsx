@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import QRCode from "react-qr-code";
+import  {genererCartesScolaires} from '@/lib/students';
 
 type StudentProfileProps = {
   student: Student & { presenceToken?: string };
@@ -25,18 +26,29 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
     setTimeout(() => onClose(), 300);
   };
 
-  const generatePDF = async () => {
-    if (cardRef.current) {
-      const canvas = await html2canvas(cardRef.current);
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF();
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${student.nom}_${student.prenom}.pdf`);
-    }
-  };
+const generatePDF = async () => {
+  try {
+    // Appel au backend pour générer la carte scolaire
+    const blob = await genererCartesScolaires([student.idStudent]);
+
+    // Création d'un lien de téléchargement
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `CarteScolaire_${student.nom}_${student.prenom}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+
+    // Nettoyage du lien temporaire
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+  } catch (error: any) {
+    console.error("Erreur lors du téléchargement de la carte scolaire:", error);
+    alert("Échec du téléchargement de la carte scolaire. Vérifie la console pour les détails.");
+  }
+};
+
 
   // Fonction pour formater les valeurs des champs personnalisés
   const formatCustomFieldValue = (field: CustomField): string => {

@@ -1,20 +1,19 @@
 import axios from 'axios';
-import { StudentRequest, StudentResponse,Student } from './types';
+import { Diplome, DiplomeResponse, StudentRequest, StudentResponse } from './types';
 import Cookies from 'js-cookie';
+import {getAuthHeaders} from "@/lib/auth";
+import { get } from 'http';
 
 const API_URL = 'http://localhost:8080/api/v1/admin/students';
 
 // Dans lib/students.ts
-export const fetchStudents = async (): Promise<Student[]> => {
+export const fetchStudents = async (): Promise<StudentResponse[]> => {
   const token = Cookies.get('token');
   if (!token) throw new Error('Token manquant');
 
   try {
     const response = await axios.get(`${API_URL}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     // Retourner directement le tableau d'étudiants
@@ -120,4 +119,98 @@ export const getProfilStudentById = async (id: string): Promise<StudentResponse>
   
 };
 
+export const genererCartesScolaires = async (idsEtudiants: string[]): Promise<Blob> => {
+  const token = Cookies.get('token');
+  if (!token) throw new Error('Token manquant');
+
+  try {
+    console.log("Envoi requête génération cartes pour:", idsEtudiants);
+    
+    const response = await axios.post(`${API_URL}/cards`, idsEtudiants, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      responseType: 'blob',
+      timeout: 30000, // 30 secondes timeout
+    });
+
+    console.log("Réponse reçue - Status:", response.status);
+    console.log("Headers:", response.headers);
+    console.log("Data type:", typeof response.data);
+    
+    // Vérifier le content-type
+    const contentType = response.headers['content-type'];
+    console.log("Content-Type:", contentType);
+    
+    if (!response.data || response.data.size === 0) {
+      throw new Error("Réponse vide du serveur");
+    }
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Erreur détaillée génération cartes scolaires:');
+    console.error('Status:', error.response?.status);
+    console.error('Data:', error.response?.data);
+    console.error('Headers:', error.response?.headers);
+    
+    if (error.response?.data instanceof Blob) {
+      // Si c'est un blob d'erreur, essayer de le lire
+      const errorText = await error.response.data.text();
+      console.error('Contenu erreur blob:', errorText);
+      throw new Error(errorText || 'Erreur serveur lors de la génération');
+    }
+    
+    throw new Error(error.response?.data?.message || error.message || 'Erreur génération cartes scolaires');
+  }
+};
+export const ajouterDiplome = async (studentId: string, diplome: DiplomeResponse): Promise<void> => {
+  const token = Cookies.get('token');
+  if (!token) throw new Error('Token manquant');
+
+  try {
+    await axios.post(`${API_URL}/${studentId}/diplomes`, diplome, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error: any) {
+    console.error('Erreur ajout diplôme:', error.response?.data || error);
+    throw new Error(error.response?.data?.message || 'Erreur ajout diplôme');
+  }
+};
+
+export const supprimerDiplome = async (studentId: string, diplomeId: string): Promise<void> => {
+  const token = Cookies.get('token');
+  if (!token) throw new Error('Token manquant');
+
+  try {
+    await axios.delete(`${API_URL}/${studentId}/diplomes/${diplomeId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error: any) {
+    console.error('Erreur suppression diplôme:', error.response?.data || error);
+    throw new Error(error.response?.data?.message || 'Erreur suppression diplôme');
+  }
+};
+
+export const consulterDiplomes = async (studentId: string): Promise<any[]> => {
+  const token = Cookies.get('token');
+  if (!token) throw new Error('Token manquant');
+
+  try {
+    const response = await axios.get(`${API_URL}/${studentId}/diplomes`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data?.data || [];
+  } catch (error: any) {
+    console.error('Erreur récupération diplômes:', error.response?.data || error);
+    throw new Error(error.response?.data?.message || 'Erreur récupération diplômes');
+  }
+};
 
