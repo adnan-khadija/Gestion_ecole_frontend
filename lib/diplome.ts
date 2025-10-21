@@ -173,3 +173,24 @@ export const generateQrCode = async (diplomeId: string): Promise<string> => {
     throw new Error(error.response?.data?.message || 'Erreur génération QR code');
   }
 };
+
+export const genererDiplomePDF = async (diplomeId: string): Promise<Blob> => {
+  const token = Cookies.get("token");
+  if (!token) throw new Error("Token manquant");
+
+  try {
+    const response = await axios.get(`${API_URL}/${diplomeId}/pdf`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/pdf",
+      },
+      responseType: "blob", // important pour récupérer un fichier binaire
+    });
+
+    return response.data; // Blob du PDF
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Erreur lors de la génération du PDF"
+    );
+  }
+};

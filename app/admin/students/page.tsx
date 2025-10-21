@@ -89,22 +89,17 @@ export default function EtudiantPage() {
     },
     { key: "nom", title: "Nom", render: (item) => <span className="text-gray-500">{item.nom}</span> },
     { key: "prenom", title: "Prénom", render: (item) => <span className="text-gray-500">{item.prenom}</span> },
-    { key: "dateNaissance", title: "Date Naissance", render: (item) => <span className="text-gray-500">{item.dateNaissance}</span> },
-    { key: "lieuNaissance", title: "Lieu Naissance", render: (item) => <span className="text-gray-500">{item.lieuNaissance}</span> },
     { key: "sexe", title: "Sexe", render: (item) => <span className="text-gray-500">{item.sexe}</span> },
     { key: "nationalite", title: "Nationalité", render: (item) => <span className="text-gray-500">{item.nationalite}</span> },
     { key: "telephone", title: "Téléphone", render: (item) => <span className="text-gray-500">{item.telephone}</span> },
     { key: "email", title: "Email", render: (item) => <span className="text-gray-500">{item.email}</span> },
     { key: "adresse", title: "Adresse", render: (item) => <span className="text-gray-500">{item.adresse}</span> },
     { key: "ville", title: "Ville", render: (item) => <span className="text-gray-500">{item.ville}</span> },
-    { key: "situationFamiliale", title: "Situation Familiale", render: (item) => <span className="text-gray-500">{item.situationFamiliale}</span> },
     { key: "niveau", title: "Niveau", render: (item) => <span className="text-gray-500">{item.niveau}</span> },
     { key: "groupe", title: "Groupe", render: (item) => <span className="text-gray-500">{item.groupe}</span> },
     { key: "anneeAcademique", title: "Année Académique", render: (item) => <span className="text-gray-500">{item.anneeAcademique}</span> },
     { key: "statut", title: "Statut", render: (item) => <span className="text-gray-500">{item.statut}</span> },
-    { key: "bourse", title: "Boursier", render: (item) => <span className="text-gray-500">{item.bourse ? "Oui" : "Non"}</span> },
-    { key: "handicap", title: "Handicap", render: (item) => <span className="text-gray-500">{item.handicap ? "Oui" : "Non"}</span> },
-  ];
+ ];
 
    const refreshStudents = async () => {
       const resStudents = await fetchStudents();

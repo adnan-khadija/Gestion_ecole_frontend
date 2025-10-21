@@ -342,17 +342,26 @@ export interface UserRequest {
   nom: string;
   prenom: string;
   telephone: string;
-  image?: string | null; 
+  image?: File | null; 
 }
+
 export interface UserUpdateRequest {
   email?: string;
   nom?: string;
   prenom?: string;
   telephone?: string;
-  image?: string | null; 
+  image?: File | null; 
 }
-export interface UserResponse extends UserRequest {
+
+export interface UserResponse  {
   idUser: string;
+   email: string;
+  password: string;
+  role: RoleUtilisateur;
+  nom: string;
+  prenom: string;
+  telephone: string;
+  image?: string | null;
 }
 
 export interface StudentRequest {

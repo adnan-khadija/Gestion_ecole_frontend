@@ -3,9 +3,7 @@
 import { Diplome } from "@/lib/types";
 import { FiX, FiDownload } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import { generateQrCode } from "@/lib/diplome";
+import { generateQrCode, genererDiplomePDF } from "@/lib/diplome";
 
 type DiplomeCardProps = {
   diplome: Diplome;
@@ -16,11 +14,11 @@ export default function DiplomeCard({ diplome, onClose }: DiplomeCardProps) {
   const [show, setShow] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [loadingQrCode, setLoadingQrCode] = useState(false);
+  const [loadingPDF, setLoadingPDF] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setShow(true);
-    // Charger le QR Code si le diplôme a un ID
     if (diplome.idDiplome) {
       loadQrCode();
     }
@@ -46,19 +44,33 @@ export default function DiplomeCard({ diplome, onClose }: DiplomeCardProps) {
   };
 
   const generatePDF = async () => {
-    if (cardRef.current) {
-      const canvas = await html2canvas(cardRef.current);
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF();
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${diplome.nomDiplome}_diplome.pdf`);
+    if (!diplome.idDiplome) {
+      alert("ID du diplôme manquant");
+      return;
+    }
+
+    setLoadingPDF(true);
+    try {
+      const pdfBlob = await genererDiplomePDF(diplome.idDiplome);
+      
+      // Créer un URL pour le blob et déclencher le téléchargement
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${diplome.nomDiplome || 'diplome'}_${diplome.anneeObtention || ''}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+    } catch (error: any) {
+      console.error("Erreur lors de la génération du PDF:", error);
+      alert(error.message || "Erreur lors de la génération du PDF");
+    } finally {
+      setLoadingPDF(false);
     }
   };
 
-  // Fonction pour formater la date
   const formatDate = (dateString?: string) => {
     if (!dateString) return "Non spécifié";
     return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -68,7 +80,6 @@ export default function DiplomeCard({ diplome, onClose }: DiplomeCardProps) {
     });
   };
 
-  // Nettoyer l'URL du QR Code lors du démontage du composant
   useEffect(() => {
     return () => {
       if (qrCodeUrl) {
@@ -107,14 +118,24 @@ export default function DiplomeCard({ diplome, onClose }: DiplomeCardProps) {
           </h2>
           <button
             onClick={generatePDF}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm"
+            disabled={loadingPDF || !diplome.idDiplome}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               backgroundColor: "#eb7c78ff",
               color: "#171717",
             }}
           >
-            <FiDownload />
-            PDF
+            {loadingPDF ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Génération...
+              </>
+            ) : (
+              <>
+                <FiDownload />
+                PDF
+              </>
+            )}
           </button>
         </div>
 
@@ -197,7 +218,7 @@ export default function DiplomeCard({ diplome, onClose }: DiplomeCardProps) {
               <div className="space-y-3">
                 <InfoRow label="Type de diplôme" value={diplome.typeDiplome} />
                 <InfoRow label="Niveau" value={diplome.niveau} />
-                <InfoRow label="Année d'obtention" value={diplome.anneeObtention} />
+                <InfoRow label="Année d'obtention" value={diplome.anneeObtention?.toString()} />
                 <InfoRow label="Mention" value={diplome.mention} />
                 <InfoRow 
                   label="Statut de validation" 
@@ -218,7 +239,7 @@ export default function DiplomeCard({ diplome, onClose }: DiplomeCardProps) {
               <div className="space-y-3">
                 <InfoRow label="Date de délivrance" value={formatDate(diplome.dateDelivrance)} />
                 <InfoRow label="Mode de remise" value={diplome.modeRemise} />
-                <InfoRow label="Signé par" value={diplome.signatureAdmin} />
+                <InfoRow label="Signé par" value={diplome.signatureAdmin?.nom} />
                 <InfoRow label="Fichier disponible" value={diplome.fichierDiplome ? "Oui" : "Non"} />
                 <InfoRow 
                   label="QR Code" 
@@ -335,9 +356,9 @@ export default function DiplomeCard({ diplome, onClose }: DiplomeCardProps) {
             <p className="text-sm" style={{ color: "#171717" }}>
               Ce diplôme peut être vérifié en scannant le QR Code ou en contactant l'administration.
             </p>
-            {diplome.id && (
+            {diplome.idDiplome && (
               <p className="text-xs mt-2" style={{ color: "#838380ff" }}>
-                ID du diplôme: {diplome.id}
+                ID du diplôme: {diplome.idDiplome}
               </p>
             )}
           </div>

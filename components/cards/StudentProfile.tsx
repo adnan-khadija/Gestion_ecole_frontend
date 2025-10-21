@@ -1,12 +1,14 @@
 "use client";
 
-import { Student, CustomField } from "@/lib/types";
-import { FiX, FiDownload } from "react-icons/fi";
+import { Student, CustomField, Diplome } from "@/lib/types";
+import { FiX, FiDownload, FiAward, FiCalendar, FiBook, FiPlus, FiTrash2 } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import QRCode from "react-qr-code";
-import  {genererCartesScolaires} from '@/lib/students';
+import { genererCartesScolaires, consulterDiplomes, ajouterDiplome, supprimerDiplome } from '@/lib/students';
+import toast from 'react-hot-toast';
+import { fetchDiplomes } from "@/lib/diplome";
 
 type StudentProfileProps = {
   student: Student & { presenceToken?: string };
@@ -15,56 +17,142 @@ type StudentProfileProps = {
 
 export default function StudentProfile({ student, onClose }: StudentProfileProps) {
   const [show, setShow] = useState(false);
+  const [diplomes, setDiplomes] = useState<Diplome[]>([]);
+  const [loadingDiplomes, setLoadingDiplomes] = useState(false);
+  const [showDiplomes, setShowDiplomes] = useState(false);
+  const [showAddDiplome, setShowAddDiplome] = useState(false);
+  const [availableDiplomes, setAvailableDiplomes] = useState<Diplome[]>([]);
+  const [loadingAvailableDiplomes, setLoadingAvailableDiplomes] = useState(false);
+  const [deletingDiplome, setDeletingDiplome] = useState<string | null>(null);
+  const [addingDiplome, setAddingDiplome] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setShow(true);
   }, []);
 
+  // Charger les diplômes de l'étudiant
+  const loadDiplomes = async () => {
+    try {
+      setLoadingDiplomes(true);
+      const diplomesData = await consulterDiplomes(student.idStudent);
+      setDiplomes(diplomesData);
+    } catch (error: any) {
+      console.error("Erreur chargement diplômes:", error);
+      toast.error("Erreur lors du chargement des diplômes");
+    } finally {
+      setLoadingDiplomes(false);
+    }
+  };
+
+  // Charger les diplômes disponibles
+  const loadAvailableDiplomes = async () => {
+    try {
+      setLoadingAvailableDiplomes(true);
+      const allDiplomes = await fetchDiplomes();
+      // Filtrer les diplômes que l'étudiant n'a pas déjà
+      const studentDiplomeIds = diplomes.map(d => d.idDiplome || d.id);
+      const available = allDiplomes.filter(diplome => 
+        !studentDiplomeIds.includes(diplome.idDiplome || diplome.id)
+      );
+      setAvailableDiplomes(available);
+    } catch (error: any) {
+      console.error("Erreur chargement diplômes disponibles:", error);
+      toast.error("Erreur lors du chargement des diplômes disponibles");
+    } finally {
+      setLoadingAvailableDiplomes(false);
+    }
+  };
+
+  // Charger les diplômes quand on ouvre la section
+  useEffect(() => {
+    if (showDiplomes && diplomes.length === 0) {
+      loadDiplomes();
+    }
+  }, [showDiplomes]);
+
+  // Charger les diplômes disponibles quand on ouvre la modale d'ajout
+  useEffect(() => {
+    if (showAddDiplome) {
+      loadAvailableDiplomes();
+    }
+  }, [showAddDiplome]);
+
   const handleClose = () => {
     setShow(false);
     setTimeout(() => onClose(), 300);
   };
 
-const generatePDF = async () => {
-  try {
-    // Appel au backend pour générer la carte scolaire
-    const blob = await genererCartesScolaires([student.idStudent]);
+  const generatePDF = async () => {
+    try {
+      // Appel au backend pour générer la carte scolaire
+      const blob = await genererCartesScolaires([student.idStudent]);
 
-    // Création d'un lien de téléchargement
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `CarteScolaire_${student.nom}_${student.prenom}.pdf`;
-    document.body.appendChild(a);
-    a.click();
+      // Création d'un lien de téléchargement
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `CarteScolaire_${student.nom}_${student.prenom}.pdf`;
+      document.body.appendChild(a);
+      a.click();
 
-    // Nettoyage du lien temporaire
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+      // Nettoyage du lien temporaire
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
-  } catch (error: any) {
-    console.error("Erreur lors du téléchargement de la carte scolaire:", error);
-    alert("Échec du téléchargement de la carte scolaire. Vérifie la console pour les détails.");
-  }
-};
+      toast.success("Carte scolaire générée avec succès !");
 
-
-  // Fonction pour formater les valeurs des champs personnalisés
-  const formatCustomFieldValue = (field: CustomField): string => {
-    if (field.fieldValue === null || field.fieldValue === undefined) return "Non défini";
-    
-    // Vérifier si c'est une valeur booléenne
-    if (field.fieldValue.toLowerCase() === 'true' || field.fieldValue.toLowerCase() === 'false') {
-      return field.fieldValue.toLowerCase() === 'true' ? 'Oui' : 'Non';
+    } catch (error: any) {
+      console.error("Erreur lors du téléchargement de la carte scolaire:", error);
+      toast.error("Échec du téléchargement de la carte scolaire");
     }
-    
-    // Vérifier si c'est une date
-    if (!isNaN(Date.parse(field.fieldValue))) {
-      return new Date(field.fieldValue).toLocaleDateString('fr-FR');
+  };
+
+  // Ajouter un diplôme à l'étudiant (NOUVELLE VERSION)
+  const handleAddDiplome = async (diplome: Diplome) => {
+    const diplomeId = diplome.idDiplome || diplome.id;
+    if (!diplomeId) {
+      toast.error("ID du diplôme manquant");
+      return;
     }
-    
-    return field.fieldValue;
+
+    try {
+      setAddingDiplome(diplomeId);
+      await ajouterDiplome(student.idStudent, diplomeId);
+      toast.success("Diplôme ajouté avec succès !");
+      setShowAddDiplome(false);
+      
+      // Recharger la liste des diplômes
+      await loadDiplomes();
+      
+    } catch (error: any) {
+      console.error("Erreur ajout diplôme:", error);
+      toast.error(error.message || "Erreur lors de l'ajout du diplôme");
+    } finally {
+      setAddingDiplome(null);
+    }
+  };
+
+  // Supprimer un diplôme
+  const handleDeleteDiplome = async (diplomeId: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce diplôme ?")) return;
+
+    try {
+      setDeletingDiplome(diplomeId);
+      await supprimerDiplome(student.idStudent, diplomeId);
+      toast.success("Diplôme supprimé avec succès !");
+      
+      // Mettre à jour la liste localement
+      setDiplomes(prev => prev.filter(d => 
+        (d.idDiplome || d.id) !== diplomeId
+      ));
+      
+    } catch (error: any) {
+      console.error("Erreur suppression diplôme:", error);
+      toast.error(error.message || "Erreur lors de la suppression du diplôme");
+    } finally {
+      setDeletingDiplome(null);
+    }
   };
 
   return (
@@ -95,17 +183,30 @@ const generatePDF = async () => {
           <h2 className="text-xl font-bold text-white text-center flex-1 mx-4">
             Profil de l'Étudiant
           </h2>
-          <button
-            onClick={generatePDF}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm"
-            style={{
-              backgroundColor: "#eb7c78ff",
-              color: "#171717",
-            }}
-          >
-            <FiDownload />
-            PDF
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowAddDiplome(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm hover:opacity-90"
+              style={{
+                backgroundColor: "#4CAF50",
+                color: "#171717",
+              }}
+            >
+              <FiPlus />
+              Diplôme
+            </button>
+            <button
+              onClick={generatePDF}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm hover:opacity-90"
+              style={{
+                backgroundColor: "#eb7c78ff",
+                color: "#171717",
+              }}
+            >
+              <FiDownload />
+              PDF
+            </button>
+          </div>
         </div>
 
         {/* Main Content */}
@@ -207,11 +308,61 @@ const generatePDF = async () => {
             </div>
           </div>
 
+          {/* Section Diplômes */}
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold" style={{ color: "#424444ff" }}>
+                Diplômes Obtenus
+              </h3>
+              <button
+                onClick={() => setShowDiplomes(!showDiplomes)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm hover:bg-gray-100"
+                style={{ color: "#ef130cff" }}
+              >
+                <FiAward />
+                {showDiplomes ? 'Masquer' : 'Afficher'} les diplômes
+              </button>
+            </div>
+
+            {showDiplomes && (
+              <div className="mt-4">
+                {loadingDiplomes ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ef130cff] mx-auto"></div>
+                    <p className="text-gray-500 mt-2">Chargement des diplômes...</p>
+                  </div>
+                ) : diplomes.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {diplomes.map((diplome) => (
+                      <DiplomeCard 
+                        key={diplome.idDiplome || diplome.id} 
+                        diplome={diplome}
+                        onDelete={handleDeleteDiplome}
+                        isDeleting={deletingDiplome === (diplome.idDiplome || diplome.id)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg">
+                    <FiAward className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+                    <p className="text-gray-500">Aucun diplôme obtenu</p>
+                    <button
+                      onClick={() => setShowAddDiplome(true)}
+                      className="mt-2 px-4 py-2 bg-[#4CAF50] text-white rounded-lg hover:bg-[#45a049] transition-colors"
+                    >
+                      Ajouter un diplôme
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Champs personnalisés */}
           {student.customFields && student.customFields.length > 0 && (
             <div
               className="rounded-xl p-6 shadow-inner"
-              style={{ backgroundColor: "#ccccccffs" }}
+              style={{ backgroundColor: "#ccccccff" }}
             >
               <h3 className="text-xl font-bold mb-4" style={{ color: "#424444ff" }}>
                 Informations Complémentaires
@@ -235,22 +386,103 @@ const generatePDF = async () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatCard 
               title="Diplômes" 
-              value={student.diplomes?.length || 0} 
+              value={diplomes.length} 
               color="#ef130cff"
+              icon={<FiAward />}
             />
             <StatCard 
               title="Modules" 
               value={student.modules?.length || 0} 
               color="#ccccccff"
+              icon={<FiBook />}
             />
             <StatCard 
               title="Absences" 
               value={student.absences?.length || 0} 
               color="#8a8a19"
+              icon={<FiCalendar />}
             />
           </div>
         </div>
       </div>
+
+      {/* Modale d'ajout de diplôme */}
+      {showAddDiplome && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold">Ajouter un diplôme</h2>
+                <button
+                  onClick={() => setShowAddDiplome(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <FiX size={24} />
+                </button>
+              </div>
+              <p className="text-gray-600 mt-1">Sélectionnez un diplôme à ajouter</p>
+            </div>
+
+            <div className="p-6">
+              {loadingAvailableDiplomes ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ef130cff] mx-auto"></div>
+                  <p className="text-gray-500 mt-2">Chargement des diplômes disponibles...</p>
+                </div>
+              ) : availableDiplomes.length > 0 ? (
+                <div className="space-y-3">
+                  {availableDiplomes.map((diplome) => {
+                    const diplomeId = diplome.idDiplome || diplome.id;
+                    const isAdding = addingDiplome === diplomeId;
+                    
+                    return (
+                      <div
+                        key={diplomeId}
+                        className={`border border-gray-200 rounded-lg p-4 cursor-pointer transition-colors ${
+                          isAdding ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+                        }`}
+                        onClick={() => !isAdding && handleAddDiplome(diplome)}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-bold text-lg">{diplome.nomDiplome}</h4>
+                            <p className="text-sm text-gray-600">{diplome.typeDiplome}</p>
+                            <p className="text-sm text-gray-500">Niveau: {diplome.niveau}</p>
+                            <p className="text-sm text-gray-500">Année: {diplome.anneeObtention}</p>
+                          </div>
+                          <button 
+                            className={`${
+                              isAdding ? 'text-blue-600' : 'text-green-600 hover:text-green-800'
+                            }`}
+                            disabled={isAdding}
+                          >
+                            {isAdding ? (
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                            ) : (
+                              <FiPlus size={20} />
+                            )}
+                          </button>
+                        </div>
+                        {isAdding && (
+                          <p className="text-blue-600 text-sm mt-2">Ajout en cours...</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <FiAward className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+                  <p className="text-gray-500">Aucun diplôme disponible à ajouter</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Tous les diplômes ont déjà été attribués à cet étudiant
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -293,13 +525,98 @@ interface StatCardProps {
   title: string;
   value: number;
   color: string;
+  icon?: React.ReactNode;
 }
 
-const StatCard = ({ title, value, color }: StatCardProps) => (
+const StatCard = ({ title, value, color, icon }: StatCardProps) => (
   <div className="bg-white rounded-lg p-4 shadow-md text-center">
-    <div className="text-3xl font-bold mb-1" style={{ color }}>
-      {value}
+    <div className="flex items-center justify-center gap-2 mb-2">
+      {icon}
+      <div className="text-3xl font-bold" style={{ color }}>
+        {value}
+      </div>
     </div>
     <div className="text-sm font-medium text-gray-600">{title}</div>
   </div>
 );
+
+// Composant pour afficher un diplôme
+interface DiplomeCardProps {
+  diplome: Diplome;
+  onDelete: (diplomeId: string) => void;
+  isDeleting?: boolean;
+}
+
+const DiplomeCard = ({ diplome, onDelete, isDeleting }: DiplomeCardProps) => {
+  const diplomeId = diplome.idDiplome || diplome.id;
+  
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow relative">
+      {/* Bouton de suppression */}
+      <button
+        onClick={() => onDelete(diplomeId)}
+        disabled={isDeleting}
+        className="absolute top-3 right-3 text-red-500 hover:text-red-700 disabled:opacity-50 transition-colors"
+        title="Supprimer le diplôme"
+      >
+        {isDeleting ? (
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
+        ) : (
+          <FiTrash2 size={16} />
+        )}
+      </button>
+
+      <div className="flex items-start justify-between mb-3 pr-6">
+        <div>
+          <h4 className="font-bold text-lg" style={{ color: "#424444ff" }}>
+            {diplome.nomDiplome}
+          </h4>
+          <p className="text-sm text-gray-600">{diplome.typeDiplome}</p>
+        </div>
+        {diplome.estValide && (
+          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+            Validé
+          </span>
+        )}
+      </div>
+      
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="font-medium" style={{ color: "#8a8a19" }}>Niveau:</span>
+          <span>{diplome.niveau}</span>
+        </div>
+        
+        <div className="flex justify-between">
+          <span className="font-medium" style={{ color: "#8a8a19" }}>Mention:</span>
+          <span>{diplome.mention}</span>
+        </div>
+        
+        <div className="flex justify-between">
+          <span className="font-medium" style={{ color: "#8a8a19" }}>Année:</span>
+          <span>{diplome.anneeObtention}</span>
+        </div>
+        
+        {diplome.dateDelivrance && (
+          <div className="flex justify-between">
+            <span className="font-medium" style={{ color: "#8a8a19" }}>Délivré le:</span>
+            <span>{new Date(diplome.dateDelivrance).toLocaleDateString('fr-FR')}</span>
+          </div>
+        )}
+        
+        {diplome.modeRemise && (
+          <div className="flex justify-between">
+            <span className="font-medium" style={{ color: "#8a8a19" }}>Mode:</span>
+            <span>{diplome.modeRemise}</span>
+          </div>
+        )}
+        
+        {diplome.commentaire && (
+          <div className="mt-2 pt-2 border-t border-gray-200">
+            <span className="font-medium" style={{ color: "#8a8a19" }}>Commentaire:</span>
+            <p className="text-gray-600 mt-1">{diplome.commentaire}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

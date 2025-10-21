@@ -164,20 +164,20 @@ export const genererCartesScolaires = async (idsEtudiants: string[]): Promise<Bl
     throw new Error(error.response?.data?.message || error.message || 'Erreur génération cartes scolaires');
   }
 };
-export const ajouterDiplome = async (studentId: string, diplome: DiplomeResponse): Promise<void> => {
+export const ajouterDiplome = async (studentId: string, diplomeId: string): Promise<void> => {
   const token = Cookies.get('token');
   if (!token) throw new Error('Token manquant');
 
   try {
-    await axios.post(`${API_URL}/${studentId}/diplomes`, diplome, {
+    await axios.post(`${API_URL}/${studentId}/diplomes/${diplomeId}`, {}, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
   } catch (error: any) {
-    console.error('Erreur ajout diplôme:', error.response?.data || error);
-    throw new Error(error.response?.data?.message || 'Erreur ajout diplôme');
+    console.error('Erreur ajout diplôme existant:', error.response?.data || error);
+    throw new Error(error.response?.data?.message || 'Erreur ajout diplôme existant');
   }
 };
 

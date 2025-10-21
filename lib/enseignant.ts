@@ -1,8 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { EnseignantRequest, EnseignantResponse, Utilisateur } from "./types";
-import { getUserById } from "./auth";
-
+import { getUserById,getAuthHeaders } from "./auth";
 const API_URL = "http://localhost:8080/api/v1/admin/enseignants";
 
 export const fetchEnseignants = async (): Promise<(EnseignantResponse & { user: Utilisateur })[]> => {
@@ -12,10 +11,7 @@ export const fetchEnseignants = async (): Promise<(EnseignantResponse & { user: 
   try {
     // Récupérer la liste des enseignants
     const response = await axios.get(`${API_URL}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
     });
 
     const enseignants: EnseignantResponse[] = response.data.data || [];
@@ -153,5 +149,95 @@ export const getEnseignantById = async (id: string): Promise<EnseignantResponse 
   } catch (error: any) {
     console.error("Erreur récupération enseignant:", error);
     throw new Error("Erreur récupération enseignant");
+  }
+};
+export const assignerDiplome = async (
+  enseignantId: string,
+  diplomeId: string
+): Promise<EnseignantResponse> => {
+  const token = Cookies.get("token");
+  if (!token) throw new Error("Token manquant");
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/${enseignantId}/diplomes/${diplomeId}`,
+      {},
+      { headers: getAuthHeaders() }
+    );
+    return response.data.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Erreur lors de l'assignation du diplôme"
+    );
+  }
+};
+
+/**
+ * Assigner un module à un enseignant
+ */
+export const assignerModule = async (
+  enseignantId: string,
+  moduleId: string
+): Promise<EnseignantResponse> => {
+  const token = Cookies.get("token");
+  if (!token) throw new Error("Token manquant");
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/${enseignantId}/modules/${moduleId}`,
+      {},
+      { headers: getAuthHeaders() }
+    );
+    return response.data.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Erreur lors de l'assignation du module"
+    );
+  }
+};
+
+/**
+ * Retirer un diplôme d'un enseignant
+ */
+export const retirerDiplome = async (
+  enseignantId: string,
+  diplomeId: string
+): Promise<EnseignantResponse> => {
+  const token = Cookies.get("token");
+  if (!token) throw new Error("Token manquant");
+
+  try {
+    const response = await axios.delete(
+      `${API_URL}/${enseignantId}/diplomes/${diplomeId}`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Erreur lors du retrait du diplôme"
+    );
+  }
+};
+
+/**
+ * Retirer un module d'un enseignant
+ */
+export const retirerModule = async (
+  enseignantId: string,
+  moduleId: string
+): Promise<EnseignantResponse> => {
+  const token = Cookies.get("token");
+  if (!token) throw new Error("Token manquant");
+
+  try {
+    const response = await axios.delete(
+      `${API_URL}/${enseignantId}/modules/${moduleId}`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Erreur lors du retrait du module"
+    );
   }
 };

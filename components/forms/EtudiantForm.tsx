@@ -114,12 +114,25 @@ const StudentMultiStepForm: React.FC<StudentMultiStepFormProps> = ({
   }, [isEditing, studentToEdit, userToEdit]);
 
   // Étape 1: Création/mise à jour utilisateur
- const handleUserSubmit = async (e: React.FormEvent) => {
+const handleUserSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setLoading(true);
 
   try {
     let uid = userId;
+
+    // Préparer FormData pour upload
+    const formData = new FormData();
+    formData.append('email', userData.email);
+    formData.append('nom', userData.nom);
+    formData.append('prenom', userData.prenom);
+    formData.append('telephone', userData.telephone);
+    formData.append('password', userData.password);
+    formData.append('role', userData.role);
+
+    if (imageFile) {
+      formData.append('image', imageFile); // <-- fichier uploadé
+    }
 
     if (isEditing) {
       // Si l'ID utilisateur n'est pas défini, on le récupère via l'email
@@ -128,13 +141,14 @@ const StudentMultiStepForm: React.FC<StudentMultiStepFormProps> = ({
         if (!fetchedId) throw new Error('ID utilisateur introuvable via email');
         uid = fetchedId;
       }
-
       if (!uid) throw new Error('ID utilisateur manquant pour la mise à jour');
 
-      await updateUser(uid, userData);
+      // Appel updateUser modifié pour accepter FormData
+      await updateUser(uid, formData as any); 
       toast.success('Utilisateur mis à jour avec succès !');
     } else {
-      const newUser = await register(userData);
+      // Appel register modifié pour accepter FormData
+      const newUser = await register(formData as any);
       uid = (newUser as any).userId ?? (newUser as any).id;
       if (!uid) throw new Error('userId non renvoyé par le serveur');
       toast.success('Utilisateur créé avec succès !');
@@ -150,6 +164,7 @@ const StudentMultiStepForm: React.FC<StudentMultiStepFormProps> = ({
     setLoading(false);
   }
 };
+
 
 
   // Étape 2: Ajout/mise à jour étudiant
