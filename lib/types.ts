@@ -414,6 +414,30 @@ export interface BulkNoteRequest {
   enseignantId: string;
   notes: NoteRequest[];
 }
+export interface NoteModuleResponse {
+  moduleId: string;
+  moduleNom: string;
+  coefficient: number;
+  noteC1: number;
+  noteC2: number;
+  noteExamenTh: number;
+  noteExamenPr: number;
+  moyenneModule: number;
+  moyennePonderee: number;
+}
+export interface BulletinResponse {
+  studentId: string;
+  studentNom: string;
+  studentPrenom: string;
+  matricule: string;
+  niveau: string;
+  anneeScolaire: string;
+  typeEvaluation: string;
+  notes: NoteModuleResponse[];
+  moyenneGenerale: number;
+  mention: string;
+  professeurResponsable: string;
+}
 
 // Interface principale EnseignantRequest
 export interface EnseignantRequest {

@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { BulkNoteRequest, NoteRequest, NoteResponse } from "./types";
+import { BulkNoteRequest, BulletinResponse, NoteRequest, NoteResponse } from "./types";
 import { getAuthHeaders } from "./auth";
 const API_URL = 'http://localhost:8080/api/v1/admin/notes';
 
@@ -130,7 +130,7 @@ export const downloadBulletinPDF = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      responseType: 'blob', // très important pour les fichiers binaires
+      responseType: 'blob',
     });
 
     const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));

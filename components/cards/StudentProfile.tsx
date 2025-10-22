@@ -1,7 +1,7 @@
 "use client";
 
-import { Student, CustomField, Diplome } from "@/lib/types";
-import { FiX, FiDownload, FiAward, FiCalendar, FiBook, FiPlus, FiTrash2 } from "react-icons/fi";
+import { Student, CustomField, Diplome, TypeNote, NoteResponse } from "@/lib/types";
+import { FiX, FiDownload, FiAward, FiCalendar, FiBook, FiPlus, FiTrash2, FiFileText } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -9,6 +9,9 @@ import QRCode from "react-qr-code";
 import { genererCartesScolaires, consulterDiplomes, ajouterDiplome, supprimerDiplome } from '@/lib/students';
 import toast from 'react-hot-toast';
 import { fetchDiplomes } from "@/lib/diplome";
+import { downloadBulletinPDF } from '@/lib/notes';
+import Cookies from 'js-cookie';
+import axios from 'axios';
 
 type StudentProfileProps = {
   student: Student & { presenceToken?: string };
@@ -25,6 +28,14 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
   const [loadingAvailableDiplomes, setLoadingAvailableDiplomes] = useState(false);
   const [deletingDiplome, setDeletingDiplome] = useState<string | null>(null);
   const [addingDiplome, setAddingDiplome] = useState<string | null>(null);
+  
+  // États pour le bulletin PDF
+  const [showBulletinForm, setShowBulletinForm] = useState(false);
+  const [selectedAnneeScolaire, setSelectedAnneeScolaire] = useState("");
+  const [selectedTypeNote, setSelectedTypeNote] = useState<TypeNote | "">("");
+  const [loadingBulletin, setLoadingBulletin] = useState(false);
+  const [anneesScolaires, setAnneesScolaires] = useState<string[]>([]);
+  
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,6 +75,19 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
     }
   };
 
+  // Charger les années scolaires disponibles
+  const fetchAnneesScolaires = async () => {
+    try {
+      // Vous pouvez remplacer par un appel API pour récupérer les années spécifiques à l'étudiant
+      // Pour l'instant, on utilise des années par défaut
+      setAnneesScolaires(["2023-2024", "2024-2025", "2025-2026"]);
+    } catch (error) {
+      console.error("Erreur chargement années scolaires:", error);
+      // Fallback aux années par défaut
+      setAnneesScolaires(["2023-2024", "2024-2025", "2025-2026"]);
+    }
+  };
+
   // Charger les diplômes quand on ouvre la section
   useEffect(() => {
     if (showDiplomes && diplomes.length === 0) {
@@ -77,6 +101,13 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
       loadAvailableDiplomes();
     }
   }, [showAddDiplome]);
+
+  // Charger les années scolaires quand on ouvre la modale bulletin
+  useEffect(() => {
+    if (showBulletinForm) {
+      fetchAnneesScolaires();
+    }
+  }, [showBulletinForm]);
 
   const handleClose = () => {
     setShow(false);
@@ -108,7 +139,30 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
     }
   };
 
-  // Ajouter un diplôme à l'étudiant (NOUVELLE VERSION)
+  // Fonction pour générer le bulletin PDF
+  const handleGenerateBulletin = async () => {
+    if (!selectedAnneeScolaire || !selectedTypeNote) {
+      toast.error("Veuillez sélectionner l'année scolaire et le type de note");
+      return;
+    }
+
+    setLoadingBulletin(true);
+    try {
+      await downloadBulletinPDF(student.idStudent, selectedAnneeScolaire, selectedTypeNote);
+      toast.success("Bulletin généré avec succès !");
+      setShowBulletinForm(false);
+      // Réinitialiser les sélections
+      setSelectedAnneeScolaire("");
+      setSelectedTypeNote("");
+    } catch (error: any) {
+      console.error("Erreur génération bulletin:", error);
+      toast.error(error.message || "Erreur lors de la génération du bulletin");
+    } finally {
+      setLoadingBulletin(false);
+    }
+  };
+
+  // Ajouter un diplôme à l'étudiant
   const handleAddDiplome = async (diplome: Diplome) => {
     const diplomeId = diplome.idDiplome || diplome.id;
     if (!diplomeId) {
@@ -184,12 +238,25 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
             Profil de l'Étudiant
           </h2>
           <div className="flex gap-2">
+            {/* Bouton Bulletin PDF */}
+            <button
+              onClick={() => setShowBulletinForm(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm hover:opacity-90"
+              style={{
+                backgroundColor: "#0d68ae",
+                color: "#ffffff",
+              }}
+            >
+              <FiFileText />
+              Bulletin PDF
+            </button>
+            
             <button
               onClick={() => setShowAddDiplome(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm hover:opacity-90"
               style={{
                 backgroundColor: "#4CAF50",
-                color: "#171717",
+                color: "#ffffff",
               }}
             >
               <FiPlus />
@@ -200,11 +267,11 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
               className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm hover:opacity-90"
               style={{
                 backgroundColor: "#eb7c78ff",
-                color: "#171717",
+                color: "#ffffff",
               }}
             >
               <FiDownload />
-              PDF
+              Carte PDF
             </button>
           </div>
         </div>
@@ -479,6 +546,167 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale de sélection pour le bulletin PDF - NOUVEAU DESIGN */}
+      {showBulletinForm && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300"
+          onClick={() => {
+            if (!loadingBulletin) {
+              setShowBulletinForm(false);
+              setSelectedAnneeScolaire("");
+              setSelectedTypeNote("");
+            }
+          }}
+        >
+          <div 
+            className={`bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-transform duration-300 ${
+              showBulletinForm ? "scale-100" : "scale-95"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header avec le même style que StudentProfile */}
+            <div
+              className="rounded-t-2xl p-5 flex justify-between items-center"
+              style={{ backgroundColor: "#8f8f8bff" }}
+            >
+              <button
+                onClick={() => {
+                  setShowBulletinForm(false);
+                  setSelectedAnneeScolaire("");
+                  setSelectedTypeNote("");
+                }}
+                className="text-white hover:text-gray-200 transition-colors"
+                disabled={loadingBulletin}
+              >
+                <FiX size={26} />
+              </button>
+              <h2 className="text-xl font-bold text-white text-center flex-1 mx-4">
+                Générer le Bulletin
+              </h2>
+              <div className="w-8"></div> {/* Espace pour l'équilibre */}
+            </div>
+
+            {/* Contenu de la modale */}
+            <div className="p-6 space-y-6">
+              {/* Informations de l'étudiant */}
+              <div className="text-center">
+                <h3 className="text-lg font-semibold" style={{ color: "#424444ff" }}>
+                  {student.prenom} {student.nom}
+                </h3>
+                <p className="text-sm" style={{ color: "#ef130cff" }}>
+                  {student.matricule} • {student.niveau}
+                </p>
+              </div>
+
+              {/* Formulaire de sélection */}
+              <div className="space-y-4">
+                {/* Sélection de l'année scolaire */}
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: "#8a8a19" }}>
+                    Année Scolaire *
+                  </label>
+                  <select
+                    value={selectedAnneeScolaire}
+                    onChange={(e) => setSelectedAnneeScolaire(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    disabled={loadingBulletin}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ backgroundColor: "#f8f9fa" }}
+                  >
+                    <option value="">Sélectionnez une année</option>
+                    {anneesScolaires.map((annee) => (
+                      <option key={annee} value={annee}>
+                        {annee}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Sélection du type de note */}
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: "#8a8a19" }}>
+                    Type d'Évaluation *
+                  </label>
+                  <select
+                    value={selectedTypeNote}
+                    onChange={(e) => setSelectedTypeNote(e.target.value as TypeNote)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    disabled={loadingBulletin}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ backgroundColor: "#f8f9fa" }}
+                  >
+                    <option value="">Sélectionnez un type</option>
+                    <option value="C1">Contrôle 1</option>
+                    <option value="C2">Contrôle 2</option>
+                    <option value="EXAMEN_TH">Examen Théorique</option>
+                    <option value="EXAMEN_PR">Examen Pratique</option>
+                    <option value="RATTRAPAGE">Rattrapage</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Informations supplémentaires */}
+              <div 
+                className="rounded-xl p-4"
+                style={{ backgroundColor: "#ccccccff" }}
+              >
+                <div className="flex items-start gap-3">
+                  <FiFileText className="mt-0.5" style={{ color: "#ef130cff" }} />
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: "#424444ff" }}>
+                      Information importante
+                    </p>
+                    <p className="text-xs mt-1" style={{ color: "#171717" }}>
+                      Le bulletin inclura toutes les notes de l'étudiant pour l'année 
+                      et le type d'évaluation sélectionnés.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Boutons d'action */}
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    setShowBulletinForm(false);
+                    setSelectedAnneeScolaire("");
+                    setSelectedTypeNote("");
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50 font-medium"
+                  disabled={loadingBulletin}
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleGenerateBulletin();
+                  }}
+                  disabled={loadingBulletin || !selectedAnneeScolaire || !selectedTypeNote}
+                  className="flex items-center gap-2 px-6 py-2 rounded-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: loadingBulletin ? "#8f8f8bff" : "#0d68ae",
+                    color: "#ffffff",
+                  }}
+                >
+                  {loadingBulletin ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Génération...
+                    </>
+                  ) : (
+                    <>
+                      <FiFileText />
+                      Générer le PDF
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
