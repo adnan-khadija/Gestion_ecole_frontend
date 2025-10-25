@@ -7,6 +7,7 @@ import { EmploiDuTempsResponse, JourSemaine, TypeSeance, ModuleResponse, Student
 import { fetchModulesByEnseignant, fetchStudentByModule } from '@/lib/modules';
 import { deleteEmploiDuTemps } from '@/lib/emploiDuTemps';
 import { fetchCurrentUser, fetchCurrentEnseignant } from '@/lib/auth';
+import { EmploiDuTempsFormEnseignant } from '@/components/forms/EmploiDuTempsEnseignantFom';
 
 // Mapping des jours de la semaine
 const JOURS_SEMAINE: Record<JourSemaine, string> = {
@@ -102,6 +103,10 @@ const Schedule = () => {
   const [loadingLists, setLoadingLists] = useState(true);
   const [currentEnseignantId, setCurrentEnseignantId] = useState<string>('');
 
+  // États pour le formulaire d'emploi du temps
+  const [showForm, setShowForm] = useState(false);
+  const [editingEmploi, setEditingEmploi] = useState<EmploiDuTempsResponse | null>(null);
+
   // Utilisation du hook emploi du temps - AUCUN FILTRE PAR DÉFAUT
   const { emplois, loading, error, refetch } = useEmploiDuTemps({
     type: searchType,
@@ -195,24 +200,28 @@ const Schedule = () => {
     }
   };
 
+  // Fonction appelée après la sauvegarde réussie du formulaire
+  const handleSaveSuccess = (emploi: EmploiDuTempsResponse) => {
+    setShowForm(false);
+    setEditingEmploi(null);
+    refetch(); // Recharger les données pour afficher les modifications
+    console.log('Emploi du temps sauvegardé:', emploi);
+  };
+
   // Fonction pour fermer le formulaire
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingEmploi(null);
   };
 
-  // Fonction appelée après la sauvegarde réussie
-  const handleSaveSuccess = () => {
-    setShowForm(false);
-    setEditingEmploi(null);
-    refetch(); // Recharger les données pour afficher les modifications
-  };
-
   // États pour l'interface
   const [searchTerm, setSearchTerm] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [editingEmploi, setEditingEmploi] = useState<EmploiDuTempsResponse | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+
+  // États pour l'affichage des étudiants d'un module
+  const [students, setStudents] = useState<Student[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [showStudentsModal, setShowStudentsModal] = useState(false);
 
   // Convertir les emplois du temps en activités pour l'affichage
   const convertEmploisToActivities = (emplois: EmploiDuTempsResponse[]) => {
@@ -261,11 +270,6 @@ const Schedule = () => {
     timeSlots: getUniqueTimeSlots().length > 0 ? getUniqueTimeSlots() : ['8h-10h', '10h-12h', '14h-16h', '16h-18h'],
     activities: filteredActivities
   };
-
-  // États pour l'affichage des étudiants d'un module
-  const [students, setStudents] = useState<Student[]>([]);
-  const [studentsLoading, setStudentsLoading] = useState(false);
-  const [showStudentsModal, setShowStudentsModal] = useState(false);
 
   const handleViewStudents = async (moduleId?: string) => {
     if (!moduleId) return;
@@ -513,38 +517,7 @@ const Schedule = () => {
           </div>
         )}
 
-        {/* Modal simple pour afficher la liste des étudiants */}
-        {showStudentsModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black opacity-40" onClick={() => setShowStudentsModal(false)} />
-            <div className="relative bg-white rounded-md p-4 w-11/12 max-w-2xl shadow-lg z-60">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-lg text-[#A52A2A]">Étudiants du module</h3>
-                <button onClick={() => setShowStudentsModal(false)} className="text-gray-500">Fermer</button>
-              </div>
-              {studentsLoading ? (
-                <div className="text-center py-8">Chargement...</div>
-              ) : (
-                <div className="max-h-80 overflow-auto">
-                  {students.length === 0 ? (
-                    <div className="text-center text-gray-500 py-6">Aucun étudiant trouvé</div>
-                  ) : (
-                    <ul className="space-y-2">
-                      {students.map(s => (
-                        <li key={s.idStudent} className="flex items-center justify-between p-2 border rounded">
-                          <div>
-                            <div className="font-medium">{s.nom} {s.prenom}</div>
-                            <div className="text-xs text-gray-500">{s.matricule} • {s.niveau} - {s.groupe}</div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+       
 
         {/* Message si aucun résultat */}
         {!loading && !loadingLists && emplois.length === 0 && !error && (
@@ -562,6 +535,16 @@ const Schedule = () => {
               Ajouter votre premier cours
             </button>
           </div>
+        )}
+
+        {/* FORMULAIRE EMPLOI DU TEMPS ENSEIGNANT */}
+        {showForm && (
+          <EmploiDuTempsFormEnseignant
+            onSave={handleSaveSuccess}
+            onCancel={handleCloseForm}
+            isEditing={!!editingEmploi}
+            initialData={editingEmploi || undefined}
+          />
         )}
         
       </div>
