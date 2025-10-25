@@ -25,6 +25,18 @@ interface EnseignantMultiStepFormProps {
   userToEdit?: Utilisateur;
 }
 
+// Fonction pour générer un mot de passe automatique
+const generateAutoPassword = (nom: string, prenom: string): string => {
+  // Prendre les 3 premières lettres du nom (en majuscules)
+  const nomPart = nom.slice(0, 3).toUpperCase();
+  
+  // Prendre les 3 premières lettres du prénom (en minuscules)
+  const prenomPart = prenom.slice(0, 3).toLowerCase();
+  
+  // Ajouter '@123' à la fin
+  return `${nomPart}${prenomPart}@123`;
+};
+
 const EnseignantMultiStepForm: React.FC<EnseignantMultiStepFormProps> = ({ 
   onSave, 
   onCancel, 
@@ -50,7 +62,7 @@ const EnseignantMultiStepForm: React.FC<EnseignantMultiStepFormProps> = ({
     nom: '',
     prenom: '',
     telephone: '',
-    password: 'Enseignant@1234',
+    password: '',
     role: RoleUtilisateur.ENSEIGNANT as RoleUtilisateur,
     image: '',
   });
@@ -166,6 +178,14 @@ const EnseignantMultiStepForm: React.FC<EnseignantMultiStepFormProps> = ({
     return heures;
   };
 
+  // Générer le mot de passe automatiquement quand le nom ou prénom change
+  useEffect(() => {
+    if (userData.nom && userData.prenom && !userData.password) {
+      const autoPassword = generateAutoPassword(userData.nom, userData.prenom);
+      setUserData(prev => ({ ...prev, password: autoPassword }));
+    }
+  }, [userData.nom, userData.prenom, userData.password]);
+
   // Charger les listes de diplômes et modules
   useEffect(() => {
     const loadSelectionData = async () => {
@@ -198,12 +218,15 @@ const EnseignantMultiStepForm: React.FC<EnseignantMultiStepFormProps> = ({
   // Pré-remplissage en mode édition
   useEffect(() => {
     if (isEditing && userToEdit) {
+      // Pour l'édition, on garde le mot de passe existant ou on génère un nouveau si vide
+      const password = userToEdit.password || generateAutoPassword(userToEdit.nom || '', userToEdit.prenom || '');
+      
       setUserData({
         email: userToEdit.email || '',
         nom: userToEdit.nom || '',
         prenom: userToEdit.prenom || '',
         telephone: userToEdit.telephone || '',
-        password: 'Enseignant@1234',
+        password: password,
         role: userToEdit.role || RoleUtilisateur.ENSEIGNANT,
         image: userToEdit.image || '',
       });
@@ -238,27 +261,63 @@ const EnseignantMultiStepForm: React.FC<EnseignantMultiStepFormProps> = ({
     }
   }, [isEditing, enseignantToEdit, userToEdit]);
 
+  // Fonction pour regénérer le mot de passe
+  const regeneratePassword = () => {
+    if (userData.nom && userData.prenom) {
+      const newPassword = generateAutoPassword(userData.nom, userData.prenom);
+      setUserData(prev => ({ ...prev, password: newPassword }));
+      toast.success('Nouveau mot de passe généré !');
+    } else {
+      toast.error('Veuillez d\'abord saisir le nom et le prénom');
+    }
+  };
+
   // Étape 1: Création/mise à jour utilisateur
   const handleUserSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (!userData.nom || !userData.prenom || !userData.email || !userData.telephone) {
+      toast.error('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+    
+    if (!userData.password) {
+      toast.error('Le mot de passe est requis');
+      return;
+    }
+
     setLoading(true);
 
     try {
       let uid = userId;
 
+      // Préparer FormData pour upload
+      const formData = new FormData();
+      formData.append('email', userData.email);
+      formData.append('nom', userData.nom);
+      formData.append('prenom', userData.prenom);
+      formData.append('telephone', userData.telephone);
+      formData.append('password', userData.password);
+      formData.append('role', userData.role);
+
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
       if (isEditing) {
+        // Si l'ID utilisateur n'est pas défini, on le récupère via l'email
         if (!uid && userData.email) {
           const fetchedId = await fetchUserIdByEmail(userData.email);
           if (!fetchedId) throw new Error('ID utilisateur introuvable via email');
           uid = fetchedId;
         }
-
         if (!uid) throw new Error('ID utilisateur manquant pour la mise à jour');
 
-        await updateUser(uid, userData);
+        await updateUser(uid, formData as any); 
         toast.success('Utilisateur mis à jour avec succès !');
       } else {
-        const newUser = await register(userData);
+        const newUser = await register(formData as any);
         uid = (newUser as any).userId ?? (newUser as any).id;
         if (!uid) throw new Error('userId non renvoyé par le serveur');
         toast.success('Utilisateur créé avec succès !');
@@ -325,7 +384,7 @@ const EnseignantMultiStepForm: React.FC<EnseignantMultiStepFormProps> = ({
         nom: '', 
         prenom: '', 
         telephone: '', 
-        password: 'Enseignant@1234', 
+        password: '',
         role: RoleUtilisateur.ENSEIGNANT,
         image: '' 
       });
@@ -500,6 +559,32 @@ const EnseignantMultiStepForm: React.FC<EnseignantMultiStepFormProps> = ({
               required
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
             />
+          </div>
+          
+          <div className="space-y-2">
+            <label className="block text-sm font-bold text-black">Mot de passe généré*</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                name="password"
+                value={userData.password}
+                onChange={handleUserChange}
+                required
+                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
+                placeholder="Généré automatiquement"
+                readOnly={!isEditing}
+              />
+              <button
+                type="button"
+                onClick={regeneratePassword}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm whitespace-nowrap"
+              >
+                Regénérer
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Format: 3 lettres du nom (MAJ) + 3 lettres du prénom (min) + @123
+            </p>
           </div>
           
           <div className="space-y-2 md:col-span-2">

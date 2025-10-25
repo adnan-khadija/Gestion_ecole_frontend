@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { FaSearch, FaTimes, FaSync, FaPlus, FaEdit, FaTrash, FaEllipsisV } from 'react-icons/fa';
 import { useEmploiDuTemps } from '../../hooks/useEmploiDuTemps';
-import { EmploiDuTempsResponse, JourSemaine, TypeSeance, ModuleResponse } from '@/lib/types';
-import { fetchModulesByEnseignant } from '@/lib/modules';
+import { EmploiDuTempsResponse, JourSemaine, TypeSeance, ModuleResponse, Student } from '@/lib/types';
+import { fetchModulesByEnseignant, fetchStudentByModule } from '@/lib/modules';
 import { deleteEmploiDuTemps } from '@/lib/emploiDuTemps';
 import { fetchCurrentUser, fetchCurrentEnseignant } from '@/lib/auth';
 
@@ -262,6 +262,27 @@ const Schedule = () => {
     activities: filteredActivities
   };
 
+  // États pour l'affichage des étudiants d'un module
+  const [students, setStudents] = useState<Student[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [showStudentsModal, setShowStudentsModal] = useState(false);
+
+  const handleViewStudents = async (moduleId?: string) => {
+    if (!moduleId) return;
+    try {
+      setStudentsLoading(true);
+      const data = await fetchStudentByModule(moduleId);
+      // Selon la shape renvoyée par l'API, adapter si besoin
+      setStudents(data as unknown as Student[]);
+      setShowStudentsModal(true);
+    } catch (err) {
+      console.error('Erreur chargement étudiants du module:', err);
+      alert('Impossible de charger les étudiants du module');
+    } finally {
+      setStudentsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FFF7EE] p-4">
       <div className="max-w-7xl mx-auto">
@@ -443,8 +464,9 @@ const Schedule = () => {
                     <div key={day} className="p-2 border-l border-gray-200 min-h-[100px] relative group">
                       {activity ? (
                         <div 
-                          className="p-3 rounded-md text-white h-full flex flex-col justify-between shadow-sm relative"
+                          className="p-3 rounded-md text-white h-full flex flex-col justify-between shadow-sm relative cursor-pointer"
                           style={{ backgroundColor: activity.color }}
+                          onClick={() => handleViewStudents(activity.originalEmploi.moduleId)}
                         >
                           {/* Menu d'actions */}
                           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -488,6 +510,39 @@ const Schedule = () => {
                 })}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Modal simple pour afficher la liste des étudiants */}
+        {showStudentsModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black opacity-40" onClick={() => setShowStudentsModal(false)} />
+            <div className="relative bg-white rounded-md p-4 w-11/12 max-w-2xl shadow-lg z-60">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-lg text-[#A52A2A]">Étudiants du module</h3>
+                <button onClick={() => setShowStudentsModal(false)} className="text-gray-500">Fermer</button>
+              </div>
+              {studentsLoading ? (
+                <div className="text-center py-8">Chargement...</div>
+              ) : (
+                <div className="max-h-80 overflow-auto">
+                  {students.length === 0 ? (
+                    <div className="text-center text-gray-500 py-6">Aucun étudiant trouvé</div>
+                  ) : (
+                    <ul className="space-y-2">
+                      {students.map(s => (
+                        <li key={s.idStudent} className="flex items-center justify-between p-2 border rounded">
+                          <div>
+                            <div className="font-medium">{s.nom} {s.prenom}</div>
+                            <div className="text-xs text-gray-500">{s.matricule} • {s.niveau} - {s.groupe}</div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

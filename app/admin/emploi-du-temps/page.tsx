@@ -95,7 +95,8 @@ const ActionMenu = ({ emploi, onEdit, onDelete }: ActionMenuProps) => {
 // Composant principal modifié
 const Schedule = () => {
   // États pour le type de recherche
-  const [searchType, setSearchType] = useState<'groupe' | 'enseignant' | 'module' | 'all'>('groupe');
+  // Par défaut afficher "tous" les emplois du temps au chargement
+  const [searchType, setSearchType] = useState<'groupe' | 'enseignant' | 'module' | 'all'>('all');
   const [groupeSearch, setGroupeSearch] = useState('');
   const [enseignantSearch, setEnseignantSearch] = useState('');
   const [moduleSearch, setModuleSearch] = useState('');

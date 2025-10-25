@@ -97,15 +97,11 @@ const elementsMenuParRole: Record<UserRole, MenuItem[]> = {
   
   ENSEIGNANT: [
     { 
-      nom: "Tableau de bord", 
+      nom: "Accueil", 
       icone: <FaHome className="text-lg" />, 
       lien: "/enseignant/dashboard"
     },
-    { 
-      nom: "Mes Cours", 
-      icone: <FaBook className="text-lg" />, 
-      lien: "/enseignant/mes-cours"
-    },
+  
     { 
       nom: "Emploi du temps", 
       icone: <FaCalendar className="text-lg" />, 
@@ -121,16 +117,8 @@ const elementsMenuParRole: Record<UserRole, MenuItem[]> = {
       icone: <FaTasks className="text-lg" />, 
       lien: "/enseignant/absences"
     },
-    { 
-      nom: "Mes Étudiants", 
-      icone: <FaUserGraduate className="text-lg" />, 
-      lien: "/enseignant/etudiants"
-    },
-    { 
-      nom: "Ressources", 
-      icone: <FaFileUpload className="text-lg" />, 
-      lien: "/enseignant/ressources"
-    },
+    
+  
   ],
   
   ETUDIANT: [

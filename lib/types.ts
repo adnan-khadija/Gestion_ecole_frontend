@@ -537,7 +537,7 @@ export interface NoteResponse {
 export interface AbsenceRequest{
   moduleId:string;
   date:string;
-  studentsIds:string[];
+  studentIds:string[];
   reason:AbsenceReason;
   justified:boolean;
 

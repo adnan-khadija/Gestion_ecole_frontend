@@ -1,4 +1,4 @@
-// services/absenceService.ts
+// lib/absence.ts
 import axios from 'axios';
 import { getAuthHeaders } from './auth';
 import { AbsenceRequest, AbsenceResponse } from './types';

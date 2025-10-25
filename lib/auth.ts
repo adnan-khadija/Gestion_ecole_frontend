@@ -83,8 +83,7 @@ export const register = async (user: Omit<UserRequest, 'id'>): Promise<UserRespo
     });
 
     const newUser: UserResponse = response.data.data;
-    Cookies.set('role', newUser.role, { expires: 1 });
-    Cookies.set('userId', newUser.userId, { expires: 1 });
+ 
 
     return newUser;
   } catch (error: any) {
