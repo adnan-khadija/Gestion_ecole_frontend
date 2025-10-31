@@ -3,31 +3,28 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   FaSearch, 
-  FaFilter, 
   FaEdit, 
   FaTrash, 
-  FaPlus, 
-  FaFileExport,
-  FaUserGraduate,
-  FaBook,
-  FaChartLine
+  FaPlus,
+  FaSort,
+  FaSortUp,
+  FaSortDown
 } from 'react-icons/fa';
-import { StudentResponse, ModuleResponse, NoteResponse, EnseignantResponse } from '@/lib/types';
+import { StudentResponse, ModuleResponse, NoteResponse, EnseignantResponse, TypeNote } from '@/lib/types';
 import { fetchNotesEnseignant, deleteNote } from '@/lib/notes';
 import { fetchCurrentUser, fetchCurrentEnseignant } from '@/lib/auth';
-import { fetchModulesByEnseignant,fetchStudentByModule  } from '@/lib/modules';
+import { fetchModulesByEnseignant, fetchStudentByModule } from '@/lib/modules';
 import toast from 'react-hot-toast';
 import NoteForm from '@/components/forms/NoteEnseignantForm';
+import NoteUpdateForm from '@/components/forms/NoteUpdateEnseignantForm';
 
 // Palette de couleurs
 const COLORS = {
-  CC: "#A52A2A",      // Marron
-  TD: "#D4A017",      // Or
-  TP: "#C0C0C0",      // Argent
-  ATELIER: "#FF0000", // Rouge
-  CONFERENCE: "#8B4513", // Brun
-  EXAM: "#8B4513",    // Brun pour les examens
-  PROJET: "#A52A2A"   // Marron pour les projets
+  C1: { bg: "#FEF3F2", text: "#D92D20", border: "#FDA29B" },
+  C2: { bg: "#FFFAEB", text: "#DC6803", border: "#FEC84B" },
+  EXAMEN_TH: { bg: "#F0F9FF", text: "#026AA2", border: "#84CAFF" },
+  EXAMEN_PR: { bg: "#F8F9FF", text: "#363F72", border: "#B1B5F8" },
+  RATTRAPAGE: { bg: "#F9F5FF", text: "#6938EF", border: "#D6BBFB" },
 };
 
 const NotesPage = () => {
@@ -41,7 +38,7 @@ const NotesPage = () => {
   const [selectedType, setSelectedType] = useState('');
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [editingNote, setEditingNote] = useState<NoteResponse | null>(null);
-  const [selectedStudents, setSelectedStudents] = useState<StudentResponse[]>([]);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
   // Charger les données de l'enseignant
   useEffect(() => {
@@ -100,20 +97,87 @@ const NotesPage = () => {
     loadStudentsForModule();
   }, [selectedModule]);
 
-  // Filtrer les notes
+  // Filtrer et trier les notes - CORRECTION DE LA RECHERCHE
   const filteredNotes = useMemo(() => {
-    return notes.filter(note => {
+    let filtered = notes.filter(note => {
+      // Vérification plus robuste pour la recherche
+      const searchLower = searchTerm.toLowerCase();
+      
       const matchesSearch = searchTerm === '' || 
-        note.student?.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        note.student?.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        note.moduleNom.toLowerCase().includes(searchTerm.toLowerCase());
+        (note.studentNom && note.studentNom.toLowerCase().includes(searchLower)) ||
+        (note.studentPrenom && note.studentPrenom.toLowerCase().includes(searchLower)) ||
+        (note.moduleNom && note.moduleNom.toLowerCase().includes(searchLower)) ||
+        (note.matricule && note.matricule.toLowerCase().includes(searchLower));
       
       const matchesModule = selectedModule === '' || note.moduleId === selectedModule;
-      const matchesType = selectedType === '' || note.typeEvaluation === selectedType;
+      const matchesType = selectedType === '' || note.typeNote === selectedType;
       
       return matchesSearch && matchesModule && matchesType;
     });
-  }, [notes, searchTerm, selectedModule, selectedType]);
+
+    // Tri
+    if (sortConfig !== null) {
+      filtered.sort((a, b) => {
+        let aValue: any, bValue: any;
+        
+        switch (sortConfig.key) {
+          case 'student':
+            aValue = `${a.studentNom || ''} ${a.studentPrenom || ''}`.toLowerCase().trim();
+            bValue = `${b.studentNom || ''} ${b.studentPrenom || ''}`.toLowerCase().trim();
+            break;
+          case 'module':
+            aValue = (a.moduleNom || '').toLowerCase();
+            bValue = (b.moduleNom || '').toLowerCase();
+            break;
+          case 'type':
+            aValue = a.typeNote || '';
+            bValue = b.typeNote || '';
+            break;
+          case 'valeur':
+            aValue = a.valeur || 0;
+            bValue = b.valeur || 0;
+            break;
+          default:
+            return 0;
+        }
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [notes, searchTerm, selectedModule, selectedType, sortConfig]);
+
+  // Gestion du tri
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Obtenir l'icône de tri
+  const getSortIcon = (key: string) => {
+    if (!sortConfig || sortConfig.key !== key) {
+      return <FaSort className="text-gray-400" />;
+    }
+    return sortConfig.direction === 'asc' ? 
+      <FaSortUp className="text-[#D4A017]" /> : 
+      <FaSortDown className="text-[#D4A017]" />;
+  };
+
+  // Obtenir les types de notes disponibles depuis les données
+  const availableTypes = useMemo(() => {
+    const types = Array.from(new Set(notes.map(note => note.typeNote))).filter(Boolean);
+    return types;
+  }, [notes]);
 
   // Ouvrir le formulaire pour ajouter une note
   const handleAddNote = () => {
@@ -180,29 +244,27 @@ const NotesPage = () => {
     }
   };
 
-  // Calculer les statistiques
-  const stats = useMemo(() => {
-    const totalNotes = filteredNotes.length;
-    const moyenneGenerale = totalNotes > 0 
-      ? filteredNotes.reduce((sum, note) => sum + note.valeur, 0) / totalNotes 
-      : 0;
-    
-    const notesParModule = modules.map(module => ({
-      module: module.nom,
-      count: filteredNotes.filter(note => note.moduleId === module.idModule).length
-    }));
-
-    return { totalNotes, moyenneGenerale, notesParModule };
-  }, [filteredNotes, modules]);
-
   // Obtenir la couleur pour un type d'évaluation
   const getTypeColor = (type: string) => {
-    return COLORS[type as keyof typeof COLORS] || COLORS.TD;
+    return COLORS[type as keyof typeof COLORS] || COLORS.C2;
   };
+
+  // Obtenir le libellé d'un type de note
+  const getTypeLabel = (typeKey: string) => {
+    return TypeNote[typeKey as keyof typeof TypeNote] || typeKey;
+  };
+
+  // Debug: Afficher les données chargées
+  useEffect(() => {
+    if (notes.length > 0) {
+      console.log('Notes chargées:', notes);
+      console.log('Première note:', notes[0]);
+    }
+  }, [notes]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4A017]"></div>
       </div>
     );
@@ -211,268 +273,285 @@ const NotesPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* En-tête */}
+        {/* Overlay semi-transparent quand le formulaire est ouvert */}
+        {showNoteForm && (
+          <div 
+            className="fixed inset-0 bg-transparent bg-opacity-50 z-40 transition-opacity duration-300"
+            onClick={() => setShowNoteForm(false)}
+          />
+        )}
+        
+        {/* En-tête simplifié */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Gestion des Notes</h1>
-              <p className="text-gray-600 mt-1">
-                {enseignant && `Enseignant: ${enseignant.prenom} ${enseignant.nom}`}
-              </p>
-            </div>
             
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={handleAddNote}
-                disabled={!selectedModule}
-                className="flex items-center gap-2 px-4 py-2 bg-[#D4A017] text-white rounded-lg hover:bg-[#B38C0F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <FaPlus />
-                Ajouter une note
-              </button>
-              
-              <button className="flex items-center gap-2 px-4 py-2 bg-[#A52A2A] text-white rounded-lg hover:bg-[#8B2323] transition-colors">
-                <FaFileExport />
-                Exporter
-              </button>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar - Filtres et statistiques */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Filtres */}
-            <div className="bg-white rounded-xl shadow-sm p-4">
-              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <FaFilter />
-                Filtres
-              </h3>
-              
-              <div className="space-y-4">
-                {/* Recherche */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Recherche
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Nom, prénom, module..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4A017] focus:border-[#D4A017]"
-                    />
-                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  </div>
+        {/* Contenu principal */}
+        <div className="space-y-6">
+          {/* Section Filtres et Recherche */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Recherche */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Recherche
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Nom, prénom, module, matricule..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4A017] focus:border-[#D4A017] transition-all"
+                  />
+                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 </div>
-
-                {/* Module */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Module
-                  </label>
-                  <select
-                    value={selectedModule}
-                    onChange={(e) => setSelectedModule(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4A017] focus:border-[#D4A017]"
-                  >
-                    <option value="">Tous les modules</option>
-                    {modules.map(module => (
-                      <option key={module.idModule} value={module.idModule}>
-                        {module.nom}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Type d'évaluation */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Type d'évaluation
-                  </label>
-                  <select
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4A017] focus:border-[#D4A017]"
-                  >
-                    <option value="">Tous les types</option>
-                    <option value="CC">Contrôle Continu</option>
-                    <option value="EXAM">Examen</option>
-                    <option value="TP">Travaux Pratiques</option>
-                    <option value="PROJET">Projet</option>
-                    <option value="TD">Travaux Dirigés</option>
-                    <option value="ATELIER">Atelier</option>
-                    <option value="CONFERENCE">Conférence</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Statistiques */}
-            <div className="bg-white rounded-xl shadow-sm p-4">
-              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <FaChartLine />
-                Statistiques
-              </h3>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                  <span className="text-sm font-medium text-blue-800">Total notes</span>
-                  <span className="text-lg font-bold text-blue-600">{stats.totalNotes}</span>
-                </div>
-                
-                <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                  <span className="text-sm font-medium text-green-800">Moyenne générale</span>
-                  <span className="text-lg font-bold text-green-600">
-                    {stats.moyenneGenerale.toFixed(2)}
-                  </span>
-                </div>
+                <p className="text-xs text-gray-500">
+                  Rechercher par nom, prénom, module ou matricule
+                </p>
               </div>
 
-              {/* Répartition par module */}
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Notes par module</h4>
-                <div className="space-y-2">
-                  {stats.notesParModule.map((item, index) => (
-                    <div key={index} className="flex justify-between text-sm">
-                      <span className="text-gray-600 truncate">{item.module}</span>
-                      <span className="font-medium text-gray-800">{item.count}</span>
-                    </div>
+              {/* Module */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Module
+                </label>
+                <select
+                  value={selectedModule}
+                  onChange={(e) => setSelectedModule(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4A017] focus:border-[#D4A017] transition-all"
+                >
+                  <option value="">Tous les modules</option>
+                  {modules.map(module => (
+                    <option key={module.idModule} value={module.idModule}>
+                      {module.nom}
+                    </option>
                   ))}
-                </div>
+                </select>
+              </div>
+
+              {/* Type d'évaluation */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Type d'évaluation
+                </label>
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4A017] focus:border-[#D4A017] transition-all"
+                >
+                  <option value="">Tous les types</option>
+                  {availableTypes.map(type => (
+                    <option key={type} value={type}>
+                      {getTypeLabel(type)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Bouton Ajouter */}
+              <div className="flex items-end">
+                <button
+                  onClick={handleAddNote}
+                  disabled={!selectedModule}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#D4A017] text-white rounded-lg hover:bg-[#B38C0F] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                >
+                  <FaPlus />
+                  Ajouter une note
+                </button>
               </div>
             </div>
           </div>
-
-          {/* Contenu principal - Liste des notes */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              {/* En-tête du tableau */}
-              <div className="p-4 border-b border-gray-200">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    Liste des Notes ({filteredNotes.length})
-                  </h2>
-                  <div className="text-sm text-gray-500">
-                    Module: {selectedModule ? modules.find(m => m.idModule === selectedModule)?.nom : 'Tous'}
-                  </div>
+       
+          {/* Liste des notes */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            {/* En-tête du tableau */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Liste des Notes ({filteredNotes.length})
+                </h2>
+                <div className="text-sm text-gray-500">
+                  {selectedModule && `Module: ${modules.find(m => m.idModule === selectedModule)?.nom}`}
+                  {selectedType && ` | Type: ${getTypeLabel(selectedType)}`}
+                  {!selectedModule && !selectedType && 'Tous les modules et types'}
+                  {searchTerm && ` | Recherche: "${searchTerm}"`}
                 </div>
               </div>
+            </div>
 
-              {/* Tableau des notes */}
-              <div className="overflow-x-auto">
-                {filteredNotes.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
-                    <FaBook className="text-4xl mx-auto mb-2 opacity-50" />
-                    <p>Aucune note trouvée</p>
-                    <p className="text-sm mt-1">
-                      {selectedModule ? 'Aucune note pour ce module' : 'Utilisez les filtres pour voir les résultats'}
-                    </p>
+            {/* Tableau des notes */}
+            <div className="overflow-x-auto">
+              {filteredNotes.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FaSearch className="text-gray-400 text-xl" />
                   </div>
-                ) : (
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <p className="text-lg font-medium text-gray-900 mb-2">Aucune note trouvée</p>
+                  <p className="text-gray-600">
+                    {searchTerm 
+                      ? `Aucun résultat pour "${searchTerm}"` 
+                      : selectedModule || selectedType 
+                        ? 'Aucune note ne correspond aux filtres sélectionnés.' 
+                        : 'Sélectionnez un module pour commencer à ajouter des notes.'
+                    }
+                  </p>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th 
+                        className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('student')}
+                      >
+                        <div className="flex items-center gap-2">
                           Étudiant
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {getSortIcon('student')}
+                        </div>
+                      </th>
+                      <th 
+                        className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('module')}
+                      >
+                        <div className="flex items-center gap-2">
                           Module
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {getSortIcon('module')}
+                        </div>
+                      </th>
+                      <th 
+                        className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('type')}
+                      >
+                        <div className="flex items-center gap-2">
                           Type
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {getSortIcon('type')}
+                        </div>
+                      </th>
+                      <th 
+                        className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('valeur')}
+                      >
+                        <div className="flex items-center gap-2">
                           Note
-                        </th>
-                       
-                
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {filteredNotes.map((note) => (
-                        <tr key={note.idNote} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-[#D4A017] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                {note.studentNom.charAt(0).toUpperCase()}
+                          {getSortIcon('valeur')}
+                        </div>
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredNotes.map((note) => (
+                      <tr 
+                        key={note.idNote} 
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-[#D4A017] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                              {(note.studentNom || '?').charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {note.studentNom || 'N/A'} {note.studentPrenom || ''}
                               </div>
-                              <div>
-                                <div className="font-medium text-gray-900">
-                                  {note.studentNom} {note.studentPrenom}
-                                </div>
-                               
+                              <div className="text-sm text-gray-500">
+                                {note.matricule || 'Sans matricule'}
                               </div>
                             </div>
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-600">
-                            {note.moduleNom}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span 
-                              className="inline-flex px-2 py-1 text-xs font-medium rounded-full"
-                              style={{
-                                backgroundColor: `${getTypeColor(note.typeNote)}20`,
-                                color: getTypeColor(note.typeNote)
-                              }}
-                            >
-                              {note.typeNote}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {note.moduleNom || 'N/A'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span 
+                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border"
+                            style={{
+                              backgroundColor: getTypeColor(note.typeNote || 'C2').bg,
+                              color: getTypeColor(note.typeNote || 'C2').text,
+                              borderColor: getTypeColor(note.typeNote || 'C2').border
+                            }}
+                          >
+                            {getTypeLabel(note.typeNote || 'C2')}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
                             <span className={`text-lg font-bold ${
-                              note.valeur >= 10 ? 'text-green-600' : 'text-red-600'
+                              (note.valeur || 0) >= 10 ? 'text-green-600' : 'text-red-600'
                             }`}>
-                              {note.valeur}/20
+                              {(note.valeur || 0).toFixed(2)}/20
                             </span>
-                          </td>
-                       
-                          <td className="px-4 py-3">
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleEditNote(note)}
-                                className="flex items-center gap-1 px-3 py-1 text-xs bg-[#D4A017] text-white rounded hover:bg-[#B38C0F] transition-colors"
-                              >
-                                <FaEdit />
-                                Modifier
-                              </button>
-                              <button
-                                onClick={() => handleDeleteNote(note)}
-                                className="flex items-center gap-1 px-3 py-1 text-xs bg-[#A52A2A] text-white rounded hover:bg-[#8B2323] transition-colors"
-                              >
-                                <FaTrash />
-                                Supprimer
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
+                            {(note.valeur || 0) >= 10 && (
+                              <span className="text-xs text-green-600 font-medium">✓</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditNote(note)}
+                              className="flex items-center gap-2 px-3 py-2 text-xs bg-[#D4A017] text-white rounded-lg hover:bg-[#B38C0F] transition-colors font-medium"
+                            >
+                              <FaEdit />
+                              Modifier
+                            </button>
+                            <button
+                              onClick={() => handleDeleteNote(note)}
+                              className="flex items-center gap-2 px-3 py-2 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                            >
+                              <FaTrash />
+                              Supprimer
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Formulaire de note */}
-        {showNoteForm && (
-          <NoteForm
-            moduleId={selectedModule}
-            moduleName={modules.find(m => m.idModule === selectedModule)?.nom || ''}
-            students={students}
-            onSuccess={handleFormSuccess}
-            onCancel={() => {
-              setShowNoteForm(false);
-              setEditingNote(null);
-            }}
-            existingNote={editingNote || undefined}
-          />
-        )}
+        {/* Formulaire de note en superposition à droite */}
+      
+{showNoteForm && (
+  <div className="fixed right-0 top-0 h-full w-1/2 max-w-2xl bg-white shadow-2xl border-l border-gray-200 z-50">
+    {editingNote ? (
+      <NoteUpdateForm
+        moduleId={selectedModule}
+        moduleName={modules.find(m => m.idModule === selectedModule)?.nom || ''}
+        students={students}
+        enseignantId={enseignant?.enseignantId || ''}
+        onSuccess={handleFormSuccess}
+        onCancel={() => {
+          setShowNoteForm(false);
+          setEditingNote(null);
+        }}
+        existingNote={editingNote}
+      />
+    ) : (
+      <NoteForm
+        moduleId={selectedModule}
+        moduleName={modules.find(m => m.idModule === selectedModule)?.nom || ''}
+        students={students}
+        onSuccess={handleFormSuccess}
+        onCancel={() => setShowNoteForm(false)}
+      />
+    )}
+  </div>
+)}
       </div>
     </div>
   );
