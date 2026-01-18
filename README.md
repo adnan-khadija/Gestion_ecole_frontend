@@ -161,7 +161,6 @@ Créez un fichier `.env.local` à la racine du projet :
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8080/api
-NEXT_PUBLIC_APP_NAME=ISEEM
 ```
 
 4. **Lancer le serveur de développement**
