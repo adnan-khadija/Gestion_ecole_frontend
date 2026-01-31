@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 // Couleurs personnalisées
 const PRIMARY_BROWN = "#A52A2A";
@@ -10,13 +11,35 @@ const SILVER = "#C0C0C0";
 const RED = "#FF0000";
 const LIGHT_GRAY = "#F5F5F5";
 
+// Page component wrapper (valid for Next.js App Router)
+export default function ProgrammesPage() {
+  const router = useRouter();
+
+  const handleSubmit = (data: any) => {
+    // TODO: Save programme to API
+    console.log('Programme data:', data);
+    // After successful save, navigate back or show success message
+    // router.push('/admin/programmes/list');
+  };
+
+  const handleCancel = () => {
+    // Navigate back or reset form
+    router.back();
+  };
+
+  return (
+    <ProgrammesForm onSubmit={handleSubmit} onCancel={handleCancel} />
+  );
+}
+
+// Internal component with props
 interface ProgrammesFormProps {
   onSubmit?: (data: any) => void;
   onCancel?: () => void;
   initialData?: any;
 }
 
-const ProgrammesForm = ({ onSubmit, onCancel, initialData }: ProgrammesFormProps) => {
+function ProgrammesForm({ onSubmit, onCancel, initialData }: ProgrammesFormProps) {
   const [formData, setFormData] = useState({
     programmeType: 'formation',
     duree: '',
@@ -264,6 +287,4 @@ const ProgrammesForm = ({ onSubmit, onCancel, initialData }: ProgrammesFormProps
 
     </form>
   );
-};
-
-export default ProgrammesForm;
+}

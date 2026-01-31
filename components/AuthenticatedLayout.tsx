@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/SideBar";
 import { Header } from "@/components/Header";
 
@@ -10,10 +11,12 @@ export default function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [showLayout, setShowLayout] = useState(true);
   
-  const noLayoutPages = ["/", "/connexion", "/inscription"];
-  
-  const showLayout = !noLayoutPages.includes(pathname);
+  useEffect(() => {
+    const noLayoutPages = ["/", "/connexion", "/inscription"];
+    setShowLayout(!noLayoutPages.includes(pathname));
+  }, [pathname]);
 
   if (!showLayout) {
     return <>{children}</>;
